@@ -8,6 +8,11 @@ import React from 'react';
 * Internal Dependancies
 */
 
+/*
+* Variables
+*/
+const socket = io();
+
 
 /*
 * React
