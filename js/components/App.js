@@ -8,12 +8,12 @@ import io from 'socket.io-client';
 /*
 * Internal Dependancies
 */
+import TopBar from './TopBar'
 
 /*
 * Variables
 */
 const socket = io();
-
 
 /*
 * React
@@ -21,9 +21,7 @@ const socket = io();
 export default class App extends React.Component {
   render() {
     return (
-      <div>
-        Hello
-      </div>
+      <TopBar />
     );
   }
 }
