@@ -18,14 +18,12 @@ export default class People extends React.Component {
   constructor(props) {
     super(props);
     this.state = {people: []}
-    socket.on('getPeople', (data)) => this.handelInitialData(data)
+    socket.on('getPeople', (data) => this.handelInitialData(data));
     socket.on('updatePeople', (newData) => this.handleStateChange(newData));
   }
 
   handelInitialData(data) {
     console.log(data)
-
-
   }
 
   handleStateChange(newData) {
