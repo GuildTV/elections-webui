@@ -28,6 +28,7 @@
     "react-bootstrap": "^0.28.2",
     "react-dom": "^0.14.0",
     "react-router": "^1.0.2",
+    "react-socket": "^0.1.4",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
     "thinky": "^2.2.4",

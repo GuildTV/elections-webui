@@ -3,12 +3,10 @@
 */
 
 import React from 'react';
-import io from 'socket.io-client';
 
 /*
 * Variables
 */
-const socket = io();
 
 /*
 * React

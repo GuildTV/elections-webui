@@ -2,6 +2,7 @@
 * External Dependancies
 */
 import React from 'react';
+import Socket from 'react-socket';
 
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import Navbar from 'react-bootstrap/lib/Navbar';
@@ -25,6 +26,7 @@ export default class TopBar extends React.Component {
   render() {
     return (
       <Navbar inverse>
+        <Socket.Socket />
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#">Guild Elections WebUI</a>

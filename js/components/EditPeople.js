@@ -3,7 +3,6 @@
 */
 
 import React from 'react';
-import io from 'socket.io-client';
 
 import Grid from 'react-bootstrap/lib/Grid';
 import Row from 'react-bootstrap/lib/Row';
@@ -18,7 +17,6 @@ import Person from './Person'
 /*
 * Variables
 */
-const socket = io();
 
 /*
 * React

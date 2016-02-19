@@ -3,13 +3,16 @@
 */
 
 import React from 'react';
-import io from 'socket.io-client';
+import Socket from 'react-socket';
 
 import Table from 'react-bootstrap/lib/Table';
+
 /*
 * Variables
 */
-const socket = io();
+
+const GetPeopleKey = "getPeople";
+const UpdatePeopleKey = "updatePeople";
 
 /*
 * React
@@ -18,12 +21,12 @@ export default class People extends React.Component {
   constructor(props) {
     super(props);
     this.state = {people: []}
-    socket.on('getPeople', (data) => this.handelInitialData(data));
-    socket.on('updatePeople', (newData) => this.handleStateChange(newData));
   }
 
   handelInitialData(data) {
-    console.log(data)
+    var people = JSON.parse(data);
+    
+    this.setState({ people });
   }
 
   handleStateChange(newData) {
@@ -45,7 +48,7 @@ export default class People extends React.Component {
   }
 
   componentDidMount() {
-    socket.emit('getPeople')
+    this.refs.sock.socket.emit(GetPeopleKey)
   }
 
   render() {
@@ -67,6 +70,8 @@ export default class People extends React.Component {
 
     return (
       <div>
+        <Socket.Event name={ GetPeopleKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
+        <Socket.Event name={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
         <Table>
           <thead>
             <tr>

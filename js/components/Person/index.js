@@ -4,7 +4,7 @@
 
 import React from 'react';
 import update from 'react-addons-update'
-import io from 'socket.io-client';
+import Socket from 'react-socket';
 
 import Input from 'react-bootstrap/lib/Input';
 import ButtonInput from 'react-bootstrap/lib/ButtonInput';
@@ -12,7 +12,8 @@ import ButtonInput from 'react-bootstrap/lib/ButtonInput';
 /*
 * Variables
 */
-const socket = io();
+
+const NewPersonKey = "newPerson";
 
 /*
 * React
@@ -84,12 +85,18 @@ export default class Person extends React.Component {
       manifesto: manifesto
     }
 
-    socket.emit('newPerson', data)
+    this.refs.sock.socket.emit(NewPersonKey, data)
+  }
+
+  handleDataSaved(){
+
   }
 
   render() {
     return (
       <div>
+        <Socket.Event name={ NewPersonKey } callback={ this.handleDataSaved } ref="sock"/>
+
         <form onSubmit={this.handleSubmit.bind(this)}>
           <Input type="text" label="First Name" onChange={this.handleFirstNameChange.bind(this)} />
           <Input type="text" label="Last Name" onChange={this.handleLastNameChange.bind(this)}/>
