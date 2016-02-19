@@ -58,7 +58,18 @@ export default class Dashboard extends React.Component {
         <Grid>
           <Row>
             <Col xs={12}>
-              <Input type="text" label="Search:" onChange={this.filterNames.bind(this)} ref="filter" />
+              <form className="form-horizontal">
+                <Input label="Search:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+                  <Row>
+                    <Col xs={10}>
+                      <Input type="text" onChange={this.filterNames.bind(this)} ref="filter"  />
+                    </Col>
+                    <Col xs={2}>
+                      <Button bsStyle="success" onClick={this.updateData.bind(this)}>Refresh Data</Button>
+                    </Col>
+                  </Row>
+                </Input>
+              </form>
               <hr />
 
               { peopleList }
