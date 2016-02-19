@@ -5,7 +5,7 @@
 import React from 'react';
 import Socket from 'react-socket';
 
-import Table from 'react-bootstrap/lib/Table';
+import { Table } from 'react-bootstrap';
 
 /*
 * Variables
@@ -25,7 +25,7 @@ export default class People extends React.Component {
 
   handelInitialData(data) {
     var people = JSON.parse(data);
-    
+
     this.setState({ people });
   }
 

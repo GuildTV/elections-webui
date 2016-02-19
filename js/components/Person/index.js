@@ -6,8 +6,7 @@ import React from 'react';
 import update from 'react-addons-update'
 import Socket from 'react-socket';
 
-import Input from 'react-bootstrap/lib/Input';
-import ButtonInput from 'react-bootstrap/lib/ButtonInput';
+import { Input, ButtonInput } from 'react-bootstrap';
 
 /*
 * Variables
