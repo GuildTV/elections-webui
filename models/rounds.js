@@ -1,4 +1,4 @@
-import thinky from './thinky';
+import thinky from '../thinky';
 
 import Election from 'elections'
 import Vote from 'votes'

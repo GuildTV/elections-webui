@@ -1,4 +1,4 @@
-export const webui_port = 8080;
+export const webui_port = 8088;
 
 export const thinky_options = {
   host: "localhost",

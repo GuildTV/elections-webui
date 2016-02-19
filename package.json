@@ -5,17 +5,19 @@
   "description": "A Web user interface for Guild elections Graphics",
   "author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
   "scripts": {
-    "start": "webpack -p && babel-node ./server.js"
+    "start": "webpack -p && ./node_modules/.bin/babel-node ./server.js"
   },
   "repository": {
     "type": "git",
     "url": ""
   },
   "dependencies": {
+    "babel-cli": "^6.5.1",
     "babel-core": "^6.0.12",
     "babel-loader": "^6.0.1",
     "babel-preset-es2015": "^6.0.12",
     "babel-preset-react": "^6.0.15",
+    "babel-preset-stage-0": "^6.5.0",
     "body-parser": "^1.13.3",
     "classnames": "^2.1.3",
     "express": "^4.13.1",
@@ -26,6 +28,8 @@
     "react-bootstrap": "^0.28.2",
     "react-dom": "^0.14.0",
     "react-router": "^1.0.2",
+    "socket.io": "^1.4.5",
+    "socket.io-client": "^1.4.5",
     "thinky": "^2.2.4",
     "webpack": "^1.12.1",
     "webpack-dev-server": "^1.12.1"
