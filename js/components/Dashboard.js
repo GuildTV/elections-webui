@@ -5,7 +5,7 @@
 import React from 'react';
 import {
   Grid, Row, Col, 
-  Input 
+  Input, Button
 } from 'react-bootstrap';
 import Socket from 'react-socket';
 
@@ -86,8 +86,12 @@ export default class Dashboard extends React.Component {
 class PersonEntry extends React.Component {
   render() {
     return (
-      <Col md={4} sm={6} xs={12}>
+      <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
         <p>{ this.props.data.firstName } { this.props.data.lastName }</p>
+        <p>
+          <Button>Lower Third</Button>
+          <Button>More</Button>
+        </p>
       </Col>
     );
   }
