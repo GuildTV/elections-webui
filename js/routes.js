@@ -1,11 +1,12 @@
 import React from 'react';
 import { IndexRoute, Route } from 'react-router';
 
-import App from './components/App';
+import EditPeople from './components/EditPeople';
+import Dashboard from './components/Dashboard';
 
 export default (
-  <Route
-    path="/"
-    component={App}
-  />
+  <Route>
+    <Route path="/people" component={EditPeople} />
+    <Route path="/" component={Dashboard} />
+  </Route>
 );
