@@ -3,7 +3,7 @@ export default function(Models, socket){
 
 
   socket.on('savePerson', (data) => {
-    console.log("Save Person: " + JSON.stringify(data));
+    console.log("Save Person: ", data.uid);
 
     if(data.id)
       return Person.filter({id: data.id}).run().then(function(people){

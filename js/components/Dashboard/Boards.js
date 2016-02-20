@@ -62,10 +62,10 @@ export default class Boards extends React.Component {
   render() {
     var sabbs = this.state.positions
       .filter(p => p.type == "candidateSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={{ id: p.id }} onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
     var nonSabbs = this.state.positions
       .filter(p => p.type == "candidateNonSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={{ id: p.id }} onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
 
     return (
       <div>
