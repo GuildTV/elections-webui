@@ -4,7 +4,10 @@ const bodyParser = require('body-parser');
 
 import { webui_port } from "./config"
 
-import Person from "./models"
+import positionController from './controllers/position';
+
+import Models from "./models"
+const { Person, Position } = Models;
 
 const app = express();
 
@@ -48,11 +51,21 @@ io.sockets.on('connection', (socket) => {
 
   });
 
+  positionController(Models, socket);
+
   socket.on('getPeople', () => {
     Person.run().then(function(data) {
       socket.emit('getPeople', JSON.stringify(data));
     }).error(function(error) {
       console.log("Error getting people: " + JSON.stringify(error))
+    });
+  });
+
+  socket.on('getPositions', () => {
+    Position.run().then(function(data) {
+      socket.emit('getPositions', JSON.stringify(data));
+    }).error(function(error) {
+      console.log("Error getting positions: " + JSON.stringify(error))
     });
   });
 
