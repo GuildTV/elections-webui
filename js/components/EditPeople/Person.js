@@ -29,6 +29,7 @@ export default class Person extends React.Component {
       lastName: '', 
       uid: '', 
       positionId: '', 
+      photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
       manifesto: {
         one: '', 
         two: '', 
@@ -47,6 +48,7 @@ export default class Person extends React.Component {
         lastName: '', 
         uid: '', 
         positionId: '', 
+        photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
         manifesto: {
           one: '', 
           two: '', 
@@ -97,12 +99,22 @@ export default class Person extends React.Component {
     this.setState(newState);
   }
 
+  handlePhotoChange(e){
+    var files = this.refs.fileUpload.getInputDOMNode().files;
+
+    var reader = new FileReader();
+    reader.onload = function(dat) {
+      this.setState({ photo: dat.target.result });
+    }.bind(this);
+    reader.readAsDataURL( files[0] );
+  }
+
   handleSubmit(e) {
     console.log(this.state);
 
     e.preventDefault();
 
-    let {firstName, lastName, uid, id, positionId, manifesto} = this.state;
+    let {firstName, lastName, uid, id, positionId, manifesto, photo} = this.state;
 
     if (!uid || !firstName || !lastName || !positionId) {
       //todo error handling
@@ -116,7 +128,8 @@ export default class Person extends React.Component {
       lastName,
       uid,
       positionId,
-      manifesto
+      manifesto,
+      photo
     }
 
     this.refs.sock.socket.emit(NewPersonKey, data)
@@ -157,6 +170,12 @@ export default class Person extends React.Component {
           <Input type="text" label="Third Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Third manifesto point" 
             onChange={this.handleThirdManifestoPointChange.bind(this)} value={this.state.manifesto.three} />
 
+          <Input type="file" label="Photo" labelClassName="col-xs-2" wrapperClassName="col-xs-10" ref="fileUpload"
+            onChange={this.handlePhotoChange.bind(this)} accept="image/png" />
+          <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+            <img src={this.state.photo} width="200px" height="200px" />
+          </Input>
+
           <Input type="text" label="Elected" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.elected?"yes":"no"} />
         </div>
       );
@@ -186,9 +205,6 @@ export default class Person extends React.Component {
             </Input>
 
             { candidateData }
-
-            TODO 
-             - photo
            
             <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
