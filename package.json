@@ -5,7 +5,7 @@
   "description": "A Web user interface for Guild elections Graphics",
   "author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
   "scripts": {
-    "start": "webpack -p && ./node_modules/.bin/babel-node ./server.js"
+    "start": "NODE_ENV=production ./node_modules/.bin/babel-node ./server.js"
   },
   "repository": {
     "type": "git",
