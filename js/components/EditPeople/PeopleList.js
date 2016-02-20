@@ -5,31 +5,31 @@
 import React from 'react';
 import Socket from 'react-socket';
 
-import { Table } from 'react-bootstrap';
+import { Table, Button } from 'react-bootstrap';
 
 /*
 * Variables
 */
 
 const GetPeopleKey = "getPeople";
-const UpdatePeopleKey = "updatePeople";
+const UpdatePeopleKey = "updatePerson";
 
 /*
 * React
 */
-export default class People extends React.Component {
+export default class PeopleList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {people: []}
   }
 
-  handelInitialData(data) {
-    var people = JSON.parse(data);
-
+  handelInitialData(people) {
     this.setState({ people });
   }
 
   handleStateChange(newData) {
+    console.log("PERSON", newData);
+
     let isNewPerson = true;
     let people = this.state.people.map((person) => {
       if (person.uid === newData.uid) {
@@ -58,12 +58,13 @@ export default class People extends React.Component {
       return (
         <tr key={ person.uid }>
           <td>{ person.uid }</td>
-          <td>{ person.profile }</td>
           <td>{ person.firstName }</td>
           <td>{ person.lastName }</td>
-          <td>{ person.type }</td>
-          <td>{ person.title }</td>
-          <td>{ person.candidate }</td>
+          <td>{ person.position?person.position.miniName:"ERROR" }</td>
+          <td>{ person.elected?"Y":"" }</td>
+          <td>
+            <Button onClick={this.props.onEdit} data={JSON.stringify(person)}>Edit</Button>
+          </td>
         </tr>
       );
     });
@@ -76,12 +77,11 @@ export default class People extends React.Component {
           <thead>
             <tr>
               <th>UID</th>
-              <th>Profile</th>
               <th>First Name</th>
               <th>Last Name</th>
-              <th>Type</th>
-              <th>Title</th>
-              <th>Candidate</th>
+              <th>Position</th>
+              <th>Elected</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>

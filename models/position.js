@@ -5,7 +5,8 @@ const type = thinky.type;
 let Position = thinky.createModel('Positions', {
   id: type.string(),
   type: type.string().enum([
-    "candidate",
+    "candidateSabb",
+    "candidateNonSabb",
     "other"
   ]),
   fullName: type.string(),

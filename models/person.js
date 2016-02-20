@@ -6,16 +6,10 @@ const type = thinky.type;
 let Person = thinky.createModel('People', {
   id: type.string(),
   uid: type.string(),
-  profile: type.string(),
-  type: type.string().enum([
-    "talent",
-    "candidate",
-    "officer"
-  ]),
+  photo: type.string(), // base64 encoded png
+  positionId: type.string(),
   firstName: type.string(),
   lastName: type.string(),
-  positionId: type.string(),
-  candidate: type.boolean(),
   elected: type.boolean(),
   manifestoPoints: {
     one: type.string(),

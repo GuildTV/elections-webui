@@ -6,7 +6,7 @@ import React from 'react';
 import update from 'react-addons-update'
 import Socket from 'react-socket';
 
-import { Input, ButtonInput } from 'react-bootstrap';
+import { Input, ButtonInput, Button} from 'react-bootstrap';
 
 /*
 * Variables
@@ -23,7 +23,7 @@ export default class Position extends React.Component {
 
     this.state = {
       id: undefined,
-      type: 'candidate',
+      type: 'candidateSabb',
       fullName: '',
       compactName: '',
       miniName: ''
@@ -34,7 +34,7 @@ export default class Position extends React.Component {
     if(data === null || data === undefined){
       this.setState({
         id: undefined,
-        type: 'candidate',
+        type: 'candidateSabb',
         fullName: '',
         compactName: '',
         miniName: ''
@@ -67,6 +67,7 @@ export default class Position extends React.Component {
 
     if (!fullName || !compactName || !miniName || !type) {
       //todo error handling
+      alert("Missing input data");
       return;
     }
 
@@ -80,17 +81,35 @@ export default class Position extends React.Component {
       <div>
         <Socket.Event name={ SavePositionKey } ref="sock"/>
 
-        <form onSubmit={this.handleSubmit.bind(this)}>
-          <Input type="select" label="Type" placeholder="Choose a type:" onChange={this.handleTypeChange.bind(this)} value={this.state.type}>
-            <option value="candidate">Candidate</option>
-            <option value="other">Other</option>
-          </Input>
+        <form className="form-horizontal" onSubmit={this.handleSubmit.bind(this)}>
+          <fieldset>
+            <legend>Edit position</legend>
 
-          <Input type="text" label="Full Name" onChange={this.handleFullNameChange.bind(this)} value={this.state.fullName} />
-          <Input type="text" label="Compact Name" onChange={this.handleCompactNameChange.bind(this)} value={this.state.compactName} />
-          <Input type="text" label="Mini Name" onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
+            <Input type="text" label="ID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.id} />
+            <Input type="select" label="Type" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a type:" 
+              onChange={this.handleTypeChange.bind(this)} value={this.state.type}>
+              <option value="candidateSabb">Candidate - Sabb</option>
+              <option value="candidateNonSabb">Candidate - Non Sabb</option>
+              <option value="other">Other</option>
+            </Input>
 
-          <ButtonInput type="submit" value="Save" bsStyle="primary" />
+            <Input type="text" label="Full Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
+              onChange={this.handleFullNameChange.bind(this)} value={this.state.fullName} />
+            <Input type="text" label="Compact Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
+              onChange={this.handleCompactNameChange.bind(this)} value={this.state.compactName} />
+            <Input type="text" label="Mini Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
+              onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
+
+
+            TODO:
+             - sidebarUseOfficer
+             - order
+
+            <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+              <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
+              <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>
+            </Input>
+          </fieldset>
         </form>
       </div>
     );

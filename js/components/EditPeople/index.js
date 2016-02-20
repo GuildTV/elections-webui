@@ -9,7 +9,7 @@ import { Grid, Row, Col } from 'react-bootstrap';
 /*
 * Internal Dependancies
 */
-import People from './People'
+import PeopleList from './PeopleList'
 import Person from './Person'
 
 /*
@@ -20,14 +20,23 @@ import Person from './Person'
 * React
 */
 export default class EditPeople extends React.Component {
+  LoadData(e){
+    var data = e.target.getAttribute('data');
+    data = JSON.parse(data);
+
+    console.log("Editing:", data.id);
+    
+    this.refs.edit.LoadForm(data);
+  }
+
   render() {
     return (
       <div>
         <Grid>
           <Row>
             <Col xs={12}>
-              <People />
-              <Person />
+              <PeopleList onEdit={this.LoadData.bind(this)} ref="list" />
+              <Person ref="edit" />
             </Col>
           </Row>
         </Grid>

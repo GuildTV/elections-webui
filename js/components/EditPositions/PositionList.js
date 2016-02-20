@@ -23,9 +23,7 @@ export default class PositionList extends React.Component {
     this.state = {positions: []}
   }
 
-  handelInitialData(data) {
-    var positions = JSON.parse(data);
-
+  handelInitialData(positions) {
     this.setState({ positions });
   }
 

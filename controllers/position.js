@@ -12,28 +12,29 @@ export default function(Models, socket){
         let position = positions[0]
         position.merge(data);
 
-        position.save(function(error, doc) {
-          if (error) {
-            console.log("Error saving new position: " + JSON.stringify(error));
-          }
-          else {
-            console.log("Position added to DB: "+ JSON.stringify(doc));
+        position.save().then(function(doc) {
+          // console.log("Position added to DB: ", doc);
 
-            socket.emit('updatePosition', position);
-          }
+          socket.emit('updatePosition', position);
+        }).error(function(error){
+          console.log("Error saving new position: ", error);
         });
       });
 
-    return Position.save(data).then(function(error, doc) {
-      if (error) {
-        console.log("Error saving new position: " + JSON.stringify(error));
-      }
-      else {
-        console.log("Position added to DB: "+ JSON.stringify(doc));
+    return Position.save(data).then(function(doc) {
+      // console.log("Position added to DB: ", doc);
 
-        socket.emit('updatePosition', position);
-      }
+      socket.emit('updatePosition', doc);
+    }).error(function(error){
+        console.log("Error saving new position: ", error);
     });
+  });
 
+  socket.on('getPositions', () => {
+    Position.run().then(function(data) {
+      socket.emit('getPositions', data);
+    }).error(function(error) {
+      console.log("Error getting positions: ", error)
+    });
   });
 }

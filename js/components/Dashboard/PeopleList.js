@@ -42,9 +42,7 @@ export default class PeopleList extends React.Component {
     this.setState({ filter });
   }
 
-  loadedNames(data){
-    var people = JSON.parse(data);
-
+  loadedNames(people){
     this.setState({ people });
     console.log(people);
   }

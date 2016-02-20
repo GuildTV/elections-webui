@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 import { webui_port } from "./config"
 
 import positionController from './controllers/position';
+import peopleController from './controllers/person';
 
 import Models from "./models"
 const { Person, Position } = Models;
@@ -29,46 +30,8 @@ io.sockets.on('connection', (socket) => {
     console.log('user disconnected');
   });
 
-  socket.on('newPerson', (data) => {
-    console.log("New Person: " + JSON.stringify(data));
-
-    if (data.type == "candidate") {
-      data.candidate = true
-    } else {
-      data.candidate = false
-    }
-
-    let person = new Person(data);
-
-    person.save(function(error, doc) {
-        if (error) {
-            console.log("Error saving new person: " + JSON.stringify(error))
-        }
-        else {
-            console.log("Person added to DB: "+ JSON.stringify(doc))
-        }
-    });
-
-  });
-
   positionController(Models, socket);
-
-  socket.on('getPeople', () => {
-    Person.run().then(function(data) {
-      socket.emit('getPeople', JSON.stringify(data));
-    }).error(function(error) {
-      console.log("Error getting people: " + JSON.stringify(error))
-    });
-  });
-
-  socket.on('getPositions', () => {
-    Position.run().then(function(data) {
-      socket.emit('getPositions', JSON.stringify(data));
-    }).error(function(error) {
-      console.log("Error getting positions: " + JSON.stringify(error))
-    });
-  });
-
+  peopleController(Models, socket);
 
 });
 

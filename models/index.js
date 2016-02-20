@@ -8,7 +8,7 @@ import Position from './position';
 // Rounds.belongsTo(Election, "election", "electionId", "id")
 // Rounds.hasMany(Vote, "votes", "id", "voteId");
 
-Position.belongsTo(Person, "position", "id", "positionId");
+Person.hasOne(Position, "position", "positionId", "id");
 
 export default {
   Person,
