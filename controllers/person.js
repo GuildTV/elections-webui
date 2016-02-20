@@ -18,7 +18,7 @@ export default function(Models, socket){
 
           // we need to send the position too, so data needs reloading
           Person.getJoin({position: true}).filter({id: doc.id}).run().then(function(people){
-            socket.emit('updatePerson', people);
+            socket.emit('updatePeople', people);
           });
         }).error(function(error){
           console.log("Error saving new person: ", error);
@@ -30,7 +30,7 @@ export default function(Models, socket){
 
       // we need to send the position too, so data needs reloading
       Person.getJoin({position: true}).filter({id: doc.id}).run().then(function(people){
-        socket.emit('updatePerson', people);
+        socket.emit('updatePeople', people);
       });
 
     }).error(function(error){
@@ -47,10 +47,44 @@ export default function(Models, socket){
   });
 
   socket.on('setWinner', data => {
+    return clearWinner(data).then(({ person, changed }) => {
 
+      person.elected = true;
+      person.save().then(() => {
+        console.log("Set winner:", person.uid);
+
+        changed.push(person);
+
+        socket.emit('updatePeople', changed);
+
+      }).error(err => {
+        console.log("Failed to set winner:", error);
+      })
+    });
   });
 
   socket.on('clearWinner', data => {
+    return clearWinner(data).then(({ person, changed }) => {
+      console.log("Clear winner:", person.uid);
 
+      socket.emit('updatePeople', changed);
+    });
   });
+
+
+  function clearWinner(data){
+    return Person.filter({ id: data.id }).run().then(people => {
+      let person = people[0];
+      //clear existing winner
+      return Person.filter({ 
+        positionId: person.positionId,
+        elected: true
+      }).update({ elected: false }).run().then((changed)=>{
+        return { 
+          person,
+          changed
+        };
+      });
+    });
+  }
 }

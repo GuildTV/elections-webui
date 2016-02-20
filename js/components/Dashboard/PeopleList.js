@@ -16,6 +16,7 @@ import PersonEntry from './PersonEntry';
 * Variables
 */
 const GetPeopleKey = "getPeople";
+const UpdatePeopleKey = "updatePeople";
 
 /*
 * React
@@ -37,6 +38,22 @@ export default class PeopleList extends React.Component {
     this.refs.sock.socket.emit(GetPeopleKey);
   }
 
+  handleStateChange(newData) {
+    console.log("PEOPLE", newData);
+
+    let people = this.state.people;
+    newData.map(person => {
+      var index = people.findIndex(p => p.uid == person.uid);
+      if(index >= 0)
+        people[index] = person;
+      else  
+        people.push(person);
+    });
+
+    console.log(people)
+    this.setState({people});
+  }
+
   filterNames(e){
     var filter = this.refs.filter.getValue();
     this.setState({ filter });
@@ -54,10 +71,10 @@ export default class PeopleList extends React.Component {
 
     $('.popover').remove();
 
-
     return (
       <div>
-        <Socket.Event name={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/> // TODO - listen to updatePeople
+        <Socket.Event name={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/>
+        <Socket.Event name={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
 
         <form className="form-horizontal">
           <Input label="Search:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">

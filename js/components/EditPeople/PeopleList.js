@@ -12,7 +12,7 @@ import { Table, Button } from 'react-bootstrap';
 */
 
 const GetPeopleKey = "getPeople";
-const UpdatePeopleKey = "updatePerson";
+const UpdatePeopleKey = "updatePeople";
 
 /*
 * React

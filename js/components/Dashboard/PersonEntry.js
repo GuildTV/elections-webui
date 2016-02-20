@@ -39,16 +39,12 @@ export default class PersonEntry extends React.Component {
     console.log("Setting winner:", this.props.data.id);
 
     this.props.refs.sock.socket.emit(SetWinnerKey, this.props.data);
-
-    //TODO - update client
   }
 
-  cleareWinner(e){
+  clearWinner(e){
     console.log("Clearing winner:", this.props.data.id);
 
     this.props.refs.sock.socket.emit(ClearWinnerKey, this.props.data);
-
-    //TODO - update client
   }
 
   render() {
@@ -57,7 +53,7 @@ export default class PersonEntry extends React.Component {
         <Button data-id="SidebarPhoto" onClick={this.runTemplate.bind(this)}>Sidebar - Photo</Button>
         <Button data-id="sidebarText" onClick={this.runTemplate.bind(this)}>Sidebar - Text</Button>
         {
-          this.props.data.elect ? 
+          this.props.data.elected ? 
             <Button onClick={this.clearWinner.bind(this)}>Clear Winner</Button> : 
             <Button onClick={this.setWinner.bind(this)}>Mark Winner</Button>
         }
