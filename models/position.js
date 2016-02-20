@@ -12,7 +12,8 @@ let Position = thinky.createModel('Positions', {
   fullName: type.string(),
   compactName: type.string(),
   miniName: type.string(),
-  sidebarUseOfficer: type.boolean()
+  sidebarUseOfficer: type.boolean(),
+  order: type.number().integer().min(0)
 });
 
 export default Position

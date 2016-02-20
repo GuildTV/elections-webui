@@ -5,6 +5,7 @@
 import React from 'react';
 import update from 'react-addons-update'
 import Socket from 'react-socket';
+import Switch from 'react-bootstrap-switch';
 
 import { Input, ButtonInput, Button} from 'react-bootstrap';
 
@@ -26,18 +27,23 @@ export default class Position extends React.Component {
       type: 'candidateSabb',
       fullName: '',
       compactName: '',
-      miniName: ''
+      miniName: '',
+      order: 9,
+      sidebarUseOfficer: true
     }
   }
 
   LoadForm(data){
+    console.log(data);
     if(data === null || data === undefined){
       this.setState({
         id: undefined,
         type: 'candidateSabb',
         fullName: '',
         compactName: '',
-        miniName: ''
+        miniName: '',
+        order: 9,
+        sidebarUseOfficer: true
       });
     } else {
       this.setState(data);
@@ -58,14 +64,22 @@ export default class Position extends React.Component {
     this.setState({type: e.target.value});
   }
 
+  handleOrderChange(e) {
+    this.setState({ order: parseInt(e.target.value) });
+  }
+  handleShowOfficerSidebarChange(s) {
+    this.setState({ sidebarUseOfficer: s });
+
+  }
+
   handleSubmit(e) {
     console.log(this.state);
 
     e.preventDefault();
 
-    let {fullName, compactName, miniName, type} = this.state
+    let {fullName, compactName, miniName, type, order} = this.state
 
-    if (!fullName || !compactName || !miniName || !type) {
+    if (!fullName || !compactName || !miniName || !type || !order) {
       //todo error handling
       alert("Missing input data");
       return;
@@ -100,10 +114,12 @@ export default class Position extends React.Component {
             <Input type="text" label="Mini Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
 
+            <Input type="number" label="Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
+              onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
 
-            TODO:
-             - sidebarUseOfficer
-             - order
+            <Input label="Show officer in sidebar" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+              <Switch onChange={this.handleShowOfficerSidebarChange.bind(this)} state={this.state.sidebarUseOfficer} />
+            </Input>
 
             <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Button type="submit" bsStyle="primary">Save</Button>&nbsp;

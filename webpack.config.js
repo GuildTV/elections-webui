@@ -3,7 +3,11 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: './js/app.js',
-  output: { path: __dirname + '/static', filename: '/app.js' },
+  output: { 
+    path: __dirname,
+    filename: 'static/app.js',
+    publicPath: "static"
+  },
   module: {
     loaders: [
       {

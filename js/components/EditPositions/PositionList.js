@@ -23,7 +23,25 @@ export default class PositionList extends React.Component {
     this.state = {positions: []}
   }
 
+  sortData(positions){
+    positions.sort((a,b) => {
+      if(a.type < b.type)
+        return -1;
+      if(a.type > b.type)
+        return 1;
+      
+      if(a.order < b.order)
+        return -1;
+      if(a.order > b.order)
+        return 1;
+      return 0;
+    });
+
+    return positions;
+  }
+
   handelInitialData(positions) {
+    positions = this.sortData(positions);
     this.setState({ positions });
   }
 
@@ -41,6 +59,9 @@ export default class PositionList extends React.Component {
     if(isNew) {
       positions.push(newData);
     }
+
+    positions = this.sortData(positions);
+
     console.log(positions)
     this.setState({positions});
   }
@@ -57,6 +78,7 @@ export default class PositionList extends React.Component {
           <td>{ pos.fullName }</td>
           <td>{ pos.compactName }</td>
           <td>{ pos.miniName }</td>
+          <td>{ pos.order }</td>
           <td>
             <Button onClick={this.props.onEdit} data={JSON.stringify(pos)}>Edit</Button>
           </td>
@@ -75,6 +97,7 @@ export default class PositionList extends React.Component {
               <th>Full</th>
               <th>Compact</th>
               <th>Mini</th>
+              <th>Order</th>
               <th></th>
             </tr>
           </thead>

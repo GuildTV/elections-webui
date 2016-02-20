@@ -37,9 +37,8 @@ io.sockets.on('connection', (socket) => {
 
 // Set Express routes.
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html');
-});
-
-app.get('/edit/people', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html');
+  if(process.env.NODE_ENV == "production")
+    res.sendFile(__dirname + '/views/index.html');
+  else
+    res.sendFile(__dirname + '/views/dev.html');
 });
