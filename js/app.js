@@ -15,7 +15,7 @@ document.body.appendChild(mountNode);
 
 var bodyStyle = {
   overflowY: "scroll",
-  maxHeight: "calc(100vh - 72px - 200px)"
+  height: "calc(100vh - 72px - 200px)"
 };
 
 ReactDOM.render(
