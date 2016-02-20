@@ -18,7 +18,7 @@ export default function(Models, socket){
 
           // we need to send the position too, so data needs reloading
           Person.getJoin({position: true}).filter({id: doc.id}).run().then(function(people){
-            socket.emit('updatePerson', people[0]);
+            socket.emit('updatePerson', people);
           });
         }).error(function(error){
           console.log("Error saving new person: ", error);
@@ -30,7 +30,7 @@ export default function(Models, socket){
 
       // we need to send the position too, so data needs reloading
       Person.getJoin({position: true}).filter({id: doc.id}).run().then(function(people){
-        socket.emit('updatePerson', people[0]);
+        socket.emit('updatePerson', people);
       });
 
     }).error(function(error){
@@ -46,4 +46,11 @@ export default function(Models, socket){
     });
   });
 
+  socket.on('setWinner', data => {
+
+  });
+
+  socket.on('clearWinner', data => {
+
+  });
 }

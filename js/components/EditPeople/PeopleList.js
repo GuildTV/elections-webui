@@ -28,21 +28,17 @@ export default class PeopleList extends React.Component {
   }
 
   handleStateChange(newData) {
-    console.log("PERSON", newData);
+    console.log("PEOPLE", newData);
 
-    let isNewPerson = true;
-    let people = this.state.people.map((person) => {
-      if (person.uid === newData.uid) {
-        isNewPerson = false;
-        return newData;
-      } else {
-        return person;
-      }
+    let people = this.state.people;
+    newData.map(person => {
+      var index = people.findIndex(p => p.uid == person.uid);
+      if(index >= 0)
+        people[index] = person;
+      else  
+        people.push(person);
     });
 
-    if(isNewPerson) {
-      people.push(newData);
-    }
     console.log(people)
     this.setState({people});
   }

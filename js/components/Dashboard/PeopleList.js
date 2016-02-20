@@ -57,7 +57,7 @@ export default class PeopleList extends React.Component {
 
     return (
       <div>
-        <Socket.Event name={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/>
+        <Socket.Event name={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/> // TODO - listen to updatePeople
 
         <form className="form-horizontal">
           <Input label="Search:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
