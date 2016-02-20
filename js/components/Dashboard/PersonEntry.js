@@ -60,13 +60,19 @@ export default class PersonEntry extends React.Component {
       </Popover>
     );
 
+    let isValid = this.props.data.position && this.props.data.position.type;
+    let isCandidate = isValid && this.props.data.position.type.indexOf('candidate') == 0;
+
+    if(!isValid)
+      return (<p></p>);
+
     return (
       <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
         <p>{ this.props.data.firstName } { this.props.data.lastName }</p>
         <p>
           <Button data-id="lowerThird" onClick={this.runTemplate.bind(this)}>Lower Third</Button>&nbsp;
           { 
-            this.props.data.candidate ?
+            isCandidate ?
             <OverlayTrigger container={this.props.parent} trigger="click" placement="right" overlay={ overlayContent }>
               <Button bsStyle="info">More</Button>
             </OverlayTrigger> :
