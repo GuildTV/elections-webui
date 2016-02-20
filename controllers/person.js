@@ -73,13 +73,18 @@ export default function(Models, socket){
 
 
   function clearWinner(data){
-    return Person.filter({ id: data.id }).run().then(people => {
+    return Person.getJoin({position: true}).filter({ id: data.id }).run().then(people => {
       let person = people[0];
       //clear existing winner
       return Person.filter({ 
         positionId: person.positionId,
         elected: true
       }).update({ elected: false }).run().then((changed)=>{
+        changed = changed.map(p => {
+          p.position = person.position
+          return p;
+        });
+
         return { 
           person,
           changed
