@@ -21,7 +21,7 @@ export default class Person extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {firstName: '', lastName: '', uid: '', type: '', title: '', manifesto: {one: '', two: '', three: ''}}
+    this.state = {firstName: '', lastName: '', uid: '', type: 'talent', title: 'Host', manifesto: {one: '', two: '', three: ''}}
   }
 
   handleFirstNameChange(e) {
