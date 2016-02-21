@@ -55,17 +55,18 @@ export default class Boards extends React.Component {
 
     this.refs.sock.socket.emit(RunTemplateKey, {
       template: e.target.getAttribute('data-id'),
-      data: e.target.getAttribute('data-data')
+      data: e.target.getAttribute('data-data'),
+      dataId: e.target.getAttribute('data-key')
     });
   }
 
   render() {
     var sabbs = this.state.positions
       .filter(p => p.type == "candidateSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
     var nonSabbs = this.state.positions
       .filter(p => p.type == "candidateNonSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
 
     return (
       <div>
@@ -74,16 +75,16 @@ export default class Boards extends React.Component {
 
         <h3>Winners</h3>
         <p>
-          <Button data-id="winnersAll" onClick={this.runTemplate.bind(this)} className="btn-lg">All</Button>
-          <Button data-id="winnersSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Sabbs</Button>
-          <Button data-id="winnersNonSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Non-Sabbs</Button>
+          <Button data-id="winnersAll" data-key="winnersAll" onClick={this.runTemplate.bind(this)} className="btn-lg">All</Button>
+          <Button data-id="winnersSabbs" data-key="winnersSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Sabbs</Button>
+          <Button data-id="winnersNonSabbs" data-key="winnersNonSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Non-Sabbs</Button>
         </p>
 
         <hr />
         <h3>Candidate Sequences</h3>
         <p>
-          <Button data-id="candidateSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Sabbs</Button>
-          <Button data-id="candidateNonSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Non-Sabbs</Button>
+          <Button data-id="candidateSabbs" data-key="candidateSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Sabbs</Button>
+          <Button data-id="candidateNonSabbs" data-key="candidateNonSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Non-Sabbs</Button>
         </p>
 
         <hr />

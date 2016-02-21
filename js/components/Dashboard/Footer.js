@@ -43,15 +43,13 @@ export default class Footer extends React.Component {
     super(props);
 
     this.state = {
-      state: "STOP",
+      state: "CLEAR",
       dataId: "",
-      templateId: ""
+      templateName: ""
     };
   }
 
   ChangeTemplateState(data){
-    data = JSON.parse(data);
-
     this.setState(data);
   }
 
@@ -76,11 +74,11 @@ export default class Footer extends React.Component {
           <Row style={{ height: "100%" }}>
             <Col xs={10}>
               <h3>Active: { this.state.dataId }</h3>
-              <h4>Template: { this.state.templateId }</h4>
-              <p><Button bsStyle="danger" disabled={ this.state.state == "STOP" } ref="clearBtn" onClick={this.KillButtonClick.bind(this)}>Kill</Button></p>
+              <h4>Template: { this.state.templateName }</h4>
+              <p><Button bsStyle="danger" disabled={ this.state.state == "CLEAR" } ref="clearBtn" onClick={this.KillButtonClick.bind(this)}>Kill</Button></p>
             </Col>
             <Col xs={2} style={{ height: "100%" }}>
-              <Button bsStyle="success" style={goButtonCss} disabled={ this.state.state != "WAIT" } ref="goBtn" onClick={this.GoButtonClick.bind(this)}>Go</Button>
+              <Button bsStyle="success" style={goButtonCss} disabled={ this.state.state != "CUE" } ref="goBtn" onClick={this.GoButtonClick.bind(this)}>Go</Button>
             </Col>
           </Row>
         </Grid>

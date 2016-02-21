@@ -31,7 +31,8 @@ export default class PersonEntry extends React.Component {
 
     this.props.refs.sock.socket.emit(RunTemplateKey, {
       template: e.target.getAttribute('data-id'),
-      data: this.props.data
+      data: { candidate: this.props.data },
+      dataId: this.props.data.uid
     });
   }
 
