@@ -1,28 +1,62 @@
 var net = require('net');
 
 var lastState = {};
+var pingInterval = null;
 
 var client = new net.Socket();
+client.setNoDelay(true);
+client.setTimeout(500);
+
+client.on('error', () => {
+  console.log("lost connection to cviz");
+
+  client.destroy();
+  client.unref();
+  client.connect(3456, "10.42.13.100", () => {
+    console.log("reconnected");
+  });
+});
+
 client.connect(3456, '10.42.13.100', function() {
   console.log('Connected to cviz');
+
+  pingInterval = setInterval(() => {
+    client.write("{}");
+  }, 300)
 });
 
 client.on('data', (data) => {
-  lastState = JSON.parse(data);
-  console.log("Received", lastState);
+  try {
+    if(data == "{}")
+      return;
+
+    lastState = JSON.parse(data);
+    console.log("Received", lastState);
+  } catch (e){
+  }
 });
 
 client.on('close', () => {
   console.log("Server has gone away!");
+  if(pingInterval != null){
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
 });
 
 export default function(Models, socket, config){
   socket.emit('templateState', lastState);
   
   client.on('data', (data) => {
-    data = JSON.parse(data);
+    try {
+      if(data == "{}")
+        return;
 
-    socket.emit('templateState', data);
+      data = JSON.parse(data);
+
+      socket.emit('templateState', data);
+    } catch (e){
+    }
   });
 
   socket.on('runTemplate', data => {
