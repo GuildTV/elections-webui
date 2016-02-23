@@ -82,7 +82,7 @@ export default function(Models, socket, config){
 
     } else {
       for(var key in data.data) {
-        templateData[key] = JSON.stringify(data.data[key]);
+        templateData[key] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data.data[key]) + "]]></componentData></templateData>";
       }
     }
 
