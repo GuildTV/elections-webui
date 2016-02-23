@@ -45,6 +45,8 @@ client.on('close', () => {
 });
 
 export default function(Models, socket, config){
+  let { Person, Position } = Models;
+
   socket.emit('templateState', lastState);
   
   client.on('data', (data) => {
@@ -80,7 +82,102 @@ export default function(Models, socket, config){
         + "</templateData>";
       }
 
-    } else {
+    } else if (data.template.toLowerCase() == "winnersall"){
+      getWinnersOfType(Person, "candidateSabb").then(function(sabbs){
+        getWinnersOfType(Person, "candidateNonSabb").then(function(people){
+          var half_length = Math.ceil(people.length / 2);  
+          var page1 = people.splice(0, half_length);
+
+
+          var compiledSabbs = {
+            candidates: sabbs
+          };
+          var compiledData = {
+            candidates: page1
+          };
+          var compiledData2 = {
+            candidates: people
+          };
+
+          templateData["nonsabbs1"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+          templateData["nonsabbs2"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>";
+          templateData["sabbs"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledSabbs) + "]]></componentData></templateData>";
+
+          client.write(JSON.stringify({
+            type: "LOAD",
+            filename: data.template,
+            templateData: templateData,
+            templateDataId: data.dataId
+          }));
+        });
+      });
+
+      return;
+    } else if (data.template.toLowerCase() == "winnersnonsabbs"){
+      getWinnersOfType(Person, "candidateNonSabb").then(function(people){
+        var half_length = Math.ceil(people.length / 2);  
+        var page1 = people.splice(0, half_length);
+
+
+        var compiledData = {
+          candidates: page1
+        };
+        var compiledData2 = {
+          candidates: people
+        };
+
+        templateData["data1"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+        templateData["data2"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>";
+
+        client.write(JSON.stringify({
+          type: "LOAD",
+          filename: data.template,
+          templateData: templateData,
+          templateDataId: data.dataId
+        }));
+      });
+
+      return;
+    } else if (data.template.toLowerCase() == "winnerssabbs"){
+      getWinnersOfType(Person, "candidateSabb").then(function(people){
+        var compiledData = {
+          candidates: people
+        };
+
+        templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+
+        client.write(JSON.stringify({
+          type: "LOAD",
+          filename: data.template,
+          templateData: templateData,
+          templateDataId: data.dataId
+        }));
+      });
+
+      return;
+    } else if (data.template.toLowerCase() == "candidateboard") {
+      var compiledData = {};
+      Position.filter({id: data.data}).run().then(function(positions){
+        if(positions.length == 0)
+          return;
+
+        compiledData.position = positions[0];
+
+        Person.filter({positionId: data.data}).run().then(function(people){
+          compiledData.candidates = people;
+
+          templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+
+          client.write(JSON.stringify({
+            type: "LOAD",
+            filename: data.template,
+            templateData: templateData,
+            templateDataId: data.dataId
+          }));
+        });
+      });
+      return;
+    }else {
       for(var key in data.data) {
         templateData[key] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data.data[key]) + "]]></componentData></templateData>";
       }
@@ -117,4 +214,13 @@ export default function(Models, socket, config){
   //   dataId: "ado-ben",
   //   templateId: "lowerThird"
   // }
+}
+
+function getWinnersOfType(Person, type){
+  return Person.getJoin({position: true}).filter({ 
+    elected: true, 
+    position: {
+      type: type
+    }
+  }).run();
 }
