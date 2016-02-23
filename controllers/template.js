@@ -64,8 +64,26 @@ export default function(Models, socket, config){
 
     // not pretty, but data needs to be passed as an object of strings
     var templateData = {};
-    for(var key in data.data) {
-      templateData[key] = JSON.stringify(data.data[key]);
+
+    if(data.template.toLowerCase() == "lowerthird"){
+      if(!data.data || !data.data.candidate)
+        return;
+
+      for(var key in data.data) {
+        var candidate = data.data[key];
+        var name = (candidate.firstName + " " + candidate.lastName).trim().toUpperCase();
+        var role = (candidate.position.fullName + (candidate.elected?" elect":"")).trim().toUpperCase();
+
+        templateData[key] =  "<templateData>"
+        + "<componentData id=\"f0\"><data id=\"text\" value=\"" + name + "\" /></componentData>"
+        + "<componentData id=\"f1\"><data id=\"text\" value=\"" + role + "\" /></componentData>"
+        + "</templateData>";
+      }
+
+    } else {
+      for(var key in data.data) {
+        templateData[key] = JSON.stringify(data.data[key]);
+      }
     }
 
     client.write(JSON.stringify({
