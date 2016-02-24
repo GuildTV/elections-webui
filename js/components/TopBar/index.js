@@ -20,15 +20,32 @@ import {
 /*
 * Variables
 */
+const RunTemplateKey = "runTemplate";
 
 /*
 * React
 */
 export default class TopBar extends React.Component {
+
+  runTemplate(e){
+    var target = e.target;
+    if(!e.target.hasAttribute('data-id'))
+      target = target.parentElement;
+
+    console.log("Running template:", target.getAttribute('data-id'));
+
+    this.refs.sock.socket.emit(RunTemplateKey, {
+      template: target.getAttribute('data-id'),
+      data: target.getAttribute('data-data'),
+      dataId: target.getAttribute('data-key')
+    });
+  }
+
   render() {
     return (
       <Navbar inverse>
         <Socket.Socket />
+        <Socket.Event name="test" ref="sock"/>
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#">Guild Elections WebUI</a>
@@ -36,6 +53,9 @@ export default class TopBar extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
+          <Nav>
+            <NavItem href="#" data-id="splitScreen" onClick={this.runTemplate.bind(this)}>SplitScreen</NavItem>
+          </Nav>
           <Nav pullRight>
             <NavDropdown eventKey={1} title="Edit" id="basic-nav-dropdown">
               <MenuItem eventKey={1.1} href="#">Dashboard</MenuItem>
