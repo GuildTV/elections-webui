@@ -27,6 +27,7 @@
     "gulp-util": "^3.0.7",
     "history": "^1.15.0",
     "jquery": "^2.2.0",
+    "linq": "^3.0.5",
     "lodash": "^3.10.1",
     "react": "^0.14.0",
     "react-addons-update": "^0.14.7",

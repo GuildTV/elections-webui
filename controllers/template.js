@@ -1,4 +1,5 @@
 var net = require('net');
+var linq = require('linq');
 
 var lastState = {};
 var pingInterval = null;
@@ -82,6 +83,41 @@ export default function(Models, socket, config){
         + "</templateData>";
       }
 
+    } else if (data.template.toLowerCase() == "candidatesabbs" || data.template.toLowerCase() == "candidatenonsabbs") {
+      var type = (data.template.toLowerCase() == "candidatesabbs") ? "candidateSabb" : "candidateNonSabb";
+      Person.getJoin({position: true}).filter({ 
+        position: {
+          type: type
+        }
+      }).run().then(function(people){
+        var grouped = linq.from(people)
+          .orderBy((x) => x.position.order)
+          .thenBy((x) => x.lastName)
+          .groupBy((x) => x.position.id)
+          .toArray();
+
+        var templateData = {};
+        var index = 1;
+        grouped.forEach((g) => {
+          var compiledData = {
+            candidates: g.toArray(),
+            position: g.first().position
+          };
+
+          templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+        });
+
+        console.log("Found " + (index-1) + " groups of candidates");
+
+        client.write(JSON.stringify({
+          type: "LOAD",
+          filename: data.template,
+          templateData: templateData,
+          templateDataId: data.dataId
+        }));
+      });
+
+      return;
     } else if (data.template.toLowerCase() == "winnersall"){
       getWinnersOfType(Person, "candidateSabb").then(function(sabbs){
         getWinnersOfType(Person, "candidateNonSabb").then(function(people){
