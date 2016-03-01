@@ -1,16 +1,21 @@
 import Person from './person';
 import Position from './position';
-// import Elections from './elections';
-// import Rounds from './rounds';
-// import Votes from './votes';
-//
-// Election.hasMany(Round, "rounds", "id", "electionId");
-// Rounds.belongsTo(Election, "election", "electionId", "id")
-// Rounds.hasMany(Vote, "votes", "id", "voteId");
+import Vote from './votes';
+import RoundElimination from './elimination';
 
 Person.hasOne(Position, "position", "positionId", "id");
 
+Vote.belongsTo(Person, "person", "personId", "id")
+
+Person.hasMany(Vote, "votes", "id", "personId");
+Position.hasMany(Vote, "votes", "id", "positionId");
+
+Position.hasMany(RoundElimination, "eliminations", "id", "positionId");
+Person.hasMany(RoundElimination, "eliminations", "id", "personId");
+
 export default {
   Person,
-  Position
+  Position,
+  Vote,
+  RoundElimination
 }

@@ -1,14 +1,13 @@
-import thinky from './thinky';
+import thinky from '../thinky';
 
-const r = thinky.r;
 const type = thinky.type;
 
-export default  let Round = thinky.createModel('round', {
+let Vote = thinky.createModel('vote', {
   id: type.string(),
-  roundId: type.string(),
-  electionId: type.string(),
-  votes: type.string()
+  positionId: type.string(),
+  personId: type.string(),
+  round: type.number().integer().min(0),
+  votes: type.number().integer().min(0)
 });
 
-Rounds.belongsTo(Election, "election", "electionId", "id")
-Rounds.hasMany(Vote, "votes", "id", "voteId");
+export default Vote;
