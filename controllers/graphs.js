@@ -59,6 +59,7 @@ export function setup(Models){
               }
 
               var compiledData = {
+                position: position,
                 labels: labels,
                 eliminated: eliminated,
                 votes: compiledVotes
