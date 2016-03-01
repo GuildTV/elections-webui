@@ -7,6 +7,7 @@ import { webui_port } from "./config"
 import positionController from './controllers/position';
 import peopleController from './controllers/person';
 import templateController from './controllers/template';
+import { setup as graphSetup } from './controllers/graphs';
 
 import Models from "./models"
 const { Person, Position } = Models;
@@ -22,6 +23,8 @@ const io = require('socket.io')(server);
 
 app.use(bodyParser.urlencoded({ extended: false } ));
 app.use(express.static('static'));
+
+graphSetup(Models);
 
 // Set socket.io listeners.
 io.sockets.on('connection', (socket) => {
