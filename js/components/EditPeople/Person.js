@@ -34,7 +34,8 @@ export default class Person extends React.Component {
         one: '', 
         two: '', 
         three: ''
-      }
+      },
+      order: 9
     };
   }
 
@@ -53,7 +54,8 @@ export default class Person extends React.Component {
           one: '', 
           two: '', 
           three: ''
-        }
+        },
+        order: 9
       });
     } else {
       this.setState(data);
@@ -99,6 +101,10 @@ export default class Person extends React.Component {
     this.setState(newState);
   }
 
+  handleOrderChange(e) {
+    this.setState({ order: parseInt(e.target.value) });
+  }
+
   handlePhotoChange(e){
     var files = this.refs.fileUpload.getInputDOMNode().files;
 
@@ -114,7 +120,7 @@ export default class Person extends React.Component {
 
     e.preventDefault();
 
-    let {firstName, lastName, uid, id, positionId, manifesto, photo} = this.state;
+    let {firstName, lastName, uid, id, positionId, manifesto, photo, order} = this.state;
 
     if (!uid || !firstName || !lastName || !positionId) {
       //todo error handling
@@ -129,7 +135,8 @@ export default class Person extends React.Component {
       uid,
       positionId,
       manifesto,
-      photo
+      photo,
+      order
     }
 
     this.refs.sock.socket.emit(NewPersonKey, data)
@@ -205,6 +212,9 @@ export default class Person extends React.Component {
             </Input>
 
             { candidateData }
+            
+            <Input type="number" label="Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
+              onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
            
             <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Button type="submit" bsStyle="primary">Save</Button>&nbsp;

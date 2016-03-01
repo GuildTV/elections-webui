@@ -92,6 +92,7 @@ export default function(Models, socket, config){
       }).run().then(function(people){
         var grouped = linq.from(people)
           .orderBy((x) => x.position.order)
+          .thenBy((x) => x.order)
           .thenBy((x) => x.lastName)
           .groupBy((x) => x.position.id)
           .toArray();

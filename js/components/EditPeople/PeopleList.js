@@ -23,7 +23,25 @@ export default class PeopleList extends React.Component {
     this.state = {people: []}
   }
 
+  sortData(people){
+    people.sort((a,b) => {
+      if(a.positionId < b.positionId)
+        return -1;
+      if(a.positionId > b.positionId)
+        return 1;
+      
+      if(a.order < b.order)
+        return -1;
+      if(a.order > b.order)
+        return 1;
+      return 0;
+    });
+
+    return people;
+  }
+
   handelInitialData(people) {
+    people = this.sortData(people);
     this.setState({ people });
   }
 
@@ -58,6 +76,7 @@ export default class PeopleList extends React.Component {
           <td>{ person.lastName }</td>
           <td>{ person.position?person.position.miniName:"ERROR" }</td>
           <td>{ person.elected?"Y":"" }</td>
+          <td>{ person.order }</td>
           <td>
             <Button onClick={this.props.onEdit} data={JSON.stringify(person)}>Edit</Button>
           </td>
@@ -77,6 +96,7 @@ export default class PeopleList extends React.Component {
               <th>Last Name</th>
               <th>Position</th>
               <th>Elected</th>
+              <th>Order</th>
               <th></th>
             </tr>
           </thead>

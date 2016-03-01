@@ -15,7 +15,8 @@ let Person = thinky.createModel('People', {
     one: type.string(),
     two: type.string(),
     three: type.string()
-  }
+  },
+  order: type.number().integer().min(0)
 });
 
 export default Person
