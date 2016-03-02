@@ -5,11 +5,12 @@
 import React from 'react';
 import {
   Grid, Row, Col,
-  Tabs, Tab 
+  Tabs, Tab
 } from 'react-bootstrap';
 
 import PeopleList from './PeopleList';
 import Boards from './Boards';
+import Elections from './Elections';
 import Footer from './Footer';
 
 /*
@@ -38,7 +39,9 @@ export default class Dashboard extends React.Component {
                   <Tab eventKey={2} title="Boards">
                     <Boards />
                   </Tab>
-                  <Tab eventKey={3} title="Tab 3" disabled>Tab 3 content</Tab>
+                  <Tab eventKey={3} title="Elections" >
+                    <Elections />
+                  </Tab>
                 </Tabs>
               </Col>
             </Row>
