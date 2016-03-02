@@ -5,14 +5,16 @@
 import React from 'react';
 import Socket from 'react-socket';
 import {
-  Table, Button, Grid, Row, Col
+  Table, Button, Grid, Row, Col,
+  Input
 } from 'react-bootstrap';
 
+import VotesTable from './VotesTable';
 /*
 * Variables
 */
-const GetElectionsKey = "getElections";
-
+const GetPositionKey = "getPositions";
+const UpdatePositionKey = "updatePosition";
 
 /*
 * React
@@ -20,52 +22,60 @@ const GetElectionsKey = "getElections";
 export default class Elections extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {elections: []}
+    this.state = {
+      currentRole: "",
+      positions: []
+    }
   }
 
-  componentDidMount() {
-    this.refs.sock.socket.emit(GetElectionsKey)
+  loadedPositionData(positions) {
+    var currentRole = positions[0].id;
+    this.setState({
+      positions,
+      currentRole
+    });
   }
 
-  addRound() {
+  handlePositionUpdate(newData) {
+    let isNew = true;
+    let positions = this.state.positions.map((pos) => {
+      if (pos.id === newData.id) {
+        isNew = false;
+        return newData;
+      } else {
+        return pos;
+      }
+    });
 
+    if(isNew) {
+      positions.push(newData);
+    }
+
+    this.setState({ positions });
   }
 
-  saveRound() {
-
+  handlePositionSelectionChange(e){
+    this.setState({currentRole: e.target.value});
   }
 
   render() {
+    var positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.fullName}</option>);
+
     return (
       <div>
-        <Grid>
-          <Row>
-            <h3>Sabbatiacl</h3>
-              <Col md={4}>
-                <h4>Role</h4>
-                <Table bordered>
-                  <thead>
-                    <tr>
-                      <th>Round #</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Place</th>
-                      <th>Votes</th>
-                      <th><Button bsStyle="danger" onClick={this.addRound.bind(this)}>Add Round</Button></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  <td>1</td>
-                  <td>Joel</td>
-                  <td>Garner</td>
-                  <td>2nd</td>
-                  <td>9001</td>
-                  <td><Button bsStyle="success" onClick={this.saveRound.bind(this)}>Save</Button></td>
-                  </tbody>
-              </Table>
-            </Col>
-          </Row>
-        </Grid>
+        <Socket.Event name={ GetPositionKey } callback={ this.loadedPositionData.bind(this) } ref="sock"/>
+        <Socket.Event name={ UpdatePositionKey } callback={ this.handlePositionUpdate.bind(this) } />
+
+        <form className="form-horizontal" onsubmit="return false">
+          <fieldset>
+            <Input type="select" label="Current position" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
+              onChange={this.handlePositionSelectionChange.bind(this)} value={this.state.currentRole}>
+              { positions }
+            </Input>
+          </fieldset>
+        </form>
+
+        <VotesTable position={this.state.currentRole} />
       </div>
     );
   }

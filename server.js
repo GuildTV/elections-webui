@@ -7,7 +7,7 @@ import { webui_port } from "./config"
 import positionController from './controllers/position';
 import peopleController from './controllers/person';
 import templateController from './controllers/template';
-import { setup as graphSetup } from './controllers/graphs';
+import { setup as graphSetup, bind as graphBind } from './controllers/graphs';
 
 import Models from "./models"
 const { Person, Position } = Models;
@@ -38,6 +38,7 @@ io.sockets.on('connection', (socket) => {
   peopleController(Models, socket);
 
   templateController(Models, socket)
+  graphBind(Models, socket);
 });
 
 // Set Express routes.
