@@ -15,6 +15,7 @@ import VotesTable from './VotesTable';
 */
 const GetPositionKey = "getPositions";
 const UpdatePositionKey = "updatePosition";
+const ChangeGraphKey = "changeGraph";
 
 /*
 * React
@@ -23,16 +24,17 @@ export default class Elections extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      dropdownRole: "",
       currentRole: "",
       positions: []
     }
   }
 
   loadedPositionData(positions) {
-    var currentRole = positions[0].id;
+    var dropdownRole = positions[0].id;
     this.setState({
       positions,
-      currentRole
+      dropdownRole
     });
   }
 
@@ -55,7 +57,13 @@ export default class Elections extends React.Component {
   }
 
   handlePositionSelectionChange(e){
-    this.setState({currentRole: e.target.value});
+    this.setState({dropdownRole: e.target.value});
+  }
+
+  handleChangePosition(e){
+    var currentRole = this.state.dropdownRole;
+    this.setState({ currentRole });
+    this.refs.sock.socket.emit(ChangeGraphKey, { role: currentRole });
   }
 
   render() {
@@ -68,9 +76,17 @@ export default class Elections extends React.Component {
 
         <form className="form-horizontal" onsubmit="return false">
           <fieldset>
-            <Input type="select" label="Current position" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
-              onChange={this.handlePositionSelectionChange.bind(this)} value={this.state.currentRole}>
-              { positions }
+            <Input label="Current position:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+              <Row>
+                <Col xs={10}>
+                  <Input type="select" onChange={this.handlePositionSelectionChange.bind(this)} value={this.state.dropdownRole}>
+                    { positions }
+                  </Input>
+                </Col>
+                <Col xs={2}>
+                  <Button bsStyle="success" onClick={this.handleChangePosition.bind(this)} >Change</Button>
+                </Col>
+              </Row>
             </Input>
           </fieldset>
         </form>

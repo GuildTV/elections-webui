@@ -1,5 +1,15 @@
 const config = require('../config');
 var linq = require('linq');
+var CasparCG = require("caspar-cg");
+
+var ccg = new CasparCG(config.ccgHost, config.ccgPort);
+ccg.on("connected", function () {
+  console.log("Connected to CasparCG");
+  //setup initial source
+
+  ccg.sendCommand("CLEAR 1-"+config.ccgGraphLayer+"");
+});
+ccg.connect();
 
 var io = null;
 var currentIds = [];
@@ -122,6 +132,21 @@ export function bind(Models, socket){
           io.graphEliminate(id);
         });
       }
+    });
+  });
+
+  socket.on('changeGraph', ({ role }) => {
+    let { Position } = Models;
+
+    Position.filter({ id: role }).run().then(function (positions){
+      if(!positions || positions.length == 0)
+        return;
+
+      ccg.sendCommand("CLEAR 1-"+config.ccgGraphLayer)
+      ccg.sendCommand("CG 1-"+config.ccgGraphLayer+" ADD 1 \"caspar-graphics/elections-2016-v2/graph\" 1 \"<templateData>"+
+        "<componentData id=\\\"id\\\"><data id=\\\"text\\\" value=\\\""+role+"\\\" /></componentData>"+
+        "<componentData id=\\\"server\\\"><data id=\\\"text\\\" value=\\\""+config.myGraphSocket+"\\\" /></componentData>"+
+        "</templateData>\"");
     });
   });
 

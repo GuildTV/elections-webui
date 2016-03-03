@@ -7,3 +7,9 @@ export const thinky_options = {
   port: 28015,
   db: "guild_elections"
 }
+
+export const myGraphSocket = "http://192.168.27.142:3355";
+
+export const ccgHost = "192.168.27.170";
+export const ccgPost = 5250;
+export const ccgGraphLayer = 500;

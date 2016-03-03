@@ -13,12 +13,12 @@ client.on('error', () => {
 
   client.destroy();
   client.unref();
-  client.connect(3456, "10.42.13.100", () => {
+  client.connect(3456, "192.168.27.170", () => {
     console.log("reconnected");
   });
 });
 
-client.connect(3456, '10.42.13.100', function() {
+client.connect(3456, '192.168.27.170', function() {
   console.log('Connected to cviz');
 
   pingInterval = setInterval(() => {
