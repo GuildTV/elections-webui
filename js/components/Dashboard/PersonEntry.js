@@ -49,10 +49,18 @@ export default class PersonEntry extends React.Component {
   }
 
   render() {
+    let hasManifestoPoints = this.props.data.manifesto.one.length > 2 || this.props.data.manifesto.two.length > 2 || this.props.data.manifesto.three.length > 2;
+
     var overlayContent = (
       <Popover title="More Templates" style={overlayCss}>
-        <Button data-id="SidebarPhoto" onClick={this.runTemplate.bind(this)}>Sidebar - Photo</Button>
-        <Button data-id="sidebarText" onClick={this.runTemplate.bind(this)}>Sidebar - Text</Button>
+        {
+          hasManifestoPoints ?
+            <span>
+              <Button data-id="SidebarPhoto" onClick={this.runTemplate.bind(this)}>Sidebar - Photo</Button>
+              <Button data-id="sidebarText" onClick={this.runTemplate.bind(this)}>Sidebar - Text</Button>
+            </span> :
+            ""
+        }
         {
           this.props.data.elected ? 
             <Button onClick={this.clearWinner.bind(this)}>Clear Winner</Button> : 
