@@ -137,7 +137,7 @@ export default class VotesTable extends React.Component {
 
     return (
       <tr>
-        <td>{ isEliminated?"":<Button bsStyle="danger" onClick={this.saveEliminate.bind(this)} data-id={index}>Eliminate</Button> }</td>
+        <td>{ isEliminated || label == "RON" ?"":<Button bsStyle="danger" onClick={this.saveEliminate.bind(this)} data-id={index}>Eliminate</Button> }</td>
         <td>{ label }</td>
         { roundData }
         <td>{ isEliminated?"":<Button bsStyle="success" onClick={this.saveVote.bind(this)} data-id={index}>Save</Button> }</td>
