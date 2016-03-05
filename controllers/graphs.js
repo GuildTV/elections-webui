@@ -14,6 +14,8 @@ ccg.connect();
 var io = null;
 var currentIds = [];
 
+var GRAPHROLE = {};
+
 export function setup(Models){
   let { Person, Position, Vote, RoundElimination } = Models;
 
@@ -75,7 +77,20 @@ export function bind(Models, socket){
       if(!votes || votes.length == 0){
         Person.filter({ id }).run().then(function(people){
           if(people.length == 0){
-            console.log("FAIL")
+            
+
+
+              var person = generateRon(GRAPHROLE)
+
+              Vote.save({
+                personId: person.id,
+                positionId: GRAPHROLE.id,
+                round: round,
+                votes: count
+              }).then(function(){
+                //send to graphic
+                io.graphAddVote(id, count);
+              })
             return;
           }
 
@@ -103,13 +118,23 @@ export function bind(Models, socket){
   });
 
   socket.on('saveEliminate', ({ id, round }) => {
+    let { Position } = Models;
     console.log("Saving Eliminate ", id);
 
     RoundElimination.filter({ personId: id }).run().then(function(eliminations){
       if(!eliminations || eliminations.length == 0){
         Person.filter({ id }).run().then(function(people){
           if(people.length == 0){
-            console.log("FAIL")
+              var person = generateRon(GRAPHROLE)
+
+              RoundElimination.save({
+                personId: person.id,
+                positionId: GRAPHROLE.id,
+                round: round
+              }).then(function(){
+                //send to graphic
+                io.graphEliminate(id);
+              })
             return;
           }
 
@@ -141,6 +166,8 @@ export function bind(Models, socket){
     Position.filter({ id: role }).run().then(function (positions){
       if(!positions || positions.length == 0)
         return;
+
+      GRAPHROLE = positions[0]
 
       ccg.sendCommand("CLEAR 1-"+config.ccgGraphLayer)
       ccg.sendCommand("CG 1-"+config.ccgGraphLayer+" ADD 1 \"caspar-graphics/elections-2016-v2/graph\" 1 \"<templateData>"+
