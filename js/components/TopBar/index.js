@@ -53,15 +53,11 @@ export default class TopBar extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          <Nav>
-            <NavItem href="#" data-id="splitScreen" onClick={this.runTemplate.bind(this)}>SplitScreen</NavItem>
-          </Nav>
           <Nav pullRight>
             <NavDropdown eventKey={1} title="Edit" id="basic-nav-dropdown">
               <MenuItem eventKey={1.1} href="#">Dashboard</MenuItem>
               <MenuItem eventKey={1.2} href="#/people">People</MenuItem>
               <MenuItem eventKey={1.3} href="#/positions">Positions</MenuItem>
-              <MenuItem eventKey={1.4}>Elections</MenuItem>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

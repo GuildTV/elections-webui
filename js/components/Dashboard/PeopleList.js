@@ -105,6 +105,10 @@ export default class PeopleList extends React.Component {
     if(name.toLowerCase().indexOf(filter) != -1)
       return true;
 
+    var position = p.position.miniName;
+    if(position.toLowerCase().indexOf(filter) != -1)
+      return true;
+
     return false;
   }
 }

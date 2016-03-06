@@ -77,7 +77,7 @@ export default class PersonEntry extends React.Component {
 
     return (
       <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
-        <p>{ this.props.data.firstName } { this.props.data.lastName }</p>
+        <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.position.miniName }</p>
         <p>
           <Button data-id="lowerThird" onClick={this.runTemplate.bind(this)}>Lower Third</Button>&nbsp;
           { 
