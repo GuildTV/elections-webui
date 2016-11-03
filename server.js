@@ -24,7 +24,7 @@ const io = require('socket.io')(server);
 app.use(bodyParser.urlencoded({ extended: false } ));
 app.use(express.static('static'));
 
-graphSetup(Models);
+graphSetup(Models, app);
 
 // Set socket.io listeners.
 io.sockets.on('connection', (socket) => {

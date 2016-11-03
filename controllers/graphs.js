@@ -1,6 +1,8 @@
 const config = require('../config');
 var linq = require('linq');
 var CasparCG = require("caspar-cg");
+var builder = require('xmlbuilder');
+var mapSeries = require('promise-map-series');
 
 import { generateRon } from './ron';
 
@@ -18,8 +20,21 @@ var currentIds = [];
 
 var GRAPHROLE = {};
 
-export function setup(Models){
+export function setup(Models, app){
   let { Person, Position, Vote, RoundElimination } = Models;
+
+  // DEV ONLY!!
+  Position.filter({ miniName: "President" }).run().then(function (positions){
+    console.log(positions)
+    if(!positions || positions.length == 0)
+      return;
+
+    GRAPHROLE = positions[0]
+  });
+
+  app.get('/graph', (req, res) => {
+    generateResponseXML(Models).then(str => res.send(str));
+  });
 
   io = require('socket.io')(config.graph_websocket_port);
 
@@ -58,6 +73,53 @@ export function setup(Models){
 
     io.sockets.emit('vote', { index, count });
   };
+}
+
+function generateResponseXML(Models){
+  const { Person, Position, Vote, RoundElimination } = Models;
+
+  if (!GRAPHROLE.id)
+    return "NO ROLE";
+
+  const rootElm = builder.create('root');
+  rootElm.ele('position', { id: GRAPHROLE.miniName }, GRAPHROLE.fullName);
+  const candidates = rootElm.ele('candidates');
+  const rounds = rootElm.ele('rounds');
+
+  return Person.filter({ positionId: GRAPHROLE.id }).run().then(function(people){
+    if (!people || people.length == 0)
+      return "NO PEOPLE";
+
+    people.forEach(p => {
+      candidates.ele('candidate', { id: p.id }, p.firstName + " " + p.lastName);
+    });
+
+    return RoundElimination.filter({ positionId: GRAPHROLE.id }).run().then(function(eliminated){
+      const arr = eliminated.map(e => e.round)
+      const data = arr.filter(function(v,i) { return i==arr.lastIndexOf(v); }).sort();
+
+      return mapSeries(data, r => {
+          const elm = rounds.ele('round', { number: r+1 });
+
+          return mapSeries(people, p => {
+            return Vote.filter({ personId: p.id, round: r }).run().then(function(votes){
+              const elim = eliminated.filter(v => v.round < r && v.personId == p.id).length > 0;
+              const count = (!votes || votes.length == 0) ? undefined : votes[0].votes;
+
+              const props = { candidate: p.id };
+              if (elim)
+                props.eliminated = true;
+
+              elm.ele('result', props, count);
+
+              return p.id
+            });
+          });
+      }).then(() => {
+        return rootElm.end({ pretty: true});
+      });
+    });
+  });
 }
 
 export function bind(Models, socket){
