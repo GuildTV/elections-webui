@@ -29,6 +29,7 @@ export default class Position extends React.Component {
       compactName: '',
       miniName: '',
       order: 9,
+      winnerOrder:9,
       sidebarUseOfficer: true
     }
   }
@@ -43,6 +44,7 @@ export default class Position extends React.Component {
         compactName: '',
         miniName: '',
         order: 9,
+        winnerOrder: 9,
         sidebarUseOfficer: true
       });
     } else {
@@ -67,6 +69,9 @@ export default class Position extends React.Component {
   handleOrderChange(e) {
     this.setState({ order: parseInt(e.target.value) });
   }
+  handleWinnerOrderChange(e) {
+    this.setState({ winnerOrder: parseInt(e.target.value) });
+  }
   handleShowOfficerSidebarChange(s) {
     this.setState({ sidebarUseOfficer: s });
 
@@ -77,9 +82,9 @@ export default class Position extends React.Component {
 
     e.preventDefault();
 
-    let {fullName, compactName, miniName, type, order} = this.state
+    let {fullName, compactName, miniName, type, order, winnerOrder} = this.state
 
-    if (!fullName || !compactName || !miniName || !type || !order) {
+    if (!fullName || !compactName || !miniName || !type || !order || !winnerOrder) {
       //todo error handling
       alert("Missing input data");
       return;
@@ -114,8 +119,11 @@ export default class Position extends React.Component {
             <Input type="text" label="Mini Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
 
-            <Input type="number" label="Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
+            <Input type="number" label="Board Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+
+            <Input type="number" label="Winner Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
+              onChange={this.handleWinnerOrderChange.bind(this)} value={this.state.winnerOrder} />
 
             <Input label="Show officer in sidebar" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Switch onChange={this.handleShowOfficerSidebarChange.bind(this)} state={this.state.sidebarUseOfficer} />
