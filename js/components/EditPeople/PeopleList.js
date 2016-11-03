@@ -57,7 +57,7 @@ export default class PeopleList extends React.Component {
         people.push(person);
     });
 
-    console.log(people)
+    // console.log(people)
     this.setState({people});
   }
 
@@ -67,7 +67,7 @@ export default class PeopleList extends React.Component {
 
   render() {
     let rows = this.state.people.map((person) => {
-      console.log(person);
+      // console.log(person);
 
       return (
         <tr key={ person.uid }>
@@ -85,7 +85,7 @@ export default class PeopleList extends React.Component {
     });
 
     return (
-      <div>
+      <div style={this.props.style}>
         <Socket.Event name={ GetPeopleKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
         <Socket.Event name={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
         <Table>

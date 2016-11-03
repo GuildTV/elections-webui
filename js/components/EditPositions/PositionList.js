@@ -87,7 +87,7 @@ export default class PositionList extends React.Component {
     });
 
     return (
-      <div>
+      <div style={this.props.style}>
         <Socket.Event name={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
         <Socket.Event name={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
         <Table>

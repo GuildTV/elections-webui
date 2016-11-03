@@ -4,7 +4,7 @@
 
 import React from 'react';
 
-import { Grid, Row, Col } from 'react-bootstrap';
+import { Grid, Row, Col, Button } from 'react-bootstrap';
 
 /*
 * Internal Dependancies
@@ -20,6 +20,14 @@ import Person from './Person'
 * React
 */
 export default class EditPeople extends React.Component {
+  constructor(props){
+    super(props);
+
+    this.state = {
+      listMode: false
+    };
+  }
+
   LoadData(e){
     var data = e.target.getAttribute('data');
     data = JSON.parse(data);
@@ -27,15 +35,28 @@ export default class EditPeople extends React.Component {
     console.log("Editing:", data.id);
     
     this.refs.edit.LoadForm(data);
+    this.toggleList(false);
+  }
+
+  toggleList(vis){
+    if (vis === null || vis === undefined)
+      vis = !this.state.listMode;
+
+    this.setState({ listMode: vis });
   }
 
   render() {
+    const listStyle = { display: "none" };
+    if (this.state.listMode)
+      listStyle.display = "block";
+
     return (
       <div>
         <Grid>
           <Row>
             <Col xs={12}>
-              <PeopleList onEdit={this.LoadData.bind(this)} ref="list" />
+              <p><Button bsStyle="primary" onClick={() => this.toggleList()}>Toggle List</Button></p>
+              <PeopleList onEdit={this.LoadData.bind(this)} ref="list" style={listStyle} />
               <Person ref="edit" />
             </Col>
           </Row>
