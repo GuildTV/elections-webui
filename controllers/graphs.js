@@ -86,9 +86,13 @@ function generateResponseXML(Models){
   const candidates = rootElm.ele('candidates');
   const rounds = rootElm.ele('rounds');
 
+  const ronId = "ron-"+GRAPHROLE.id;
+
   return Person.filter({ positionId: GRAPHROLE.id }).run().then(function(people){
     if (!people || people.length == 0)
       return "NO PEOPLE";
+
+    people.push(generateRon(GRAPHROLE));
 
     people.forEach(p => {
       candidates.ele('candidate', { id: p.id }, p.firstName + " " + p.lastName);
