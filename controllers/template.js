@@ -5,6 +5,8 @@ var mapSeries = require('promise-map-series');
 var lastState = {};
 var pingInterval = null;
 
+import { cvizHost, cvizPort } from '../config';
+
 var client = new net.Socket();
 client.setNoDelay(true);
 client.setTimeout(500);
@@ -14,12 +16,12 @@ client.on('error', () => {
 
   client.destroy();
   client.unref();
-  client.connect(3456, "192.168.27.62", () => {
+  client.connect(cvizPort, cvizHost, () => {
     console.log("reconnected");
   });
 });
 
-client.connect(3456, '192.168.27.62', function() {
+client.connect(cvizPort, cvizHost, function() {
   console.log('Connected to cviz');
 
   pingInterval = setInterval(() => {

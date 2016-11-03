@@ -8,8 +8,11 @@ export const thinky_options = {
   db: "guild_elections"
 }
 
-export const myGraphSocket = "http://192.168.27.142:3355";
+export const myGraphSocket = "http://172.20.0.22:3355";
 
-export const ccgHost = "192.168.27.170";
+export const ccgHost = "172.20.0.15";
 export const ccgPost = 5250;
 export const ccgGraphLayer = 500;
+
+export const cvizHost = "172.20.0.14";
+export const cvizPort = 3456;

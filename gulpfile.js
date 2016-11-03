@@ -12,16 +12,8 @@ var webpackConfig = require("./webpack.config.js");
 // Define base folders
 var dest = 'static/';
 
-// Compile CSS from less files
-gulp.task('less', function() {
-  return gulp.src('less/app.less')
-    .pipe(less())
-    .pipe(gulp.dest(dest))
-    .on('error', util.log);
-});
-
 //production webpack build
-gulp.task("webpack:build", function(callback) {
+gulp.task("build", function(callback) {
   // modify some webpack config options
 
   var myConfig = Object.create(webpackConfig);
@@ -47,7 +39,7 @@ gulp.task("webpack:build", function(callback) {
 });
 
 //webpack dev build
-gulp.task("webpack:dev", function(callback) {
+gulp.task("default", function(callback) {
   var WebpackDevServer = require("webpack-dev-server");
   
   // modify some webpack config options
@@ -65,18 +57,4 @@ gulp.task("webpack:dev", function(callback) {
     if(err) throw new util.PluginError("webpack-dev-server", err);
     util.log("[webpack-dev-server]", "http://localhost:8087/webpack-dev-server/index.html");
   });
-});
-
-// Watch Files For Changes
-gulp.task('default', ['webpack:dev', 'less'], function() {
-  gulp.watch('less/*.less', ['less']);
-  gulp.watch('less/*/*.less', ['less']);
-});
-
-// Default Task
-gulp.task('build', ['less', "webpack:build"]);
-
-gulp.task('watch', ['less'], function() {
-  gulp.watch('less/*.less', ['less']);
-  gulp.watch('less/*/*.less', ['less']);
 });
