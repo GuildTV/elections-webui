@@ -17,6 +17,7 @@ const GetPositionKey = "getPositions";
 const UpdatePositionKey = "updatePosition";
 const SaveVoteKey = "saveVote";
 const SaveEliminateKey = "saveEliminate";
+const LoadResultsKey = "loadResults";
 
 
 /*
@@ -45,55 +46,6 @@ export default class VotesTable extends React.Component {
     this.setState(data);
   }
 
-  setPendingVote(e){
-    var i = parseInt(e.target.getAttribute('data-id'));
-
-    var votes = this.state.votes;
-    var round = this.state.eliminated.length;
-    if(!votes[round])
-      votes[round] = [];
-    votes[round][i] = parseInt(e.target.value);
-
-    this.setState({ votes });
-  }
-
-  saveVote(e){
-    var index = parseInt(e.target.getAttribute('data-id'));
-    var round = this.state.eliminated.length;
-
-    console.log("Saving vote", index);
-
-    var count = this.state.votes[round][index];
-    if(count == undefined || count == null)
-      return;
-
-    this.refs.sock.socket.emit(SaveVoteKey, {
-      id: this.state.ids[index],
-      round: this.state.eliminated.length,
-      count: this.state.votes[round][index]
-    });
-  }
-
-  saveEliminate(e){
-    var index = parseInt(e.target.getAttribute('data-id'));
-    var round = this.state.eliminated.length;
-
-    console.log("Saving eliminate", index);
-
-    if(this.state.eliminated.indexOf(index) > 0)
-      return;
-
-    this.refs.sock.socket.emit(SaveEliminateKey, {
-      id: this.state.ids[index],
-      round: this.state.eliminated.length
-    });
-
-    var eliminated = this.state.eliminated;
-    eliminated.push(index);
-    this.setState({ eliminated });
-    console.log(eliminated);
-  }
-
   render() {
     var roundCols = this.state.eliminated.map((e, i) => <th>Round { i+1 }</th>);
     roundCols.push(<th>Round { this.state.eliminated.length+1 }</th>);
@@ -105,10 +57,8 @@ export default class VotesTable extends React.Component {
         <Socket.Event name={ GetElectionsKey } callback={ this.loadedElectionData.bind(this) } ref="sock"/>
         <thead>
           <tr>
-            <th>Eliminate</th>
             <th>Name</th>
             { roundCols }
-            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -127,20 +77,13 @@ export default class VotesTable extends React.Component {
       if(this.state.votes[r] && this.state.votes[r][index])
         v = this.state.votes[r][index];
 
-      if(r == roundCols && !isEliminated)
-        roundData.push(<td>
-            <Input type="number" onChange={this.setPendingVote.bind(this)} data-id={index} ref={ "vote"+index } value={v} />
-          </td>);
-      else
         roundData.push(<td>{ v }</td>);
     }
 
     return (
       <tr>
-        <td>{ isEliminated ?"":<Button bsStyle="danger" onClick={this.saveEliminate.bind(this)} data-id={index}>Eliminate</Button> }</td>
         <td>{ label }</td>
         { roundData }
-        <td>{ isEliminated?"":<Button bsStyle="success" onClick={this.saveVote.bind(this)} data-id={index}>Save</Button> }</td>
       </tr>
     );
   }

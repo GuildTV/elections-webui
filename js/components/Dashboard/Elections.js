@@ -6,7 +6,7 @@ import React from 'react';
 import Socket from 'react-socket';
 import {
   Table, Button, Grid, Row, Col,
-  Input
+  Input 
 } from 'react-bootstrap';
 
 import VotesTable from './VotesTable';
@@ -15,7 +15,7 @@ import VotesTable from './VotesTable';
 */
 const GetPositionKey = "getPositions";
 const UpdatePositionKey = "updatePosition";
-const ChangeGraphKey = "changeGraph";
+const LoadResultsKey = "loadResults";
 
 /*
 * React
@@ -60,10 +60,11 @@ export default class Elections extends React.Component {
     this.setState({dropdownRole: e.target.value});
   }
 
-  handleChangePosition(e){
+  loadPositionData(e){
     var currentRole = this.state.dropdownRole;
     this.setState({ currentRole });
-    this.refs.sock.socket.emit(ChangeGraphKey, { role: currentRole });
+    console.log("LOAD", LoadResultsKey, currentRole)
+    this.refs.sock.socket.emit(LoadResultsKey, { role: currentRole });
   }
 
   render() {
@@ -76,6 +77,9 @@ export default class Elections extends React.Component {
 
         <form className="form-horizontal" onsubmit="return false">
           <fieldset>
+            <Input label="Live Mode" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+              TODO
+            </Input>
             <Input label="Current position:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Row>
                 <Col xs={10}>
@@ -84,7 +88,7 @@ export default class Elections extends React.Component {
                   </Input>
                 </Col>
                 <Col xs={2}>
-                  <Button bsStyle="success" onClick={this.handleChangePosition.bind(this)} >Change</Button>
+                  <Button bsStyle="success" onClick={this.loadPositionData.bind(this)} >Preview</Button>
                 </Col>
               </Row>
             </Input>
