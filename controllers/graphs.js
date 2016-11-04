@@ -3,6 +3,7 @@ var linq = require('linq');
 var CasparCG = require("caspar-cg");
 var builder = require('xmlbuilder');
 var mapSeries = require('promise-map-series');
+const cors = require('cors');
 
 import { generateRon } from './ron';
 
@@ -32,7 +33,19 @@ export function setup(Models, app){
     GRAPHROLE = positions[0]
   });
 
-  app.get('/graph', (req, res) => {
+  app.get('/graph', cors(), (req, res) => {
+    // DEV ONLY:
+    // Position.run().then(function (positions){
+    //   console.log(positions)
+    //   if(!positions || positions.length == 0)
+    //     return res.send("ERR GET POSITION");
+
+    //   const i = Math.floor(Math.random() * positions.length);
+    //   GRAPHROLE = positions[i];
+
+    //   generateResponseXML(Models).then(str => res.send(str));
+    // });
+
     generateResponseXML(Models).then(str => res.send(str));
   });
 
@@ -92,6 +105,10 @@ function generateResponseXML(Models){
     if (!people || people.length == 0)
       return "NO PEOPLE";
 
+    people = linq.from(people)
+      .orderBy((x) => x.order)
+      .toArray();
+
     people.push(generateRon(GRAPHROLE));
 
     people.forEach(p => {
@@ -101,6 +118,7 @@ function generateResponseXML(Models){
     return RoundElimination.filter({ positionId: GRAPHROLE.id }).run().then(function(eliminated){
       const arr = eliminated.map(e => e.round)
       const data = arr.filter(function(v,i) { return i==arr.lastIndexOf(v); }).sort();
+      data.push(Math.max(Math.max.apply(null, data), -1) +1)
 
       return mapSeries(data, r => {
           const elm = rounds.ele('round', { number: r+1 });
