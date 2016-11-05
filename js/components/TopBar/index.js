@@ -9,8 +9,7 @@ import {
   Navbar,
   Nav,
   NavItem,
-  NavDropdown,
-  Button
+  NavDropdown
 } from 'react-bootstrap';
 
 /*

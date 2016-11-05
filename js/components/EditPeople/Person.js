@@ -3,8 +3,8 @@
 */
 
 import React from 'react';
-import update from 'react-addons-update'
 import Socket from 'react-socket';
+
 
 import { Input, ButtonInput, Button } from 'react-bootstrap';
 
@@ -25,14 +25,14 @@ export default class Person extends React.Component {
     this.state = {
       _positions: [],
       id: undefined,
-      firstName: '', 
-      lastName: '', 
-      uid: '', 
-      positionId: '', 
+      firstName: '',
+      lastName: '',
+      uid: '',
+      positionId: '',
       photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
       manifesto: {
-        one: '', 
-        two: '', 
+        one: '',
+        two: '',
         three: ''
       },
       order: 9
@@ -45,14 +45,14 @@ export default class Person extends React.Component {
     if(data === null || data === undefined){
       this.setState({
         id: undefined,
-        firstName: '', 
-        lastName: '', 
-        uid: '', 
-        positionId: '', 
+        firstName: '',
+        lastName: '',
+        uid: '',
+        positionId: '',
         photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
         manifesto: {
-          one: '', 
-          two: '', 
+          one: '',
+          two: '',
           three: ''
         },
         order: 9
@@ -149,7 +149,7 @@ export default class Person extends React.Component {
 
     var positionId = this.state.positionId ? this.state.positionId : data[0].id;
 
-    this.setState({ 
+    this.setState({
       _positions: data,
       positionId
     });
@@ -170,11 +170,11 @@ export default class Person extends React.Component {
     if(this.isCandidate()){
       candidateData = (
         <div>
-          <Input type="text" label="First Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="First manifesto point" 
+          <Input type="text" label="First Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="First manifesto point"
             onChange={this.handleFirstManifestoPointChange.bind(this)} value={this.state.manifesto.one} />
-          <Input type="text" label="Second Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Second manifesto point" 
+          <Input type="text" label="Second Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Second manifesto point"
             onChange={this.handleSecondManifestoPointChange.bind(this)} value={this.state.manifesto.two} />
-          <Input type="text" label="Third Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Third manifesto point" 
+          <Input type="text" label="Third Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Third manifesto point"
             onChange={this.handleThirdManifestoPointChange.bind(this)} value={this.state.manifesto.three} />
 
           <Input type="file" label="Photo" labelClassName="col-xs-2" wrapperClassName="col-xs-10" ref="fileUpload"
@@ -199,23 +199,23 @@ export default class Person extends React.Component {
             <legend>Edit person</legend>
 
             <Input type="text" label="ID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.id} />
-            <Input type="text" label="First Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
+            <Input type="text" label="First Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleFirstNameChange.bind(this)} value={this.state.firstName} />
-            <Input type="text" label="Last Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
+            <Input type="text" label="Last Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleLastNameChange.bind(this)} value={this.state.lastName} />
-            <Input type="text" label="UID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Enter a unique identifer - e.g. ado-ben"  
+            <Input type="text" label="UID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Enter a unique identifer - e.g. ado-ben"
               onChange={this.handleUidChange.bind(this)} value={this.state.uid} />
 
-            <Input type="select" label="Position" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a position:" 
+            <Input type="select" label="Position" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a position:"
               onChange={this.handlePositionChange.bind(this)} value={this.state.positionId}>
               { positions }
             </Input>
 
             { candidateData }
-            
+
             <Input type="number" label="Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
-           
+
             <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
               <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>

@@ -3,7 +3,6 @@
 */
 
 import React from 'react';
-import update from 'react-addons-update'
 import Socket from 'react-socket';
 import Switch from 'react-bootstrap-switch';
 
@@ -105,14 +104,14 @@ export default class Position extends React.Component {
             <legend>Edit position</legend>
 
             <Input type="text" label="ID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.id} />
-            <Input type="select" label="Type" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a type:" 
+            <Input type="select" label="Type" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a type:"
               onChange={this.handleTypeChange.bind(this)} value={this.state.type}>
               <option value="candidateSabb">Candidate - Sabb</option>
               <option value="candidateNonSabb">Candidate - Non Sabb</option>
               <option value="other">Other</option>
             </Input>
 
-            <Input type="text" label="Full Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
+            <Input type="text" label="Full Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleFullNameChange.bind(this)} value={this.state.fullName} />
             <Input type="text" label="Compact Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
               onChange={this.handleCompactNameChange.bind(this)} value={this.state.compactName} />
