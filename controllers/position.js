@@ -12,9 +12,7 @@ export default function(Models, socket){
         let position = positions[0]
         position.merge(data);
 
-        position.save().then(function(doc) {
-          // console.log("Position added to DB: ", doc);
-
+        position.save().then(function() {
           socket.emit('updatePosition', position);
         }).error(function(error){
           console.log("Error saving new position: ", error);
@@ -22,8 +20,6 @@ export default function(Models, socket){
       });
 
     return Position.save(data).then(function(doc) {
-      // console.log("Position added to DB: ", doc);
-
       socket.emit('updatePosition', doc);
     }).error(function(error){
         console.log("Error saving new position: ", error);

@@ -1,4 +1,3 @@
-const config = require('../config');
 const linq = require('linq');
 const builder = require('xmlbuilder');
 const mapSeries = require('promise-map-series');
@@ -12,7 +11,7 @@ let GRAPHROLE = { // When in manual mode
 };
 
 export function setup(Models, app){
-  let { Person, Position, Vote, RoundElimination } = Models;
+  let { Position } = Models;
 
   // DEV ONLY!!
   Position.filter({ miniName: "President" }).run().then(function (positions){
@@ -46,8 +45,6 @@ export function setup(Models, app){
 }
 
 export function bind(Models, socket){
-  let { Person, Vote, RoundElimination } = Models;
-
   socket.on('getElections', (data) => {
     console.log("Get Elections data: ", data.position);
 
@@ -85,8 +82,6 @@ function generateResponseXML(Models, pid, maxRound){
     rootElm.ele('position', { id: position.miniName }, position.fullName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');
-
-    const ronId = "ron-"+position.id;
 
     return Person.filter({ positionId: position.id }).run().then(function(people){
       if (!people || people.length == 0)

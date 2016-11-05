@@ -8,7 +8,6 @@ import {
   MenuItem,
   Navbar,
   Nav,
-  NavItem,
   NavDropdown
 } from 'react-bootstrap';
 

@@ -56,7 +56,7 @@ export default function(Models, socket){
 
         socket.emit('updatePeople', changed);
 
-      }).error(err => {
+      }).error(error => {
         console.log("Failed to set winner:", error);
       })
     });

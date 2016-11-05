@@ -39,6 +39,7 @@ client.on('data', (data) => {
     lastState = JSON.parse(data);
     console.log("Received", lastState);
   } catch (e){
+    console.log("Error", e);
   }
 });
 
@@ -50,7 +51,7 @@ client.on('close', () => {
   }
 });
 
-export default function(Models, socket, config){
+export default function(Models, socket){
   let { Person, Position } = Models;
 
   socket.emit('templateState', lastState);
@@ -64,6 +65,7 @@ export default function(Models, socket, config){
 
       socket.emit('templateState', data);
     } catch (e){
+        console.log("Error", e);
     }
   });
 
@@ -82,7 +84,7 @@ export default function(Models, socket, config){
         const name = (person.firstName + " " + person.lastName).trim().toUpperCase();
         let role = person.position.fullName.trim().toUpperCase();
         if(person.position.type != "other"){
-          role += (person.elected ? " elect" : " candidate").toUpperCase();;
+          role += (person.elected ? " elect" : " candidate").toUpperCase();
         }
 
         templateData[key] =  "<templateData>"
@@ -243,7 +245,7 @@ export default function(Models, socket, config){
     }));
   });
 
-  socket.on('templateGo', data => {
+  socket.on('templateGo', () => {
     console.log("templateGo");
 
     client.write(JSON.stringify({
@@ -251,7 +253,7 @@ export default function(Models, socket, config){
     }));
   });
 
-  socket.on('templateKill', data => {
+  socket.on('templateKill', () => {
     console.log("templateKill");
 
     client.write(JSON.stringify({

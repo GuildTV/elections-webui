@@ -3,14 +3,10 @@ var gulp = require('gulp');
 
 // Include Our Plugins
 var util = require('gulp-util');
-var less = require('gulp-less');
 
 // webpack bits
 var webpack = require("webpack");
 var webpackConfig = require("./webpack.config.js");
-
-// Define base folders
-var dest = 'static/';
 
 //production webpack build
 gulp.task("build", function(callback) {
@@ -39,7 +35,7 @@ gulp.task("build", function(callback) {
 });
 
 //webpack dev build
-gulp.task("default", function(callback) {
+gulp.task("default", function() {
   var WebpackDevServer = require("webpack-dev-server");
 
   // modify some webpack config options

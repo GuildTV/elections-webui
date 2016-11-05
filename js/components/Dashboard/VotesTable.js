@@ -6,8 +6,7 @@ import React from 'react';
 import Socket from 'react-socket';
 import $ from 'jquery';
 import {
-  Table, Button,
-  Input
+  Table, Button
 } from 'react-bootstrap';
 
 /*
@@ -52,7 +51,7 @@ export default class VotesTable extends React.Component {
     const rows = {}
     $.each(xml.find("candidates candidate"), (i, v) => {
       window.v = v;
-      rows[v.getAttribute('id')] = { 
+      rows[v.getAttribute('id')] = {
         name: v.innerHTML,
         results: []
       };
@@ -79,14 +78,14 @@ export default class VotesTable extends React.Component {
     const { data } = this.state;
 
     const roundCount = Math.max.apply(null, $.makeArray($.map(data, r => r.results.length)));
-    
+
     const roundCols = [];
     for (let i=0; i<roundCount; i++){
       roundCols.push(<td key={i}>Round { i+1 }</td>)
     }
 
     const rows = Object.keys(data).map(v => this.renderPerson(data[v], roundCount));
-    
+
     const sendRow = roundCols.map((v,i) => this.showButton(i));
 
     return (

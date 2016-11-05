@@ -4,9 +4,9 @@
 
 import React from 'react';
 import Socket from 'react-socket';
+import update from 'react-addons-update'
 
-
-import { Input, ButtonInput, Button } from 'react-bootstrap';
+import { Input, Button } from 'react-bootstrap';
 
 /*
 * Variables
@@ -105,7 +105,7 @@ export default class Person extends React.Component {
     this.setState({ order: parseInt(e.target.value) });
   }
 
-  handlePhotoChange(e){
+  handlePhotoChange(){
     var files = this.refs.fileUpload.getInputDOMNode().files;
 
     var reader = new FileReader();

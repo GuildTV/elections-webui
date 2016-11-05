@@ -5,7 +5,7 @@
 import React from 'react';
 import $ from 'jquery';
 import {
-  Grid, Row, Col, 
+  Row, Col,
   Input, Button,
 } from 'react-bootstrap';
 import Socket from 'react-socket';
@@ -46,7 +46,7 @@ export default class PeopleList extends React.Component {
       var index = people.findIndex(p => p.uid == person.uid);
       if(index >= 0)
         people[index] = person;
-      else  
+      else
         people.push(person);
     });
 
@@ -54,7 +54,7 @@ export default class PeopleList extends React.Component {
     this.setState({people});
   }
 
-  filterNames(e){
+  filterNames(){
     var filter = this.refs.filter.getValue();
     this.setState({ filter });
   }
@@ -91,7 +91,7 @@ export default class PeopleList extends React.Component {
         <hr />
 
         { peopleList }
-      </div>    
+      </div>
     );
   }
 

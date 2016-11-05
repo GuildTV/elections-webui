@@ -5,8 +5,7 @@
 import React from 'react';
 import Socket from 'react-socket';
 import {
-  Table, Button, Grid, Row, Col,
-  Input 
+  Button, Row, Col, Input
 } from 'react-bootstrap';
 
 import VotesTable from './VotesTable';
@@ -70,7 +69,7 @@ export default class Elections extends React.Component {
     this.setState({dropdownRole: e.target.value});
   }
 
-  loadPositionData(e){
+  loadPositionData(){
     var currentRole = this.state.dropdownRole;
     this.setState({ currentRole });
     console.log("LOAD", LoadResultsKey, currentRole)
@@ -114,7 +113,7 @@ export default class Elections extends React.Component {
         <Socket.Event name={ UpdatePositionKey } callback={ this.handlePositionUpdate.bind(this) } />
         <Socket.Event name={ CurrentGraphId } callback={ this.handleGraphId.bind(this) } />
 
-        <form className="form-horizontal" onsubmit="return false">
+        <form className="form-horizontal" onSubmit="return false">
           <fieldset>
             <Input label="Current Graph" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Row>

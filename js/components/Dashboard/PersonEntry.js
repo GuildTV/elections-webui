@@ -5,7 +5,7 @@
 import React from 'react';
 import {
   Col,
-  Input, Button,
+  Button,
   Popover, OverlayTrigger
 } from 'react-bootstrap';
 
@@ -36,13 +36,13 @@ export default class PersonEntry extends React.Component {
     });
   }
 
-  setWinner(e){
+  setWinner(){
     console.log("Setting winner:", this.props.data.id);
 
     this.props.refs.sock.socket.emit(SetWinnerKey, this.props.data);
   }
 
-  clearWinner(e){
+  clearWinner(){
     console.log("Clearing winner:", this.props.data.id);
 
     this.props.refs.sock.socket.emit(ClearWinnerKey, this.props.data);
@@ -62,8 +62,8 @@ export default class PersonEntry extends React.Component {
             ""
         }
         {
-          this.props.data.elected ? 
-            <Button onClick={this.clearWinner.bind(this)}>Clear Winner</Button> : 
+          this.props.data.elected ?
+            <Button onClick={this.clearWinner.bind(this)}>Clear Winner</Button> :
             <Button onClick={this.setWinner.bind(this)}>Mark Winner</Button>
         }
       </Popover>
@@ -80,7 +80,7 @@ export default class PersonEntry extends React.Component {
         <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.position.miniName }</p>
         <p>
           <Button data-id="lowerThird" onClick={this.runTemplate.bind(this)}>Lower Third</Button>&nbsp;
-          { 
+          {
             isCandidate ?
             <OverlayTrigger container={this.props.parent} trigger="click" placement="right" overlay={ overlayContent }>
               <Button bsStyle="info">More</Button>

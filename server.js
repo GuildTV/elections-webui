@@ -10,7 +10,6 @@ import templateController from './controllers/template';
 import { setup as graphSetup, bind as graphBind } from './controllers/graphs';
 
 import Models from "./models"
-const { Person, Position } = Models;
 
 const app = express();
 

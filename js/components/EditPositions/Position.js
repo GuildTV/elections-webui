@@ -6,7 +6,7 @@ import React from 'react';
 import Socket from 'react-socket';
 import Switch from 'react-bootstrap-switch';
 
-import { Input, ButtonInput, Button} from 'react-bootstrap';
+import { Input, Button} from 'react-bootstrap';
 
 /*
 * Variables
