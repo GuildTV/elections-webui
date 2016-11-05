@@ -6,8 +6,6 @@ const cors = require('cors');
 
 import { generateRon } from './ron';
 
-var currentIds = [];
-
 var GRAPHROLE = { // When in manual mode
   id: null,
   round: null
@@ -38,21 +36,41 @@ export function setup(Models, app){
     //   generateResponseXML(Models).then(str => res.send(str));
     // });
 
+    if (GRAPHROLE.id){
+      // use hardcoded value
+      generateResponseXML(Models, GRAPHROLE.id, GRAPHROLE.round).then(str => res.send(str));
+    } else {
+      res.send("TODO - proxy sabbgraph");
+    }
+  });
+}
 
-    // TODO - if GRAPHROLE has a role defined then use that, otherwise attempt to proxy through to sabbgraph
+export function bind(Models, socket){
+  let { Person, Vote, RoundElimination } = Models;
 
-    generateResponseXML(Models).then(str => res.send(str));
+  socket.on('getElections', (data) => {
+    console.log("Get Elections data: ", data.position);
+
+    if(!data.position)
+      return;
+
+    generateResponseXML(Models, data.position).then(str => socket.emit('getElections', str));
   });
 
+  socket.on('showResults', data => {
+    console.log("Force results:", data)
+    GRAPHROLE = data;
+    socket.emit('currentGraphId', GRAPHROLE);
+  });
+
+  socket.on('currentGraphId', () => {
+    console.log("Cur Graph ID");
+    socket.emit('currentGraphId', GRAPHROLE);
+  })
 }
 
 function generateResponseXML(Models, pid, maxRound){
   const { Person, Position, Vote, RoundElimination } = Models;
-
-  if (!pid) {
-    pid = GRAPHROLE.id;
-    maxRound = GRAPHROLE.round;
-  }
 
   return Position.filter({ id: pid }).run().then(function (positions){
     if(!positions || positions.length == 0)
@@ -116,22 +134,4 @@ function generateResponseXML(Models, pid, maxRound){
       });
     });
   });
-}
-
-export function bind(Models, socket){
-  let { Person, Vote, RoundElimination } = Models;
-
-  socket.on('getElections', (data) => {
-    console.log("Get Elections data: ", data.position);
-
-    if(!data.position)
-      return;
-
-    generateResponseXML(Models, data.position).then(str => socket.emit('getElections', str));
-  });
-
-  socket.on('showResults', data => {
-    GRAPHROLE = data;
-    console.log("Force results:", data)
-  })
 }

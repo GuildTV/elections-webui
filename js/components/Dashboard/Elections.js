@@ -16,6 +16,8 @@ import VotesTable from './VotesTable';
 const GetPositionKey = "getPositions";
 const UpdatePositionKey = "updatePosition";
 const LoadResultsKey = "loadResults";
+const CurrentGraphId = "currentGraphId";
+const ShowResultsKey = "showResults";
 
 /*
 * React
@@ -26,8 +28,16 @@ export default class Elections extends React.Component {
     this.state = {
       dropdownRole: "",
       currentRole: "",
-      positions: []
+      positions: [],
+      graphId: {
+        id: null,
+        round: null
+      }
     }
+  }
+
+  componentDidMount() {
+    this.refs.sock.socket.emit(CurrentGraphId);
   }
 
   loadedPositionData(positions) {
@@ -67,6 +77,34 @@ export default class Elections extends React.Component {
     this.refs.sock.socket.emit(LoadResultsKey, { role: currentRole });
   }
 
+  handleGraphId(data){
+    console.log("Graph ID:", data);
+    this.setState({ graphId: data });
+  }
+
+  clearGraphId(){
+    this.refs.sock.socket.emit(ShowResultsKey, {
+      id: null,
+      round: null
+    });
+  }
+
+  getGraphId(){
+    const { graphId, positions } = this.state;
+    if (!graphId || !graphId.id)
+      return "Sabb Graph Proxy";
+
+    let name = graphId.id;
+    const position = positions.find(p => p.id == graphId.id);
+    if (position)
+      name = position.fullName;
+
+    if (graphId.round >= 0)
+      return name + " - Round " + (graphId.round+1);
+
+    return name;
+  }
+
   render() {
     var positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.fullName}</option>);
 
@@ -74,11 +112,19 @@ export default class Elections extends React.Component {
       <div>
         <Socket.Event name={ GetPositionKey } callback={ this.loadedPositionData.bind(this) } ref="sock"/>
         <Socket.Event name={ UpdatePositionKey } callback={ this.handlePositionUpdate.bind(this) } />
+        <Socket.Event name={ CurrentGraphId } callback={ this.handleGraphId.bind(this) } />
 
         <form className="form-horizontal" onsubmit="return false">
           <fieldset>
-            <Input label="Live Mode" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-              TODO
+            <Input label="Current Graph" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
+              <Row>
+                <Col xs={10}>
+                  { this.getGraphId() }
+                </Col>
+                <Col xs={2}>
+                  <Button bsStyle="danger" onClick={() => this.clearGraphId()}>Clear</Button>
+                </Col>
+              </Row>
             </Input>
             <Input label="Current position:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
               <Row>
