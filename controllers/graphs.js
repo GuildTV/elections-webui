@@ -8,7 +8,10 @@ import { generateRon } from './ron';
 
 var currentIds = [];
 
-var GRAPHROLE = {};
+var GRAPHROLE = { // When in manual mode
+  id: null,
+  round: null
+};
 
 export function setup(Models, app){
   let { Person, Position, Vote, RoundElimination } = Models;
@@ -35,16 +38,21 @@ export function setup(Models, app){
     //   generateResponseXML(Models).then(str => res.send(str));
     // });
 
+
+    // TODO - if GRAPHROLE has a role defined then use that, otherwise attempt to proxy through to sabbgraph
+
     generateResponseXML(Models).then(str => res.send(str));
   });
 
 }
 
-function generateResponseXML(Models, pid){
+function generateResponseXML(Models, pid, maxRound){
   const { Person, Position, Vote, RoundElimination } = Models;
 
-  if (!pid)
+  if (!pid) {
     pid = GRAPHROLE.id;
+    maxRound = GRAPHROLE.round;
+  }
 
   return Position.filter({ id: pid }).run().then(function (positions){
     if(!positions || positions.length == 0)
@@ -81,7 +89,11 @@ function generateResponseXML(Models, pid){
         const data = arr.filter(function(v,i) { return i==arr.lastIndexOf(v); }).sort();
         data.push(Math.max(Math.max.apply(null, data), -1) +1)
 
-        return mapSeries(data, r => {
+        const filtered = maxRound >= 0
+          ? data.filter(r => r <= maxRound)
+          : data;
+
+        return mapSeries(filtered, r => {
             const elm = rounds.ele('round', { number: r+1 });
 
             return mapSeries(people, p => {
@@ -117,4 +129,9 @@ export function bind(Models, socket){
 
     generateResponseXML(Models, data.position).then(str => socket.emit('getElections', str));
   });
+
+  socket.on('showResults', data => {
+    GRAPHROLE = data;
+    console.log("Force results:", data)
+  })
 }

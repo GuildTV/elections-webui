@@ -4,6 +4,7 @@
 
 import React from 'react';
 import Socket from 'react-socket';
+import $ from 'jquery';
 import {
   Table, Button,
   Input
@@ -13,11 +14,7 @@ import {
 * Variables
 */
 const GetElectionsKey = "getElections";
-const GetPositionKey = "getPositions";
-const UpdatePositionKey = "updatePosition";
-const SaveVoteKey = "saveVote";
-const SaveEliminateKey = "saveEliminate";
-const LoadResultsKey = "loadResults";
+const ShowResultsKey = "showResults";
 
 
 /*
@@ -27,9 +24,7 @@ export default class VotesTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      eliminated: [],
-      labels: [],
-      votes: []
+      data: {},
     }
   }
 
@@ -41,16 +36,58 @@ export default class VotesTable extends React.Component {
     this.refs.sock.socket.emit(GetElectionsKey, { position: newProps.position })
   }
 
-  loadedElectionData(data) {
-    console.log("EL DATA", data);
-    this.setState(data);
+  showRound(roundNum){
+    const data = {
+      id: this.props.position,
+      round: roundNum
+    }
+
+    this.refs.sock.socket.emit(ShowResultsKey, data);
+  }
+
+  loadedElectionData(str) {
+    // console.log("EL DATA", str);
+    const xml = $($.parseXML(str));
+
+    const rows = {}
+    $.each(xml.find("candidates candidate"), (i, v) => {
+      window.v = v;
+      rows[v.getAttribute('id')] = { 
+        name: v.innerHTML,
+        results: []
+      };
+    })
+
+    $.each(xml.find("rounds round"), (i, v) => {
+      const number = parseInt(v.getAttribute('number'));
+      $.each($(v).find("result"), (o, r) => {
+        const cid = r.getAttribute('candidate');
+        const elim = !!r.getAttribute('eliminated');
+        const val = r.innerHTML ? r.innerHTML : "?";
+
+        if (!elim)
+          rows[cid].results[number-1] = val;
+      });
+    });
+
+    // console.log(rows)
+
+    this.setState({ data: rows });
   }
 
   render() {
-    var roundCols = this.state.eliminated.map((e, i) => <th>Round { i+1 }</th>);
-    roundCols.push(<th>Round { this.state.eliminated.length+1 }</th>);
+    const { data } = this.state;
 
-    var rows = this.state.labels.map(this.renderPerson.bind(this));
+    const roundCount = Math.max.apply(null, $.makeArray($.map(data, r => r.results.length)));
+    
+    const roundCols = [];
+    for (let i=0; i<roundCount; i++){
+      roundCols.push(<td key={i}>Round { i+1 }</td>)
+    }
+
+    const rows = Object.keys(data).map(v => this.renderPerson(data[v], roundCount));
+    
+    const sendRow = roundCols.map((v,i) => this.showButton(i));
 
     return (
       <Table bordered>
@@ -63,27 +100,37 @@ export default class VotesTable extends React.Component {
         </thead>
         <tbody>
           { rows }
+          <tr>
+            { this.showButton() }
+            { sendRow }
+          </tr>
         </tbody>
       </Table>
     );
   }
 
-  renderPerson(label, index){
-    var isEliminated = this.state.eliminated.indexOf(index) != -1;
-    var roundData = [];
-    var roundCols = this.state.eliminated.length;
-    for(var r=0; r <= roundCols; r++){
-      var v = "";
-      if(this.state.votes[r] && this.state.votes[r][index])
-        v = this.state.votes[r][index];
+  showButton(roundNum){
+    return (
+      <td key={roundNum}>
+        <Button bsStyle="success" onClick={() => this.showRound(roundNum)}>
+          Show { roundNum >= 0 ? "" : "Latest" }
+        </Button>
+      </td>
+    );
+  }
 
-        roundData.push(<td>{ v }</td>);
+  renderPerson(data, target){
+    const label = data.name;
+
+    const vals = data.results.map((r, i) => <td key={i}>{r}</td>);
+    while (vals.length < target){
+      vals.push(<td key={vals.length}></td>);
     }
 
     return (
-      <tr>
+      <tr key={data.name}>
         <td>{ label }</td>
-        { roundData }
+        { vals }
       </tr>
     );
   }
