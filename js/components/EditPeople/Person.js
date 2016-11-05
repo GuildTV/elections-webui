@@ -192,7 +192,7 @@ export default class Person extends React.Component {
 
     return (
       <div>
-        <Socket.Event name={ GetPositionsKey } callback={ this.handlePositionsLoad.bind(this) } ref="sock"/>
+        <Socket.Listener event={ GetPositionsKey } callback={ this.handlePositionsLoad.bind(this) } ref="sock"/>
 
         <form className="form-horizontal" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>

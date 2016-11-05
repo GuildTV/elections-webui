@@ -70,8 +70,8 @@ export default class Boards extends React.Component {
 
     return (
       <div>
-        <Socket.Event name={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
-        <Socket.Event name={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
+        <Socket.Listener event={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
 
         <h3>Winners</h3>
         <p>

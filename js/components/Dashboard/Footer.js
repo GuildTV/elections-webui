@@ -4,7 +4,7 @@
 import React from 'react';
 import Socket from 'react-socket';
 
-import { 
+import {
   Grid, Row, Col,
   Button
 } from 'react-bootstrap';
@@ -68,7 +68,7 @@ export default class Footer extends React.Component {
   render() {
     return (
       <footer style={footerCss}>
-        <Socket.Event name={ ChangeTemplateStateKey } callback={ this.ChangeTemplateState.bind(this) } ref="sock"/>
+        <Socket.Listener event={ ChangeTemplateStateKey } callback={ this.ChangeTemplateState.bind(this) } ref="sock"/>
 
         <Grid style={{ height: "100%" }}>
           <Row style={{ height: "100%" }}>

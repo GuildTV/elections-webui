@@ -29,7 +29,7 @@ export default class PositionList extends React.Component {
         return -1;
       if(a.type > b.type)
         return 1;
-      
+
       if(a.order < b.order)
         return -1;
       if(a.order > b.order)
@@ -88,8 +88,8 @@ export default class PositionList extends React.Component {
 
     return (
       <div style={this.props.style}>
-        <Socket.Event name={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
-        <Socket.Event name={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
+        <Socket.Listener event={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
         <Table>
           <thead>
             <tr>

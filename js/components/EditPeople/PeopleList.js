@@ -29,7 +29,7 @@ export default class PeopleList extends React.Component {
         return -1;
       if(a.positionId > b.positionId)
         return 1;
-      
+
       if(a.order < b.order)
         return -1;
       if(a.order > b.order)
@@ -53,7 +53,7 @@ export default class PeopleList extends React.Component {
       var index = people.findIndex(p => p.uid == person.uid);
       if(index >= 0)
         people[index] = person;
-      else  
+      else
         people.push(person);
     });
 
@@ -86,8 +86,8 @@ export default class PeopleList extends React.Component {
 
     return (
       <div style={this.props.style}>
-        <Socket.Event name={ GetPeopleKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
-        <Socket.Event name={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPeopleKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
+        <Socket.Listener event={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
         <Table>
           <thead>
             <tr>

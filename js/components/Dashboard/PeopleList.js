@@ -5,8 +5,8 @@
 import React from 'react';
 import $ from 'jquery';
 import {
-  Row, Col,
-  Input, Button,
+  Col,
+  Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
 import Socket from 'react-socket';
 
@@ -73,21 +73,22 @@ export default class PeopleList extends React.Component {
 
     return (
       <div>
-        <Socket.Event name={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/>
-        <Socket.Event name={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/>
+        <Socket.Listener event={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
 
-        <form className="form-horizontal">
-          <Input label="Search:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-            <Row>
-              <Col xs={10}>
-                <Input type="text" onChange={this.filterNames.bind(this)} ref="filter"  />
-              </Col>
-              <Col xs={2}>
-                <Button bsStyle="success" onClick={this.updateData.bind(this)}>Refresh Data</Button>
-              </Col>
-            </Row>
-          </Input>
-        </form>
+        <Form horizontal>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              Search:
+            </Col>
+            <Col xs={8}>
+              <FormControl type="text" onChange={this.filterNames.bind(this)} ref="filter"  />
+            </Col>
+            <Col xs={2}>
+              <Button bsStyle="success" onClick={this.updateData.bind(this)}>Refresh Data</Button>
+            </Col>
+          </FormGroup>
+        </Form>
         <hr />
 
         { peopleList }

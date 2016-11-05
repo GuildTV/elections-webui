@@ -32,7 +32,7 @@ export default class Dashboard extends React.Component {
           <Grid>
             <Row>
               <Col xs={12}>
-                <Tabs animation={false}>
+                <Tabs animation={false} id="tabs">
                   <Tab eventKey={1} title="People">
                     <PeopleList />
                   </Tab>

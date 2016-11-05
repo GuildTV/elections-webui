@@ -45,7 +45,7 @@ export default class VotesTable extends React.Component {
   }
 
   loadedElectionData(str) {
-    // console.log("EL DATA", str);
+    console.log("EL DATA", str);
     const xml = $($.parseXML(str));
 
     const rows = {}
@@ -69,7 +69,7 @@ export default class VotesTable extends React.Component {
       });
     });
 
-    // console.log(rows)
+    console.log(rows)
 
     this.setState({ data: rows });
   }
@@ -90,7 +90,7 @@ export default class VotesTable extends React.Component {
 
     return (
       <Table bordered>
-        <Socket.Event name={ GetElectionsKey } callback={ this.loadedElectionData.bind(this) } ref="sock"/>
+        <Socket.Listener event={ GetElectionsKey } callback={ this.loadedElectionData.bind(this) } ref="sock"/>
         <thead>
           <tr>
             <th>Name</th>

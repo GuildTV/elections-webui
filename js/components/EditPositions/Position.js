@@ -97,7 +97,7 @@ export default class Position extends React.Component {
   render() {
     return (
       <div>
-        <Socket.Event name={ SavePositionKey } ref="sock"/>
+        <Socket.Listener event={ SavePositionKey } ref="sock"/>
 
         <form className="form-horizontal" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>

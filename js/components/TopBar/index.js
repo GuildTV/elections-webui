@@ -43,7 +43,7 @@ export default class TopBar extends React.Component {
     return (
       <Navbar inverse>
         <Socket.Socket />
-        <Socket.Event name="test" ref="sock"/>
+        <Socket.Listener event="test" callback={()=>{}} ref="sock"/>
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#">Guild Elections WebUI</a>

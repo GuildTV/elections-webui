@@ -5,7 +5,8 @@
 import React from 'react';
 import Socket from 'react-socket';
 import {
-  Button, Row, Col, Input
+  Col,
+  Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
 
 import VotesTable from './VotesTable';
@@ -109,36 +110,38 @@ export default class Elections extends React.Component {
 
     return (
       <div>
-        <Socket.Event name={ GetPositionKey } callback={ this.loadedPositionData.bind(this) } ref="sock"/>
-        <Socket.Event name={ UpdatePositionKey } callback={ this.handlePositionUpdate.bind(this) } />
-        <Socket.Event name={ CurrentGraphId } callback={ this.handleGraphId.bind(this) } />
+        <Socket.Listener event={ GetPositionKey } callback={ this.loadedPositionData.bind(this) } ref="sock"/>
+        <Socket.Listener event={ UpdatePositionKey } callback={ this.handlePositionUpdate.bind(this) } />
+        <Socket.Listener event={ CurrentGraphId } callback={ this.handleGraphId.bind(this) } />
 
-        <form className="form-horizontal" onSubmit="return false">
+        <Form horizontal>
           <fieldset>
-            <Input label="Current Graph" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-              <Row>
-                <Col xs={10}>
-                  { this.getGraphId() }
-                </Col>
-                <Col xs={2}>
-                  <Button bsStyle="danger" onClick={() => this.clearGraphId()}>Clear</Button>
-                </Col>
-              </Row>
-            </Input>
-            <Input label="Current position:" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-              <Row>
-                <Col xs={10}>
-                  <Input type="select" onChange={this.handlePositionSelectionChange.bind(this)} value={this.state.dropdownRole}>
-                    { positions }
-                  </Input>
-                </Col>
-                <Col xs={2}>
-                  <Button bsStyle="success" onClick={this.loadPositionData.bind(this)} >Preview</Button>
-                </Col>
-              </Row>
-            </Input>
-          </fieldset>
-        </form>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Current Graph:
+              </Col>
+              <Col xs={8}>
+                { this.getGraphId() }
+              </Col>
+              <Col xs={2}>
+                <Button bsStyle="danger" onClick={() => this.clearGraphId()}>Clear</Button>
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Current position:
+              </Col>
+              <Col xs={8}>
+                <FormControl componentClass="select" onChange={this.handlePositionSelectionChange.bind(this)} value={this.state.dropdownRole}>
+                  { positions }
+                </FormControl>
+              </Col>
+              <Col xs={2}>
+                <Button bsStyle="success" onClick={this.loadPositionData.bind(this)} >Preview</Button>
+              </Col>
+            </FormGroup>
+        </fieldset>
+        </Form>
 
         <VotesTable position={this.state.currentRole} />
       </div>

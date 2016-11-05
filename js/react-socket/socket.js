@@ -11,6 +11,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _socket = require('socket.io-client');
+
+var _socket2 = _interopRequireDefault(_socket);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -62,7 +66,7 @@ var Socket = function (_Component) {
                 throw new Error('Another "' + name + '" socket is already mounted.');
             }
 
-            SOCKETS[name] = io(url, options);
+            SOCKETS[name] = (0, _socket2.default)(url, options);
         }
     }, {
         key: 'componentWillUnmount',

@@ -52,7 +52,7 @@ export default class PersonEntry extends React.Component {
     let hasManifestoPoints = this.props.data.manifesto.one.length > 2 || this.props.data.manifesto.two.length > 2 || this.props.data.manifesto.three.length > 2;
 
     var overlayContent = (
-      <Popover title="More Templates" style={overlayCss}>
+      <Popover id="" title="More Templates" style={overlayCss}>
         {
           hasManifestoPoints ?
             <span>
