@@ -29,11 +29,11 @@ export default class EditPositions extends React.Component {
   }
 
   LoadData(e){
-    var data = e.target.getAttribute('data');
+    let data = e.target.getAttribute('data');
     data = JSON.parse(data);
 
     console.log("Editing:", data.id);
-    
+
     this.refs.edit.LoadForm(data);
     this.toggleList(false);
   }

@@ -4,7 +4,7 @@
 import React from 'react';
 import Socket from 'react-socket';
 
-import { 
+import {
   MenuItem,
   Navbar,
   Nav,
@@ -28,7 +28,7 @@ const RunTemplateKey = "runTemplate";
 export default class TopBar extends React.Component {
 
   runTemplate(e){
-    var target = e.target;
+    let target = e.target;
     if(!e.target.hasAttribute('data-id'))
       target = target.parentElement;
 

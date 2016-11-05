@@ -16,7 +16,7 @@ import Footer from './Footer';
 /*
 * Variables
 */
-var bodyStyle = {
+let bodyStyle = {
   overflowY: "scroll",
   height: "calc(100vh - 72px - 200px)"
 };
