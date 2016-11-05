@@ -1,4 +1,3 @@
-
 export function generateRon(position){
   return {
     id: "ron-"+position.id,

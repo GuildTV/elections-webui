@@ -1,5 +1,5 @@
 // Include gulp
-var gulp = require('gulp'); 
+var gulp = require('gulp');
 
 // Include Our Plugins
 var util = require('gulp-util');
@@ -41,7 +41,7 @@ gulp.task("build", function(callback) {
 //webpack dev build
 gulp.task("default", function(callback) {
   var WebpackDevServer = require("webpack-dev-server");
-  
+
   // modify some webpack config options
   var myConfig = Object.create(webpackConfig);
   myConfig.devtool = "eval";

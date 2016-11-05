@@ -1,7 +1,6 @@
 export default function(Models, socket){
   let { Person } = Models;
 
-
   socket.on('savePerson', (data) => {
     console.log("Save Person: ", data.uid);
 
@@ -76,7 +75,7 @@ export default function(Models, socket){
     return Person.getJoin({position: true}).filter({ id: data.id }).run().then(people => {
       let person = people[0];
       //clear existing winner
-      return Person.filter({ 
+      return Person.filter({
         positionId: person.positionId,
         elected: true
       }).update({ elected: false }).run().then((changed)=>{
@@ -85,7 +84,7 @@ export default function(Models, socket){
           return p;
         });
 
-        return { 
+        return {
           person,
           changed
         };

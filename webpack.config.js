@@ -3,7 +3,7 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: './js/app.js',
-  output: { 
+  output: {
     path: __dirname,
     filename: 'static/app.js',
     publicPath: "static"

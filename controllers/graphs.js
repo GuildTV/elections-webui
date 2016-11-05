@@ -1,12 +1,12 @@
 const config = require('../config');
-var linq = require('linq');
-var builder = require('xmlbuilder');
-var mapSeries = require('promise-map-series');
+const linq = require('linq');
+const builder = require('xmlbuilder');
+const mapSeries = require('promise-map-series');
 const cors = require('cors');
 
 import { generateRon } from './ron';
 
-var GRAPHROLE = { // When in manual mode
+let GRAPHROLE = { // When in manual mode
   id: null,
   round: null
 };

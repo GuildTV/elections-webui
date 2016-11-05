@@ -1,15 +1,15 @@
-var net = require('net');
-var linq = require('linq');
-var mapSeries = require('promise-map-series');
+const net = require('net');
+const linq = require('linq');
+const mapSeries = require('promise-map-series');
 
-var lastState = {};
-var pingInterval = null;
+let lastState = {};
+let pingInterval = null;
 
 import { cvizHost, cvizPort } from '../config';
 
 import { generateRon } from './ron';
 
-var client = new net.Socket();
+const client = new net.Socket();
 client.setNoDelay(true);
 client.setTimeout(500);
 
@@ -54,7 +54,7 @@ export default function(Models, socket, config){
   let { Person, Position } = Models;
 
   socket.emit('templateState', lastState);
-  
+
   client.on('data', (data) => {
     try {
       if(data == "{}")
@@ -71,16 +71,16 @@ export default function(Models, socket, config){
     console.log("runTemplate", data);
 
     // not pretty, but data needs to be passed as an object of strings
-    var templateData = {};
+    const templateData = {};
 
     if(data.template.toLowerCase() == "lowerthird"){
       if(!data.data || !data.data.candidate)
         return;
 
-      for(var key in data.data) {
-        var person = data.data[key];
-        var name = (person.firstName + " " + person.lastName).trim().toUpperCase();
-        var role = person.position.fullName.trim().toUpperCase();
+      for(const key in data.data) {
+        const person = data.data[key];
+        const name = (person.firstName + " " + person.lastName).trim().toUpperCase();
+        let role = person.position.fullName.trim().toUpperCase();
         if(person.position.type != "other"){
           role += (person.elected ? " elect" : " candidate").toUpperCase();;
         }
@@ -92,23 +92,23 @@ export default function(Models, socket, config){
       }
 
     } else if (data.template.toLowerCase() == "candidatesabbs" || data.template.toLowerCase() == "candidatenonsabbs") {
-      var type = (data.template.toLowerCase() == "candidatesabbs") ? "candidateSabb" : "candidateNonSabb";
-      Person.getJoin({position: true}).filter({ 
+      let type = (data.template.toLowerCase() == "candidatesabbs") ? "candidateSabb" : "candidateNonSabb";
+      Person.getJoin({position: true}).filter({
         position: {
           type: type
         }
       }).run().then(function(people){
-        var grouped = linq.from(people)
+        const grouped = linq.from(people)
           .orderBy((x) => x.position.order)
           .thenBy((x) => x.order)
           .thenBy((x) => x.lastName)
           .groupBy((x) => x.position.id)
           .toArray();
 
-        var templateData = {};
-        var index = 1;
+        const templateData = {};
+        let index = 1;
         grouped.forEach((g) => {
-          var compiledData = {
+          const compiledData = {
             candidates: g.toArray(),
             position: g.first().position
           };
@@ -130,17 +130,17 @@ export default function(Models, socket, config){
     } else if (data.template.toLowerCase() == "winnersall"){
       getWinnersOfType(Models, "candidateSabb").then(function(sabbs){
         getWinnersOfType(Models, "candidateNonSabb").then(function(people){
-          var half_length = Math.ceil(people.length / 2);  
-          var page1 = people.splice(0, half_length);
+          const half_length = Math.ceil(people.length / 2);
+          const page1 = people.splice(0, half_length);
 
 
-          var compiledSabbs = {
+          const compiledSabbs = {
             candidates: sabbs
           };
-          var compiledData = {
+          const compiledData = {
             candidates: page1
           };
-          var compiledData2 = {
+          const compiledData2 = {
             candidates: people
           };
 
@@ -160,14 +160,14 @@ export default function(Models, socket, config){
       return;
     } else if (data.template.toLowerCase() == "winnersnonsabbs"){
       getWinnersOfType(Models, "candidateNonSabb").then(function(people){
-        var half_length = Math.ceil(people.length / 2);  
-        var page1 = people.splice(0, half_length);
+        const half_length = Math.ceil(people.length / 2);
+        const page1 = people.splice(0, half_length);
 
 
-        var compiledData = {
+        const compiledData = {
           candidates: page1
         };
-        var compiledData2 = {
+        const compiledData2 = {
           candidates: people
         };
 
@@ -185,7 +185,7 @@ export default function(Models, socket, config){
       return;
     } else if (data.template.toLowerCase() == "winnerssabbs"){
       getWinnersOfType(Models, "candidateSabb").then(function(people){
-        var compiledData = {
+        const compiledData = {
           candidates: people
         };
 
@@ -203,7 +203,7 @@ export default function(Models, socket, config){
 
       return;
     } else if (data.template.toLowerCase() == "candidateboard") {
-      var compiledData = {};
+      const compiledData = {};
       Position.filter({id: data.data}).run().then(function(positions){
         if(positions.length == 0)
           return;
@@ -230,7 +230,7 @@ export default function(Models, socket, config){
       });
       return;
     }else {
-      for(var key in data.data) {
+      for(const key in data.data) {
         templateData[key] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data.data[key]) + "]]></componentData></templateData>";
       }
     }
@@ -260,7 +260,7 @@ export default function(Models, socket, config){
   });
 
   // TODO - send templateState at appropriate points
-  // data format: 
+  // data format:
   // {
   //   state: "STOP", // or WAIT or PLAYING
   //   dataId: "ado-ben",
@@ -290,4 +290,3 @@ function getWinnersOfType(Models, type){
       });
   });
 }
-
