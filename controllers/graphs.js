@@ -2,6 +2,11 @@ const linq = require('linq');
 const builder = require('xmlbuilder');
 const mapSeries = require('promise-map-series');
 const cors = require('cors');
+var xsd = require('libxml-xsd');
+var md5 = require('md5');
+
+import fs from 'fs';
+import { parseString } from 'xml2js';
 
 import { generateRon } from './ron';
 
@@ -9,18 +14,19 @@ let GRAPHROLE = { // When in manual mode
   id: null,
   round: null
 };
+var SCRAPE_LAST_MD5 = "";
 
 export function setup(Models, app){
   let { Position } = Models;
 
   // DEV ONLY!!
-  Position.filter({ miniName: "President" }).run().then(function (positions){
-    console.log(positions)
-    if(!positions || positions.length == 0)
-      return;
+  // Position.filter({ miniName: "President" }).run().then(function (positions){
+  //   console.log(positions)
+  //   if(!positions || positions.length == 0)
+  //     return;
 
-    GRAPHROLE = positions[0]
-  });
+  //   GRAPHROLE = positions[0]
+  // });
 
   app.get('/graph', cors(), (req, res) => {
     // DEV ONLY:
@@ -39,7 +45,62 @@ export function setup(Models, app){
       // use hardcoded value
       generateResponseXML(Models, GRAPHROLE.id, GRAPHROLE.round).then(str => res.send(str));
     } else {
-      res.send("TODO - proxy sabbgraph");
+      // res.send("TODO - proxy sabbgraph");
+      // TODO - also store any graph data in the db, as well as log the scrapes to filesystem
+
+      const str = fs.readFileSync("./static/test/pres.xml", {encoding: "utf8"});
+      const md5sum = md5(str);
+
+      if (md5sum != SCRAPE_LAST_MD5){
+        // SCRAPE_LAST_MD5 = md5sum;
+        console.log("Got new data from sabbgraph");
+
+        xsd.parseFile("./schema.xsd", function(err, schema){
+          if (err){
+            console.log("XSD load error:", err);
+            return;
+          }
+          schema.validate(str, function(err, validationErrors){
+            if (err){
+              console.log("XML error:", err);
+              return;
+            }
+
+            if (validationErrors){
+              console.log("XML Validation errors:", validationErrors)
+              return;
+            }
+
+            parseString(str, (err, xml) => {
+              // process and cache
+              if (err) {
+                console.log("XML Parse Error:", err);
+                return;
+              }
+
+              console.log(xml)
+              const position = xml.root.position;
+              const sabbGraphId = position[0].$.id;
+
+              // fs.writeFile("scrapes/" + sabbGraphId + "-" + Date.now() + ".xml", str);
+
+              // TODO - disjoint graph candidates from people elsewhere in the system.
+              //        - allows for name differences and things
+
+
+
+            });
+          });  
+        });
+      }
+
+      
+
+      // console.log(str)
+      res.set('Content-Type', 'text/plain');
+      res.send(str);
+
+      // TODO - add a scrape now feature, in case graph dies, we can still manually trigger a scrape
     }
   });
 }

@@ -33,7 +33,9 @@
     "history": "^4.4.0",
     "jquery": "^3.1.1",
     "less": "^2.7.1",
+    "libxml-xsd": "^0.5.2",
     "linq": "^3.0.5",
+    "md5": "^2.2.1",
     "promise-map-series": "^0.2.3",
     "react": "^15.3.2",
     "react-addons-update": "^15.3.2",
@@ -46,6 +48,7 @@
     "thinky": "^2.3.7",
     "webpack": "^1.13.3",
     "webpack-dev-server": "^1.16.2",
+    "xml2js": "^0.4.17",
     "xmlbuilder": "^8.2.2"
   },
   "devDependencies": {

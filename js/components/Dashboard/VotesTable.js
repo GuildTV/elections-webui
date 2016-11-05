@@ -29,6 +29,12 @@ export default class VotesTable extends React.Component {
 
   componentDidMount() {
     this.refs.sock.socket.emit(GetElectionsKey, { position: this.props.position })
+
+    // refresh every few seconds
+    console.log("Starting votes table refresher")
+    setInterval(() => {
+      this.refs.sock.socket.emit(GetElectionsKey, { position: this.props.position });
+    }, 2000);
   }
 
   componentWillReceiveProps(newProps){
