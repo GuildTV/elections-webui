@@ -3,10 +3,15 @@
 */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Socket from 'react-socket';
 import update from 'react-addons-update'
 
-import { Input, Button } from 'react-bootstrap';
+import {
+  Form, FormGroup, FormControl, ControlLabel, 
+  Col, 
+  Button
+} from 'react-bootstrap';
 
 /*
 * Variables
@@ -106,7 +111,7 @@ export default class Person extends React.Component {
   }
 
   handlePhotoChange(){
-    var files = this.refs.fileUpload.getInputDOMNode().files;
+    const files = ReactDOM.findDOMNode(this.fileUpload).files;
 
     var reader = new FileReader();
     reader.onload = function(dat) {
@@ -170,20 +175,57 @@ export default class Person extends React.Component {
     if(this.isCandidate()){
       candidateData = (
         <div>
-          <Input type="text" label="First Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="First manifesto point"
-            onChange={this.handleFirstManifestoPointChange.bind(this)} value={this.state.manifesto.one} />
-          <Input type="text" label="Second Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Second manifesto point"
-            onChange={this.handleSecondManifestoPointChange.bind(this)} value={this.state.manifesto.two} />
-          <Input type="text" label="Third Manifesto Point" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Third manifesto point"
-            onChange={this.handleThirdManifestoPointChange.bind(this)} value={this.state.manifesto.three} />
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              First Manifesto Point
+            </Col>
+            <Col xs={10}>
+              <FormControl type="text" onChange={this.handleFirstManifestoPointChange.bind(this)} 
+                placeholder="First manifesto point" value={this.state.manifesto.one} />
+            </Col>
+          </FormGroup>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              Second Manifesto Point
+            </Col>
+            <Col xs={10}>
+              <FormControl type="text" onChange={this.handleSecondManifestoPointChange.bind(this)} 
+                placeholder="Second manifesto point" value={this.state.manifesto.two} />
+            </Col>
+          </FormGroup>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              Third Manifesto Point
+            </Col>
+            <Col xs={10}>
+              <FormControl type="text" onChange={this.handleThirdManifestoPointChange.bind(this)} 
+                placeholder="Third manifesto point" value={this.state.manifesto.three} />
+            </Col>
+          </FormGroup>
 
-          <Input type="file" label="Photo" labelClassName="col-xs-2" wrapperClassName="col-xs-10" ref="fileUpload"
-            onChange={this.handlePhotoChange.bind(this)} accept="image/png" />
-          <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-            <img src={this.state.photo} width="200px" height="200px" />
-          </Input>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              Photo
+            </Col>
+            <Col xs={10}>
+              <FormControl type="file" onChange={this.handlePhotoChange.bind(this)} ref={e => this.fileUpload = e} accept="image/png"  />
+            </Col>
+          </FormGroup>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}></Col>
+            <Col xs={10}>
+              <img src={this.state.photo} width="200px" height="200px" />
+            </Col>
+          </FormGroup>
 
-          <Input type="text" label="Elected" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.elected?"yes":"no"} />
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={2}>
+              Elected
+            </Col>
+            <Col xs={10}>
+              <FormControl.Static>{ this.state.elected ? "yes" : "no" }</FormControl.Static>
+            </Col>
+          </FormGroup>
         </div>
       );
     }
@@ -194,34 +236,75 @@ export default class Person extends React.Component {
       <div>
         <Socket.Listener event={ GetPositionsKey } callback={ this.handlePositionsLoad.bind(this) } ref="sock"/>
 
-        <form className="form-horizontal" onSubmit={this.handleSubmit.bind(this)}>
+        <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <legend>Edit person</legend>
 
-            <Input type="text" label="ID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.id} />
-            <Input type="text" label="First Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleFirstNameChange.bind(this)} value={this.state.firstName} />
-            <Input type="text" label="Last Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleLastNameChange.bind(this)} value={this.state.lastName} />
-            <Input type="text" label="UID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Enter a unique identifer - e.g. ado-ben"
-              onChange={this.handleUidChange.bind(this)} value={this.state.uid} />
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                ID
+              </Col>
+              <Col xs={10}>
+                <FormControl.Static>{ this.state.id }</FormControl.Static>
+              </Col>
+            </FormGroup>
 
-            <Input type="select" label="Position" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a position:"
-              onChange={this.handlePositionChange.bind(this)} value={this.state.positionId}>
-              { positions }
-            </Input>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                First Name
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleFirstNameChange.bind(this)} value={this.state.firstName} />
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Last Name
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleLastNameChange.bind(this)} value={this.state.lastName} />
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                UID
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleUidChange.bind(this)} placeholder="Enter a unique identifer - e.g. ado-ben" value={this.state.uid} />
+              </Col>
+            </FormGroup>
+
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Position
+              </Col>
+              <Col xs={10}>
+                <FormControl componentClass="select" onChange={this.handlePositionChange.bind(this)} value={this.state.positionId}>
+                  { positions }
+                </FormControl>
+              </Col>
+            </FormGroup>
 
             { candidateData }
 
-            <Input type="number" label="Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Order
+              </Col>
+              <Col xs={10}>
+                <FormControl type="number" min="0" onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+              </Col>
+            </FormGroup>
 
-            <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-              <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
-              <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>
-            </Input>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}></Col>
+              <Col xs={10}>
+                <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
+                <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>
+              </Col>
+            </FormGroup>
           </fieldset>
-        </form>
+        </Form>
       </div>
     );
   }

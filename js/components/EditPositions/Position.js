@@ -6,7 +6,11 @@ import React from 'react';
 import Socket from 'react-socket';
 import Switch from 'react-bootstrap-switch';
 
-import { Input, Button} from 'react-bootstrap';
+import {
+  Form, FormGroup, FormControl, ControlLabel, 
+  Col, 
+  Button
+} from 'react-bootstrap';
 
 /*
 * Variables
@@ -77,8 +81,7 @@ export default class Position extends React.Component {
     this.setState({ winnerOrder: parseInt(e.target.value) });
   }
   handleShowOfficerSidebarChange(s) {
-    this.setState({ sidebarUseOfficer: s });
-
+    this.setState({ sidebarUseOfficer: s.value() });
   }
 
   handleSubmit(e) {
@@ -102,46 +105,103 @@ export default class Position extends React.Component {
   render() {
     return (
       <div>
-        <Socket.Listener event={ SavePositionKey } ref="sock"/>
+        <Socket.Listener event={ SavePositionKey } callback={()=>{}} ref="sock"/>
 
-        <form className="form-horizontal" onSubmit={this.handleSubmit.bind(this)}>
+        <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <legend>Edit position</legend>
 
-            <Input type="text" label="ID" labelClassName="col-xs-2" wrapperClassName="col-xs-10" disabled value={this.state.id} />
-            <Input type="select" label="Type" labelClassName="col-xs-2" wrapperClassName="col-xs-10" placeholder="Choose a type:"
-              onChange={this.handleTypeChange.bind(this)} value={this.state.type}>
-              <option value="candidateSabb">Candidate - Sabb</option>
-              <option value="candidateNonSabb">Candidate - Non Sabb</option>
-              <option value="other">Other</option>
-            </Input>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                ID
+              </Col>
+              <Col xs={10}>
+                <FormControl.Static>{ this.state.id }</FormControl.Static>
+              </Col>
+            </FormGroup>
 
-            <Input type="text" label="Sabb Graph Id" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleSabbGraphIdChange.bind(this)} value={this.state.sabbGraphId} />
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Type
+              </Col>
+              <Col xs={10}>
+                <FormControl componentClass="select" onChange={this.handleTypeChange.bind(this)} value={this.state.type}>
+                  <option value="candidateSabb">Candidate - Sabb</option>
+                  <option value="candidateNonSabb">Candidate - Non Sabb</option>
+                  <option value="other">Other</option>  
+                </FormControl>
+              </Col>
+            </FormGroup>
 
-            <Input type="text" label="Full Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10" 
-              onChange={this.handleFullNameChange.bind(this)} value={this.state.fullName} />
-            <Input type="text" label="Compact Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleCompactNameChange.bind(this)} value={this.state.compactName} />
-            <Input type="text" label="Mini Name" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Sabb Graph Id
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleSabbGraphIdChange.bind(this)} value={this.state.sabbGraphId} />
+              </Col>
+            </FormGroup>
 
-            <Input type="number" label="Board Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Full Name
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleFullNameChange.bind(this)} value={this.state.fullName} />
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Compact Name
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleCompactNameChange.bind(this)} value={this.state.compactName} />
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Mini Name
+              </Col>
+              <Col xs={10}>
+                <FormControl type="text" onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
+              </Col>
+            </FormGroup>
 
-            <Input type="number" label="Winner Order" min="0" labelClassName="col-xs-2" wrapperClassName="col-xs-10"
-              onChange={this.handleWinnerOrderChange.bind(this)} value={this.state.winnerOrder} />
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Board Order
+              </Col>
+              <Col xs={10}>
+                <FormControl type="number" min="0" onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+              </Col>
+            </FormGroup>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Winner Order
+              </Col>
+              <Col xs={10}>
+                <FormControl type="number" min="0" onChange={this.handleWinnerOrderChange.bind(this)} value={this.state.winnerOrder} />
+              </Col>
+            </FormGroup>
 
-            <Input label="Show officer in sidebar" labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-              <Switch onChange={this.handleShowOfficerSidebarChange.bind(this)} state={this.state.sidebarUseOfficer} />
-            </Input>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}>
+                Show 'officer' in sidebar
+              </Col>
+              <Col xs={10}>
+                <Switch onChange={this.handleShowOfficerSidebarChange.bind(this)} value={this.state.sidebarUseOfficer} />
+              </Col>
+            </FormGroup>
 
-            <Input label=" " labelClassName="col-xs-2" wrapperClassName="col-xs-10">
-              <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
-              <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>
-            </Input>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={2}></Col>
+              <Col xs={10}>
+                <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
+                <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>
+              </Col>
+            </FormGroup>
           </fieldset>
-        </form>
+        </Form>
       </div>
     );
   }

@@ -2,8 +2,8 @@ const linq = require('linq');
 const builder = require('xmlbuilder');
 const mapSeries = require('promise-map-series');
 const cors = require('cors');
-var xsd = require('libxml-xsd');
-var md5 = require('md5');
+const xsd = require('libxml-xsd');
+const md5 = require('md5');
 
 import fs from 'fs';
 import { parseString } from 'xml2js';
@@ -14,7 +14,7 @@ let GRAPHROLE = { // When in manual mode
   id: null,
   round: null
 };
-var SCRAPE_LAST_MD5 = "";
+let SCRAPE_LAST_MD5 = "";
 
 export function setup(Models, app){
   let { Position } = Models;
