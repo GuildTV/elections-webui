@@ -24,6 +24,7 @@ export default class VotesTable extends React.Component {
     super(props);
     this.state = {
       data: {},
+      error: null
     }
   }
 
@@ -52,7 +53,16 @@ export default class VotesTable extends React.Component {
 
   loadedElectionData(str) {
     // console.log("EL DATA", str);
-    const xml = $($.parseXML(str));
+    let xml = "";
+
+    try {
+      xml = $($.parseXML(str));
+    } catch (e) {
+      return this.setState({
+        data: null,
+        error: str
+      });
+    }
 
     const rows = {}
     $.each(xml.find("candidates candidate"), (i, v) => {
@@ -71,17 +81,23 @@ export default class VotesTable extends React.Component {
         const val = r.innerHTML ? r.innerHTML : "?";
 
         if (!elim)
-          rows[cid].results[number-1] = val;
+          rows[cid].results[number] = val;
       });
     });
 
     console.log(rows)
 
-    this.setState({ data: rows });
+    this.setState({
+      data: rows,
+      error: null
+    });
   }
 
-  render() {
-    const { data } = this.state;
+  renderInner() {
+    const { data, error } = this.state;
+
+    if (error)
+      return <p>Error: { error }</p>;
 
     const roundCount = Math.max.apply(null, $.makeArray($.map(data, r => r.results.length)));
 
@@ -96,7 +112,6 @@ export default class VotesTable extends React.Component {
 
     return (
       <Table bordered>
-        <Socket.Listener event={ GetElectionsKey } callback={ this.loadedElectionData.bind(this) } ref="sock"/>
         <thead>
           <tr>
             <th>Name</th>
@@ -111,6 +126,15 @@ export default class VotesTable extends React.Component {
           </tr>
         </tbody>
       </Table>
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        <Socket.Listener event={ GetElectionsKey } callback={ this.loadedElectionData.bind(this) } ref="sock"/>
+        { this.renderInner() }
+      </div>
     );
   }
 

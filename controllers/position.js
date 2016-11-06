@@ -4,32 +4,28 @@ export default function(Models, socket){
   socket.on('savePosition', (data) => {
     console.log("Save Position: " + JSON.stringify(data));
 
-    if(data.id)
-      return Position.filter({id: data.id}).run().then(function(positions){
-        if(positions.length == 0)
-          return console.log("Error loading position: " + data.id);
+    if (data.id){
+      return Position.findById(data.id).then(pos => {
+        if (!pos)
+          return console.log("Failed to find position to update: ", data);
 
-        let position = positions[0]
-        position.merge(data);
+        Object.assign(pos, data);
 
-        position.save().then(function() {
-          socket.emit('updatePosition', position);
-        }).error(function(error){
-          console.log("Error saving new position: ", error);
-        });
-      });
+        return pos.save().then((p) => socket.emit('updatePosition', p));
+      }).catch(e => console.log("Error saving new position: ", error));
+    }
 
-    return Position.save(data).then(function(doc) {
-      socket.emit('updatePosition', doc);
+    return Position.create(data).then(p => {
+      socket.emit('updatePosition', p);
     }).error(function(error){
         console.log("Error saving new position: ", error);
     });
   });
 
   socket.on('getPositions', () => {
-    Position.run().then(function(data) {
+    Position.findAll().then(data => {
       socket.emit('getPositions', data);
-    }).error(function(error) {
+    }).error(error => {
       console.log("Error getting positions: ", error)
     });
   });

@@ -29,7 +29,7 @@ export default class PersonEntry extends React.Component {
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
 
-    this.props.refs.sock.socket.emit(RunTemplateKey, {
+    this.props.sock.socket.emit(RunTemplateKey, {
       template: e.target.getAttribute('data-id'),
       data: { candidate: this.props.data },
       dataId: this.props.data.uid
@@ -39,19 +39,24 @@ export default class PersonEntry extends React.Component {
   setWinner(){
     console.log("Setting winner:", this.props.data.id);
 
-    this.props.refs.sock.socket.emit(SetWinnerKey, this.props.data);
+    this.props.sock.socket.emit(SetWinnerKey, this.props.data);
   }
 
   clearWinner(){
     console.log("Clearing winner:", this.props.data.id);
 
-    this.props.refs.sock.socket.emit(ClearWinnerKey, this.props.data);
+    this.props.sock.socket.emit(ClearWinnerKey, this.props.data);
+  }
+
+  closePopover(){
+
+    return false;
   }
 
   render() {
-    let hasManifestoPoints = this.props.data.manifesto.one.length > 2 || this.props.data.manifesto.two.length > 2 || this.props.data.manifesto.three.length > 2;
+    const hasManifestoPoints = this.props.data.manifestoOne.length > 2 || this.props.data.manifestoTwo.length > 2 || this.props.data.manifestoThree.length > 2;
 
-    var overlayContent = (
+    const overlayContent = (
       <Popover id="" title="More Templates" style={overlayCss}>
         {
           hasManifestoPoints ?
@@ -69,20 +74,20 @@ export default class PersonEntry extends React.Component {
       </Popover>
     );
 
-    let isValid = this.props.data.position && this.props.data.position.type;
-    let isCandidate = isValid && this.props.data.position.type.indexOf('candidate') == 0;
+    const isValid = this.props.data.Position && this.props.data.Position.type;
+    const isCandidate = isValid && this.props.data.Position.type.indexOf('candidate') == 0;
 
     if(!isValid)
       return (<p></p>);
 
     return (
       <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
-        <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.position.miniName }</p>
+        <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName }</p>
         <p>
           <Button data-id="lowerThird" onClick={this.runTemplate.bind(this)}>Lower Third</Button>&nbsp;
           {
             isCandidate ?
-            <OverlayTrigger container={this.props.parent} trigger="click" placement="right" overlay={ overlayContent }>
+            <OverlayTrigger key={Date.now()} container={this.props.parent} trigger="click" placement="right" rootClose overlay={ overlayContent }>
               <Button bsStyle="info">More</Button>
             </OverlayTrigger> :
             ""

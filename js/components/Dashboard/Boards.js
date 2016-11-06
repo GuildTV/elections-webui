@@ -61,10 +61,10 @@ export default class Boards extends React.Component {
   }
 
   render() {
-    var sabbs = this.state.positions
+    const sabbs = this.state.positions
       .filter(p => p.type == "candidateSabb")
       .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
-    var nonSabbs = this.state.positions
+    const nonSabbs = this.state.positions
       .filter(p => p.type == "candidateNonSabb")
       .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
 

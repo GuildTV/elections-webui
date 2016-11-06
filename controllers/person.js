@@ -1,46 +1,41 @@
 export default function(Models, socket){
-  let { Person } = Models;
+  let { Person, Position } = Models;
 
   socket.on('savePerson', (data) => {
     console.log("Save Person: ", data.uid);
 
-    if(data.id)
-      return Person.filter({id: data.id}).run().then(function(people){
-        if(people.length == 0)
-          return console.log("Error loading person: " + data.id);
+    if (data.id){
+      return Person.findById(data.id).then(per => {
+        if (!per)
+          return console.log("Failed to find person to update: ", data);
 
-        let person = people[0]
-        person.merge(data);
+        Object.assign(per, data);
 
-        person.save().then(function(doc) {
-          // console.log("Person added to DB: ", doc);
-
-          // we need to send the position too, so data needs reloading
-          Person.getJoin({position: true}).filter({id: doc.id}).run().then(function(people){
-            socket.emit('updatePeople', people);
+        return per.save().then((p) => {
+          return p.getPosition().then(pos => {
+            p.Position = pos;
+            socket.emit('updatePeople', p);
           });
-        }).error(function(error){
-          console.log("Error saving new person: ", error);
         });
+      }).catch(e => console.log("Error saving new position: ", error));
+    }
+
+    return Person.create(data).then(p => {
+      return p.getPosition().then(pos => {
+        p.Position = pos;
+        socket.emit('updatePeople', p);
       });
-
-    return Person.save(data).then(function(doc) {
-      // console.log("Person added to DB: ", doc);
-
-      // we need to send the position too, so data needs reloading
-      Person.getJoin({position: true}).filter({id: doc.id}).run().then(function(people){
-        socket.emit('updatePeople', people);
-      });
-
     }).error(function(error){
         console.log("Error saving new person: ", error);
     });
   });
 
   socket.on('getPeople', () => {
-    Person.getJoin({position: true}).run().then(function(data) {
+    Person.findAll({
+      include: [ Position ]
+    }).then(data => {
       socket.emit('getPeople', data);
-    }).error(function(error) {
+    }).error(error => {
       console.log("Error getting people: ", error)
     });
   });
@@ -52,9 +47,12 @@ export default function(Models, socket){
       person.save().then(() => {
         console.log("Set winner:", person.uid);
 
-        changed.push(person);
+        return person.getPosition().then(pos => {
+          person.Position = pos;
+          changed.push(person);
 
-        socket.emit('updatePeople', changed);
+          socket.emit('updatePeople', changed);
+        });
 
       }).error(error => {
         console.log("Failed to set winner:", error);
@@ -72,22 +70,28 @@ export default function(Models, socket){
 
 
   function clearWinner(data){
-    return Person.getJoin({position: true}).filter({ id: data.id }).run().then(people => {
-      let person = people[0];
-      //clear existing winner
-      return Person.filter({
-        positionId: person.positionId,
-        elected: true
-      }).update({ elected: false }).run().then((changed)=>{
-        changed = changed.map(p => {
-          p.position = person.position
-          return p;
+    return Person.findById(data.id, {
+      include: [ Position ]
+    }).then(per => {
+      return Person.update({
+        elected: false
+      }, {
+        where: {
+          positionId: per.Position.id,
+          elected: true
+        }
+      }).then(() => {
+        return Person.findAll({
+          where: {
+            positionId: per.Position.id
+          },
+          include: [ Position ]
+        }).then(changed => {
+          return {
+            person: per,
+            changed: changed
+          };
         });
-
-        return {
-          person,
-          changed
-        };
       });
     });
   }

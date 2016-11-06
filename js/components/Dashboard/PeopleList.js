@@ -3,6 +3,7 @@
 */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import {
   Col,
@@ -35,7 +36,7 @@ export default class PeopleList extends React.Component {
   }
 
   updateData(){
-    this.refs.sock.socket.emit(GetPeopleKey);
+    this.sock.socket.emit(GetPeopleKey);
   }
 
   handleStateChange(newData) {
@@ -54,8 +55,8 @@ export default class PeopleList extends React.Component {
     this.setState({people});
   }
 
-  filterNames(){
-    var filter = this.refs.filter.getValue();
+  filterNames(e){
+    const filter = e.target.value;
     this.setState({ filter });
   }
 
@@ -65,16 +66,16 @@ export default class PeopleList extends React.Component {
   }
 
   render() {
-    var peopleList = this.state.people
+    const peopleList = this.state.people
       .filter((p) => PeopleList.filterPerson(this.state.filter, p))
-      .map((p) => <PersonEntry key={p.id} refs={this.refs} parent={this} data={p} />);
+      .map((p) => <PersonEntry key={p.id} sock={this.sock} parent={this} data={p} />);
 
     $('.popover').remove();
 
     return (
       <div>
-        <Socket.Listener event={ GetPeopleKey } callback={ this.loadedNames.bind(this) } ref="sock"/>
-        <Socket.Listener event={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPeopleKey } callback={d => this.loadedNames(d)} ref={e => this.sock = e} />
+        <Socket.Listener event={ UpdatePeopleKey } callback={d => this.handleStateChange(d)} />
 
         <Form horizontal>
           <FormGroup>
@@ -82,10 +83,10 @@ export default class PeopleList extends React.Component {
               Search:
             </Col>
             <Col xs={8}>
-              <FormControl type="text" onChange={this.filterNames.bind(this)} ref="filter"  />
+              <FormControl type="text" onChange={e => this.filterNames(e)} />
             </Col>
             <Col xs={2}>
-              <Button bsStyle="success" onClick={this.updateData.bind(this)}>Refresh Data</Button>
+              <Button bsStyle="success" onClick={() => this.updateData()}>Refresh Data</Button>
             </Col>
           </FormGroup>
         </Form>
@@ -102,13 +103,17 @@ export default class PeopleList extends React.Component {
 
     filter = filter.toLowerCase();
 
-    var name = p.firstName + " " + p.lastName;
+    const name = p.firstName + " " + p.lastName;
     if(name.toLowerCase().indexOf(filter) != -1)
       return true;
 
-    var position = p.position.miniName;
-    if(position.toLowerCase().indexOf(filter) != -1)
-      return true;
+    if (p.Position) {
+      const position = p.Position.miniName;
+      if(position.toLowerCase().indexOf(filter) != -1)
+        return true;
+    } else {
+      console.log("MISSING POSITION:", p);
+    }
 
     return false;
   }

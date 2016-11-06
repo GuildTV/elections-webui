@@ -1,0 +1,25 @@
+{
+  "development": {
+    "username": "root",
+    "password": "localTest",
+    "database": "Elections",
+    "host": "127.0.0.1:33303",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "localTest",
+    "database": "Elections",
+    "host": "db",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "production": {
+    "username": "root",
+    "password": "localTest",
+    "database": "Elections",
+    "host": "db",
+    "dialect": "mysql",
+    "logging": false
+  }
+}

@@ -56,29 +56,29 @@ export default class Footer extends React.Component {
   KillButtonClick(){
     console.log("Sending KILL");
 
-    this.refs.sock.socket.emit(KillTemplateKey);
+    this.sock.socket.emit(KillTemplateKey);
   }
 
   GoButtonClick(){
     console.log("Sending GO");
 
-    this.refs.sock.socket.emit(GoTemplateKey);
+    this.sock.socket.emit(GoTemplateKey);
   }
 
   render() {
     return (
       <footer style={footerCss}>
-        <Socket.Listener event={ ChangeTemplateStateKey } callback={ this.ChangeTemplateState.bind(this) } ref="sock"/>
+        <Socket.Listener event={ ChangeTemplateStateKey } callback={d => this.ChangeTemplateState(d)} ref={e => this.sock = e} />
 
         <Grid style={{ height: "100%" }}>
           <Row style={{ height: "100%" }}>
             <Col xs={10}>
               <h3>Active: { this.state.dataId }</h3>
               <h4>Template: { this.state.templateName }</h4>
-              <p><Button bsStyle="danger" ref="clearBtn" onClick={this.KillButtonClick.bind(this)}>Kill</Button></p>
+              <p><Button bsStyle="danger" ref="clearBtn" onClick={() => this.KillButtonClick()}>Kill</Button></p>
             </Col>
             <Col xs={2} style={{ height: "100%" }}>
-              <Button bsStyle="success" style={goButtonCss} ref="goBtn" onClick={this.GoButtonClick.bind(this)}>Go</Button>
+              <Button bsStyle="success" style={goButtonCss} ref="goBtn" onClick={() => this.GoButtonClick()}>Go</Button>
             </Col>
           </Row>
         </Grid>

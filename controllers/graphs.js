@@ -17,16 +17,8 @@ let GRAPHROLE = { // When in manual mode
 let SCRAPE_LAST_MD5 = "";
 
 export function setup(Models, app){
-  let { Position } = Models;
-
   // DEV ONLY!!
-  // Position.filter({ miniName: "President" }).run().then(function (positions){
-  //   console.log(positions)
-  //   if(!positions || positions.length == 0)
-  //     return;
-
-  //   GRAPHROLE = positions[0]
-  // });
+  GRAPHROLE.id = 1;
 
   app.get('/graph', cors(), (req, res) => {
     // DEV ONLY:
@@ -128,66 +120,57 @@ export function bind(Models, socket){
 }
 
 function generateResponseXML(Models, pid, maxRound){
-  const { Person, Position, Vote, RoundElimination } = Models;
+  const { Person, Position, Election, ElectionRound } = Models;
 
-  return Position.filter({ id: pid }).run().then(function (positions){
-    if(!positions || positions.length == 0)
+  return Election.find({
+    where:{
+      positionId: pid
+    },
+    include: [ Position ]
+  }).then(election => {
+    if (!election)
       return "BAD POSITION";
 
-    const position = positions[0];
-
-    if (!position.id)
-      return "NO ROLE";
-
     const rootElm = builder.create('root');
-    rootElm.ele('position', { id: position.miniName }, position.fullName);
+    rootElm.ele('position', { id: election.Position.miniName }, election.Position.fullName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');
 
-    return Person.filter({ positionId: position.id }).run().then(function(people){
-      if (!people || people.length == 0)
-        return "NO PEOPLE";
+    const rawCandidates = JSON.parse(election.candidates);
+    Object.keys(rawCandidates).forEach(id => {
+      const cand = rawCandidates[id];
+      candidates.ele('candidate', { id: id }, cand);
+      // TODO - figure out how to order (split cand into { name, order} ??)
+    });
 
-      people = linq.from(people)
-        .orderBy((x) => x.order)
-        .toArray();
+    const where = {};
+    if (maxRound >= 0 && maxRound != null)
+      where.round = { $lte: maxRound };
 
-      people.push(generateRon(position));
+    return election.getElectionRounds({
+      where,
+      order: [[ "round", "ASC" ]]
+    }).then(data => {
+      data.forEach(r => {
+        const elm = rounds.ele('round', { number: r.round });
+        const results = JSON.parse(r.results);
 
-      people.forEach(p => {
-        candidates.ele('candidate', { id: p.id }, p.firstName + " " + p.lastName);
-      });
+        Object.keys(results).forEach(id => {
+          const count = results[id];
+          const elim = count == "elim"
 
-      return RoundElimination.filter({ positionId: position.id }).run().then(function(eliminated){
-        const arr = eliminated.map(e => e.round)
-        const data = arr.filter(function(v,i) { return i==arr.lastIndexOf(v); }).sort();
-        data.push(Math.max(Math.max.apply(null, data), -1) +1)
+          const props = { candidate: id };
+          if (elim)
+            props.eliminated = true;
 
-        const filtered = maxRound >= 0
-          ? data.filter(r => r <= maxRound)
-          : data;
-
-        return mapSeries(filtered, r => {
-            const elm = rounds.ele('round', { number: r+1 });
-
-            return mapSeries(people, p => {
-              return Vote.filter({ personId: p.id, round: r }).run().then(function(votes){
-                const elim = eliminated.filter(v => v.round < r && v.personId == p.id).length > 0;
-                const count = (!votes || votes.length == 0) ? undefined : votes[0].votes;
-
-                const props = { candidate: p.id };
-                if (elim)
-                  props.eliminated = true;
-
-                elm.ele('result', props, count);
-
-                return p.id
-              });
-            });
-        }).then(() => {
-          return rootElm.end({ pretty: true});
+          elm.ele('result', props, elim ? undefined : count);
         });
       });
+
+      return rootElm.end({ pretty: true});
     });
+  }).catch(e => {
+    console.log("ERR:", e);
+    return "UNKNOWN ERROR";
   });
 }
