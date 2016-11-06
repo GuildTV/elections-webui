@@ -1,6 +1,4 @@
 const net = require('net');
-const linq = require('linq');
-const mapSeries = require('promise-map-series');
 
 let lastState = {};
 let pingInterval = null;
@@ -95,24 +93,24 @@ export default function(Models, socket){
 
     } else if (data.template.toLowerCase() == "candidatesabbs" || data.template.toLowerCase() == "candidatenonsabbs") {
       let type = (data.template.toLowerCase() == "candidatesabbs") ? "candidateSabb" : "candidateNonSabb";
-      Person.getJoin({position: true}).filter({
-        position: {
-          type: type
-        }
-      }).run().then(function(people){
-        const grouped = linq.from(people)
-          .orderBy((x) => x.position.order)
-          .thenBy((x) => x.order)
-          .thenBy((x) => x.lastName)
-          .groupBy((x) => x.position.id)
-          .toArray();
 
+      Position.findAll({
+        where: {
+          type: type
+        },
+        order: [[ "order", "ASC" ]],
+        include: [{
+          model: Person,
+          include: [ Position ],
+          order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
+        }]
+      }).then(positions => {
         const templateData = {};
         let index = 1;
-        grouped.forEach((g) => {
+        positions.forEach((pos) => {
           const compiledData = {
-            candidates: g.toArray(),
-            position: g.first().position
+            candidates: pos.People,
+            position: pos
           };
 
           templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
@@ -191,8 +189,6 @@ export default function(Models, socket){
           candidates: people
         };
 
-        console.log(compiledData)
-
         templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
 
         client.write(JSON.stringify({
@@ -206,29 +202,30 @@ export default function(Models, socket){
       return;
     } else if (data.template.toLowerCase() == "candidateboard") {
       const compiledData = {};
-      Position.filter({id: data.data}).run().then(function(positions){
-        if(positions.length == 0)
+      Position.findById(data.data, {
+        include: [{
+          model: Person,
+          order: [
+            [ "order", "ASC" ],
+            [ "lastName", "ASC" ]
+          ]
+        }]
+      }).then(function(position){
+        if(!position)
           return;
 
-        compiledData.position = positions[0];
+        compiledData.position = position;
 
-        Person.filter({positionId: data.data}).run().then(function(people){
-          people = linq.from(people)
-            .orderBy((x) => x.order)
-            .thenBy((x) => x.lastName)
-            .toArray();
+        compiledData.candidates = position.People;
 
-          compiledData.candidates = people;
+        templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
 
-          templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-
-          client.write(JSON.stringify({
-            type: "LOAD",
-            filename: data.template,
-            templateData: templateData,
-            templateDataId: data.dataId
-          }));
-        });
+        client.write(JSON.stringify({
+          type: "LOAD",
+          filename: data.template,
+          templateData: templateData,
+          templateDataId: data.dataId
+        }));
       });
       return;
     }else {
@@ -273,22 +270,24 @@ export default function(Models, socket){
 function getWinnersOfType(Models, type){
   let { Person, Position } = Models;
 
-  return Position.filter({ type })
-    .run().then((positions) => {
-      positions = linq.from(positions)
-        .orderBy((x) => x.winnerOrder)
-        .toArray();
+  return Position.findAll({
+    where: {
+      type: type
+    },
+    order: [[ "winnerOrder", "ASC" ]],
+    include: [{
+      model: Person,
+      include: [ Position ],
+      where: {
+        elected: true
+      }
+    }]
+  }).then(positions => {
+    return positions.map((v, i) => {
+      if (v.People && v.People[0])
+        return v.People[0];
 
-      return mapSeries(positions, (pos) => {
-        return Person.getJoin({position: true}).filter({
-          positionId: pos.id,
-          elected: true
-        }).run().then((people) => {
-          if(!people || people.length == 0)
-            return generateRon(pos);
-
-          return people[0];
-        });
-      });
+      return generateRon(v);
+    });
   });
 }

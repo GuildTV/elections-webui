@@ -1,6 +1,4 @@
-const linq = require('linq');
 const builder = require('xmlbuilder');
-const mapSeries = require('promise-map-series');
 const cors = require('cors');
 const xsd = require('libxml-xsd');
 const md5 = require('md5');
