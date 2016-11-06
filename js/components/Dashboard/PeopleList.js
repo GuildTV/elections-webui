@@ -27,7 +27,7 @@ export default class PeopleList extends React.Component {
     this.state = {
       people: [],
       filter: ""
-    }
+    };
   }
 
   componentDidMount() {
@@ -43,7 +43,7 @@ export default class PeopleList extends React.Component {
 
     let people = this.state.people;
     newData.map(person => {
-      var index = people.findIndex(p => p.uid == person.uid);
+      const index = people.findIndex(p => p.uid == person.uid);
       if(index >= 0)
         people[index] = person;
       else

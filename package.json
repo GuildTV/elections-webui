@@ -41,7 +41,6 @@
     "mysql2": "^1.1.1",
     "promise-map-series": "^0.2.3",
     "react": "^15.3.2",
-    "react-addons-update": "^15.3.2",
     "react-bootstrap": "^0.30.6",
     "react-bootstrap-switch": "^15.0.3",
     "react-dom": "^15.3.2",

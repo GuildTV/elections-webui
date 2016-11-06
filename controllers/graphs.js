@@ -55,7 +55,7 @@ export function setup(Models, app){
             }
 
             if (validationErrors){
-              console.log("XML Validation errors:", validationErrors)
+              console.log("XML Validation errors:", validationErrors);
               return;
             }
 
@@ -66,7 +66,7 @@ export function setup(Models, app){
                 return;
               }
 
-              console.log(xml)
+              console.log(xml);
               const position = xml.root.position;
               const sabbGraphId = position[0].$.id;
 
@@ -104,7 +104,7 @@ export function bind(Models, socket){
   });
 
   socket.on('showResults', data => {
-    console.log("Force results:", data)
+    console.log("Force results:", data);
     GRAPHROLE = data;
     socket.emit('currentGraphId', GRAPHROLE);
   });
@@ -112,7 +112,7 @@ export function bind(Models, socket){
   socket.on('currentGraphId', () => {
     console.log("Cur Graph ID");
     socket.emit('currentGraphId', GRAPHROLE);
-  })
+  });
 }
 
 function generateResponseXML(Models, pid, maxRound){
@@ -153,7 +153,7 @@ function generateResponseXML(Models, pid, maxRound){
 
         Object.keys(results).forEach(id => {
           const count = results[id];
-          const elim = count == "elim"
+          const elim = count == "elim";
 
           const props = { candidate: id };
           if (elim)

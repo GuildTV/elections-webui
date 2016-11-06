@@ -23,7 +23,7 @@ const ClearWinnerKey = "clearWinner";
 const overlayCss = {
   marginTop: "72px",
   textAlign: "center"
-}
+};
 
 export default class PersonEntry extends React.Component {
   runTemplate(e){
@@ -61,15 +61,15 @@ export default class PersonEntry extends React.Component {
         {
           hasManifestoPoints ?
             <span>
-              <Button data-id="SidebarPhoto" onClick={this.runTemplate.bind(this)}>Sidebar - Photo</Button>
-              <Button data-id="sidebarText" onClick={this.runTemplate.bind(this)}>Sidebar - Text</Button>
+              <Button data-id="SidebarPhoto" onClick={(e) => this.runTemplate(e)}>Sidebar - Photo</Button>
+              <Button data-id="sidebarText" onClick={(e) => this.runTemplate(e)}>Sidebar - Text</Button>
             </span> :
             ""
         }
         {
           this.props.data.elected ?
-            <Button onClick={this.clearWinner.bind(this)}>Clear Winner</Button> :
-            <Button onClick={this.setWinner.bind(this)}>Mark Winner</Button>
+            <Button onClick={() => this.clearWinner()}>Clear Winner</Button> :
+            <Button onClick={() => this.setWinner()}>Mark Winner</Button>
         }
       </Popover>
     );
@@ -84,7 +84,7 @@ export default class PersonEntry extends React.Component {
       <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
         <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName }</p>
         <p>
-          <Button data-id="lowerThird" onClick={this.runTemplate.bind(this)}>Lower Third</Button>&nbsp;
+          <Button data-id="lowerThird" onClick={(e) => this.runTemplate(e)}>Lower Third</Button>&nbsp;
           {
             isCandidate ?
             <OverlayTrigger key={Date.now()} container={this.props.parent} trigger="click" placement="right" rootClose overlay={ overlayContent }>

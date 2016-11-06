@@ -20,7 +20,10 @@ const UpdatePositionKey = "updatePosition";
 export default class PositionList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {positions: []}
+
+    this.state = {
+      positions: []
+    };
   }
 
   sortData(positions){
@@ -62,12 +65,12 @@ export default class PositionList extends React.Component {
 
     positions = this.sortData(positions);
 
-    console.log(positions)
+    // console.log(positions);
     this.setState({positions});
   }
 
   componentDidMount() {
-    this.refs.sock.socket.emit(GetPositionKey)
+    this.sock.socket.emit(GetPositionKey);
   }
 
   render() {
@@ -88,8 +91,8 @@ export default class PositionList extends React.Component {
 
     return (
       <div style={this.props.style}>
-        <Socket.Listener event={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
-        <Socket.Listener event={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPositionKey } callback={d => this.handelInitialData(d)} ref={e => this.sock = e} />
+        <Socket.Listener event={ UpdatePositionKey } callback={d => this.handleStateChange(d)} />
         <Table>
           <thead>
             <tr>

@@ -35,7 +35,7 @@ export default class Position extends React.Component {
       order: 9,
       winnerOrder:9,
       sidebarUseOfficer: true
-    }
+    };
   }
 
   LoadForm(data){
@@ -89,7 +89,7 @@ export default class Position extends React.Component {
 
     e.preventDefault();
 
-    let {fullName, compactName, miniName, type, order, winnerOrder} = this.state
+    let {fullName, compactName, miniName, type, order, winnerOrder} = this.state;
 
     if (!fullName || !compactName || !miniName || !type || !order || !winnerOrder) {
       //todo error handling
@@ -97,7 +97,7 @@ export default class Position extends React.Component {
       return;
     }
 
-    this.refs.sock.socket.emit(SavePositionKey, this.state)
+    this.sock.socket.emit(SavePositionKey, this.state);
 
     this.LoadForm();
   }
@@ -105,9 +105,9 @@ export default class Position extends React.Component {
   render() {
     return (
       <div>
-        <Socket.Listener event={ SavePositionKey } callback={()=>{}} ref="sock"/>
+        <Socket.Listener event={ SavePositionKey } callback={()=>{}} ref={e => this.sock = e} />
 
-        <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
+        <Form horizontal onSubmit={e => this.handleSubmit(e)}>
           <fieldset>
             <legend>Edit position</legend>
 
@@ -125,7 +125,7 @@ export default class Position extends React.Component {
                 Type
               </Col>
               <Col xs={10}>
-                <FormControl componentClass="select" onChange={this.handleTypeChange.bind(this)} value={this.state.type}>
+                <FormControl componentClass="select" onChange={e => this.handleTypeChange(e)} value={this.state.type}>
                   <option value="candidateSabb">Candidate - Sabb</option>
                   <option value="candidateNonSabb">Candidate - Non Sabb</option>
                   <option value="other">Other</option>  
@@ -138,7 +138,7 @@ export default class Position extends React.Component {
                 Sabb Graph Id
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleSabbGraphIdChange.bind(this)} value={this.state.sabbGraphId} />
+                <FormControl type="text" onChange={e => this.handleSabbGraphIdChange(e)} value={this.state.sabbGraphId} />
               </Col>
             </FormGroup>
 
@@ -147,7 +147,7 @@ export default class Position extends React.Component {
                 Full Name
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleFullNameChange.bind(this)} value={this.state.fullName} />
+                <FormControl type="text" onChange={e => this.handleFullNameChange(e)} value={this.state.fullName} />
               </Col>
             </FormGroup>
             <FormGroup>
@@ -155,7 +155,7 @@ export default class Position extends React.Component {
                 Compact Name
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleCompactNameChange.bind(this)} value={this.state.compactName} />
+                <FormControl type="text" onChange={e => this.handleCompactNameChange(e)} value={this.state.compactName} />
               </Col>
             </FormGroup>
             <FormGroup>
@@ -163,7 +163,7 @@ export default class Position extends React.Component {
                 Mini Name
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleMiniNameChange.bind(this)} value={this.state.miniName} />
+                <FormControl type="text" onChange={e => this.handleMiniNameChange(e)} value={this.state.miniName} />
               </Col>
             </FormGroup>
 
@@ -172,7 +172,7 @@ export default class Position extends React.Component {
                 Board Order
               </Col>
               <Col xs={10}>
-                <FormControl type="number" min="0" onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+                <FormControl type="number" min="0" onChange={e => this.handleOrderChange(e)} value={this.state.order} />
               </Col>
             </FormGroup>
             <FormGroup>
@@ -180,7 +180,7 @@ export default class Position extends React.Component {
                 Winner Order
               </Col>
               <Col xs={10}>
-                <FormControl type="number" min="0" onChange={this.handleWinnerOrderChange.bind(this)} value={this.state.winnerOrder} />
+                <FormControl type="number" min="0" onChange={e => this.handleWinnerOrderChange(e)} value={this.state.winnerOrder} />
               </Col>
             </FormGroup>
 
@@ -189,7 +189,7 @@ export default class Position extends React.Component {
                 Show 'officer' in sidebar
               </Col>
               <Col xs={10}>
-                <Switch onChange={this.handleShowOfficerSidebarChange.bind(this)} value={this.state.sidebarUseOfficer} />
+                <Switch onChange={e => this.handleShowOfficerSidebarChange(e)} value={this.state.sidebarUseOfficer} />
               </Col>
             </FormGroup>
 

@@ -32,7 +32,7 @@ export default class TopBar extends React.Component {
 
     console.log("Running template:", target.getAttribute('data-id'));
 
-    this.refs.sock.socket.emit(RunTemplateKey, {
+    this.sock.socket.emit(RunTemplateKey, {
       template: target.getAttribute('data-id'),
       data: target.getAttribute('data-data'),
       dataId: target.getAttribute('data-key')
@@ -43,7 +43,7 @@ export default class TopBar extends React.Component {
     return (
       <Navbar inverse>
         <Socket.Socket />
-        <Socket.Listener event="test" callback={()=>{}} ref="sock"/>
+        <Socket.Listener event="test" callback={()=>{}} ref={e => this.sock = e} />
         <Navbar.Header>
           <Navbar.Brand>
             <a href="#">Guild Elections WebUI</a>

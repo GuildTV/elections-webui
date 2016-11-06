@@ -5,7 +5,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Socket from 'react-socket';
-import update from 'react-addons-update'
 
 import {
   Form, FormGroup, FormControl, ControlLabel, 
@@ -35,11 +34,9 @@ export default class Person extends React.Component {
       uid: '',
       positionId: '',
       photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
-      manifesto: {
-        one: '',
-        two: '',
-        three: ''
-      },
+      manifestoOne: "",
+      manifestoTwo: "",
+      manifestoThree: "",
       order: 9
     };
   }
@@ -55,11 +52,9 @@ export default class Person extends React.Component {
         uid: '',
         positionId: '',
         photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
-        manifesto: {
-          one: '',
-          two: '',
-          three: ''
-        },
+        manifestoOne: "",
+        manifestoTwo: "",
+        manifestoThree: "",
         order: 9
       });
     } else {
@@ -68,7 +63,7 @@ export default class Person extends React.Component {
   }
 
   componentDidMount() {
-    this.refs.sock.socket.emit(GetPositionsKey)
+    this.sock.socket.emit(GetPositionsKey);
   }
 
   handleFirstNameChange(e) {
@@ -86,24 +81,15 @@ export default class Person extends React.Component {
     this.setState({positionId: e.target.value});
   }
   handleFirstManifestoPointChange(e) {
-    let newState = update(this.state, {
-      manifesto: {one: {$set: e.target.value}}
-    })
-    this.setState(newState);
+    this.setState({ manifestoOne: e.target.value });
   }
 
   handleSecondManifestoPointChange(e) {
-    let newState = update(this.state, {
-      manifesto: {two: {$set: e.target.value}}
-    })
-    this.setState(newState);
+    this.setState({ manifestoTwo: e.target.value });
   }
 
   handleThirdManifestoPointChange(e) {
-    let newState = update(this.state, {
-      manifesto: {three: {$set: e.target.value}}
-    })
-    this.setState(newState);
+    this.setState({ manifestoThree: e.target.value });
   }
 
   handleOrderChange(e) {
@@ -113,7 +99,7 @@ export default class Person extends React.Component {
   handlePhotoChange(){
     const files = ReactDOM.findDOMNode(this.fileUpload).files;
 
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function(dat) {
       this.setState({ photo: dat.target.result });
     }.bind(this);
@@ -125,7 +111,7 @@ export default class Person extends React.Component {
 
     e.preventDefault();
 
-    let {firstName, lastName, uid, id, positionId, manifesto, photo, order} = this.state;
+    let {firstName, lastName, uid, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order} = this.state;
 
     if (!uid || !firstName || !lastName || !positionId) {
       //todo error handling
@@ -139,12 +125,14 @@ export default class Person extends React.Component {
       lastName,
       uid,
       positionId,
-      manifesto,
+      manifestoOne,
+      manifestoTwo,
+      manifestoThree,
       photo,
       order
-    }
+    };
 
-    this.refs.sock.socket.emit(NewPersonKey, data)
+    this.sock.socket.emit(NewPersonKey, data);
 
     this.LoadForm();
   }
@@ -152,7 +140,7 @@ export default class Person extends React.Component {
   handlePositionsLoad(data){
     console.log("Got positions");
 
-    var positionId = this.state.positionId ? this.state.positionId : data[0].id;
+    const positionId = this.state.positionId ? this.state.positionId : data[0].id;
 
     this.setState({
       _positions: data,
@@ -161,17 +149,17 @@ export default class Person extends React.Component {
   }
 
   isCandidate(){
-    var filtered = this.state._positions.filter(p => p.id == this.state.positionId);
+    const filtered = this.state._positions.filter(p => p.id == this.state.positionId);
 
     if(filtered.length == 0)
       return false;
 
-    var pos = filtered[0];
+    const pos = filtered[0];
     return pos.type.indexOf("candidate") == 0;
   }
 
   render() {
-    var candidateData = <p></p>;
+    let candidateData = <p></p>;
     if(this.isCandidate()){
       candidateData = (
         <div>
@@ -180,8 +168,8 @@ export default class Person extends React.Component {
               First Manifesto Point
             </Col>
             <Col xs={10}>
-              <FormControl type="text" onChange={this.handleFirstManifestoPointChange.bind(this)} 
-                placeholder="First manifesto point" value={this.state.manifesto.one} />
+              <FormControl type="text" onChange={e => this.handleFirstManifestoPointChange(e)} 
+                placeholder="First manifesto point" value={this.state.manifestoOne} />
             </Col>
           </FormGroup>
           <FormGroup>
@@ -189,8 +177,8 @@ export default class Person extends React.Component {
               Second Manifesto Point
             </Col>
             <Col xs={10}>
-              <FormControl type="text" onChange={this.handleSecondManifestoPointChange.bind(this)} 
-                placeholder="Second manifesto point" value={this.state.manifesto.two} />
+              <FormControl type="text" onChange={e => this.handleSecondManifestoPointChange(e)} 
+                placeholder="Second manifesto point" value={this.state.manifestoTwo} />
             </Col>
           </FormGroup>
           <FormGroup>
@@ -198,8 +186,8 @@ export default class Person extends React.Component {
               Third Manifesto Point
             </Col>
             <Col xs={10}>
-              <FormControl type="text" onChange={this.handleThirdManifestoPointChange.bind(this)} 
-                placeholder="Third manifesto point" value={this.state.manifesto.three} />
+              <FormControl type="text" onChange={e => this.handleThirdManifestoPointChange(e)} 
+                placeholder="Third manifesto point" value={this.state.manifestoThree} />
             </Col>
           </FormGroup>
 
@@ -208,7 +196,7 @@ export default class Person extends React.Component {
               Photo
             </Col>
             <Col xs={10}>
-              <FormControl type="file" onChange={this.handlePhotoChange.bind(this)} ref={e => this.fileUpload = e} accept="image/png"  />
+              <FormControl type="file" onChange={e => this.handlePhotoChange(e)} ref={e => this.fileUpload = e} accept="image/png"  />
             </Col>
           </FormGroup>
           <FormGroup>
@@ -230,13 +218,13 @@ export default class Person extends React.Component {
       );
     }
 
-    var positions = this.state._positions.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>);
+    const positions = this.state._positions.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>);
 
     return (
       <div>
-        <Socket.Listener event={ GetPositionsKey } callback={ this.handlePositionsLoad.bind(this) } ref="sock"/>
+        <Socket.Listener event={ GetPositionsKey } callback={ e => this.handlePositionsLoad(e) } ref={e => this.sock = e} />
 
-        <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
+        <Form horizontal onSubmit={e => this.handleSubmit(e)}>
           <fieldset>
             <legend>Edit person</legend>
 
@@ -254,7 +242,7 @@ export default class Person extends React.Component {
                 First Name
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleFirstNameChange.bind(this)} value={this.state.firstName} />
+                <FormControl type="text" onChange={e => this.handleFirstNameChange(e)} value={this.state.firstName} />
               </Col>
             </FormGroup>
             <FormGroup>
@@ -262,7 +250,7 @@ export default class Person extends React.Component {
                 Last Name
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleLastNameChange.bind(this)} value={this.state.lastName} />
+                <FormControl type="text" onChange={e => this.handleLastNameChange(e)} value={this.state.lastName} />
               </Col>
             </FormGroup>
             <FormGroup>
@@ -270,7 +258,7 @@ export default class Person extends React.Component {
                 UID
               </Col>
               <Col xs={10}>
-                <FormControl type="text" onChange={this.handleUidChange.bind(this)} placeholder="Enter a unique identifer - e.g. ado-ben" value={this.state.uid} />
+                <FormControl type="text" onChange={e => this.handleUidChange(e)} placeholder="Enter a unique identifer - e.g. ado-ben" value={this.state.uid} />
               </Col>
             </FormGroup>
 
@@ -279,7 +267,7 @@ export default class Person extends React.Component {
                 Position
               </Col>
               <Col xs={10}>
-                <FormControl componentClass="select" onChange={this.handlePositionChange.bind(this)} value={this.state.positionId}>
+                <FormControl componentClass="select" onChange={e => this.handlePositionChange(e)} value={this.state.positionId}>
                   { positions }
                 </FormControl>
               </Col>
@@ -292,7 +280,7 @@ export default class Person extends React.Component {
                 Order
               </Col>
               <Col xs={10}>
-                <FormControl type="number" min="0" onChange={this.handleOrderChange.bind(this)} value={this.state.order} />
+                <FormControl type="number" min="0" onChange={e => this.handleOrderChange(e)} value={this.state.order} />
               </Col>
             </FormGroup>
 

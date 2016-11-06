@@ -3,18 +3,13 @@
 */
 
 import React from 'react';
-
 import { Grid, Row, Col, Button } from 'react-bootstrap';
 
 /*
 * Internal Dependancies
 */
-import PositionList from './PositionList'
-import Position from './Position'
-
-/*
-* Variables
-*/
+import PositionList from './PositionList';
+import Position from './Position';
 
 /*
 * React
@@ -34,7 +29,7 @@ export default class EditPositions extends React.Component {
 
     console.log("Editing:", data.id);
 
-    this.refs.edit.LoadForm(data);
+    this.editElm.LoadForm(data);
     this.toggleList(false);
   }
 
@@ -56,8 +51,8 @@ export default class EditPositions extends React.Component {
           <Row>
             <Col xs={12}>
               <p><Button bsStyle="primary" onClick={() => this.toggleList()}>Toggle List</Button></p>
-              <PositionList onEdit={this.LoadData.bind(this)} ref="list" style={listStyle} />
-              <Position ref="edit" />
+              <PositionList onEdit={e => this.LoadData(e)} style={listStyle} />
+              <Position ref={e => this.editElm = e} />
             </Col>
           </Row>
         </Grid>

@@ -25,30 +25,30 @@ export default class VotesTable extends React.Component {
     this.state = {
       data: {},
       error: null
-    }
+    };
   }
 
   componentDidMount() {
-    this.refs.sock.socket.emit(GetElectionsKey, { position: this.props.position })
+    this.sock.socket.emit(GetElectionsKey, { position: this.props.position });
 
     // refresh every few seconds
-    console.log("Starting votes table refresher")
+    console.log("Starting votes table refresher");
     setInterval(() => {
-      this.refs.sock.socket.emit(GetElectionsKey, { position: this.props.position });
+      this.sock.socket.emit(GetElectionsKey, { position: this.props.position });
     }, 2000);
   }
 
   componentWillReceiveProps(newProps){
-    this.refs.sock.socket.emit(GetElectionsKey, { position: newProps.position })
+    this.sock.socket.emit(GetElectionsKey, { position: newProps.position });
   }
 
   showRound(roundNum){
     const data = {
       id: this.props.position,
       round: roundNum
-    }
+    };
 
-    this.refs.sock.socket.emit(ShowResultsKey, data);
+    this.sock.socket.emit(ShowResultsKey, data);
   }
 
   loadedElectionData(str) {
@@ -64,14 +64,14 @@ export default class VotesTable extends React.Component {
       });
     }
 
-    const rows = {}
+    const rows = {};
     $.each(xml.find("candidates candidate"), (i, v) => {
       window.v = v;
       rows[v.getAttribute('id')] = {
         name: v.innerHTML,
         results: []
       };
-    })
+    });
 
     $.each(xml.find("rounds round"), (i, v) => {
       const number = parseInt(v.getAttribute('number'));
@@ -103,7 +103,7 @@ export default class VotesTable extends React.Component {
 
     const roundCols = [];
     for (let i=0; i<roundCount; i++){
-      roundCols.push(<td key={i}>Round { i+1 }</td>)
+      roundCols.push(<td key={i}>Round { i+1 }</td>);
     }
 
     const rows = Object.keys(data).map(v => this.renderPerson(data[v], roundCount));
@@ -132,7 +132,7 @@ export default class VotesTable extends React.Component {
   render() {
     return (
       <div>
-        <Socket.Listener event={ GetElectionsKey } callback={ this.loadedElectionData.bind(this) } ref="sock"/>
+        <Socket.Listener event={ GetElectionsKey } callback={e => this.loadedElectionData(e)} ref={e => this.sock = e} />
         { this.renderInner() }
       </div>
     );

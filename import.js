@@ -64,7 +64,7 @@ function migratePeople(){
 }
 
 function compileEliminationMap(){
-  for(var elim of eliminations){
+  for(let elim of eliminations){
     const posId = elim.positionId;
     const perId = elim.personId;
     const round = elim.round;
@@ -79,7 +79,7 @@ function compileEliminationMap(){
 }
 
 function compileVotesMap(){
-  for(var vote of votes){
+  for(let vote of votes){
     const posId = vote.positionId;
     const perId = vote.personId;
     const round = vote.round;
@@ -121,8 +121,8 @@ function migrateElections(){
         people[v] = personMap[v] || "???";
     });
 
-    console.log("people", people)
-    console.log("results", rounds)
+    console.log("people", people);
+    console.log("results", rounds);
 
     return Models.Election.create({
       positionId: newPosId,
@@ -132,7 +132,7 @@ function migrateElections(){
         if (!votes)
           return true;
 
-        for (var i=0; i<num; i++){
+        for (let i=0; i<num; i++){
           votes[elims[i]] = "elim";
         }
 
@@ -143,7 +143,7 @@ function migrateElections(){
         });
       });
     });
-  })
+  });
 }
 
 
@@ -152,4 +152,4 @@ migratePositions()
   .then(compileEliminationMap)
   .then(compileVotesMap)
   .then(migrateElections)
-  .catch(e => console.error(e))
+  .catch(e => console.error(e));

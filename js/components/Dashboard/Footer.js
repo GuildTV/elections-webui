@@ -75,10 +75,10 @@ export default class Footer extends React.Component {
             <Col xs={10}>
               <h3>Active: { this.state.dataId }</h3>
               <h4>Template: { this.state.templateName }</h4>
-              <p><Button bsStyle="danger" ref="clearBtn" onClick={() => this.KillButtonClick()}>Kill</Button></p>
+              <p><Button bsStyle="danger" onClick={() => this.KillButtonClick()}>Kill</Button></p>
             </Col>
             <Col xs={2} style={{ height: "100%" }}>
-              <Button bsStyle="success" style={goButtonCss} ref="goBtn" onClick={() => this.GoButtonClick()}>Go</Button>
+              <Button bsStyle="success" style={goButtonCss} onClick={() => this.GoButtonClick()}>Go</Button>
             </Col>
           </Row>
         </Grid>

@@ -20,7 +20,10 @@ const UpdatePeopleKey = "updatePeople";
 export default class PeopleList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {people: []}
+    
+    this.state = {
+      people: []
+    };
   }
 
   sortData(people){
@@ -50,7 +53,7 @@ export default class PeopleList extends React.Component {
 
     let people = this.state.people;
     newData.map(person => {
-      var index = people.findIndex(p => p.uid == person.uid);
+      const index = people.findIndex(p => p.uid == person.uid);
       if(index >= 0)
         people[index] = person;
       else
@@ -62,7 +65,7 @@ export default class PeopleList extends React.Component {
   }
 
   componentDidMount() {
-    this.refs.sock.socket.emit(GetPeopleKey)
+    this.sock.socket.emit(GetPeopleKey);
   }
 
   render() {
@@ -86,8 +89,8 @@ export default class PeopleList extends React.Component {
 
     return (
       <div style={this.props.style}>
-        <Socket.Listener event={ GetPeopleKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
-        <Socket.Listener event={ UpdatePeopleKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPeopleKey } callback={e => this.handelInitialData(e)} ref={e => this.sock = e} />
+        <Socket.Listener event={ UpdatePeopleKey } callback={e => this.handleStateChange(e)} />
         <Table>
           <thead>
             <tr>

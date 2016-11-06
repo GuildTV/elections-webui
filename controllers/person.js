@@ -36,7 +36,7 @@ export default function(Models, socket){
     }).then(data => {
       socket.emit('getPeople', data);
     }).error(error => {
-      console.log("Error getting people: ", error)
+      console.log("Error getting people: ", error);
     });
   });
 
@@ -56,7 +56,7 @@ export default function(Models, socket){
 
       }).error(error => {
         console.log("Failed to set winner:", error);
-      })
+      });
     });
   });
 

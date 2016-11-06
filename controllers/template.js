@@ -26,7 +26,7 @@ client.connect(cvizPort, cvizHost, function() {
 
   pingInterval = setInterval(() => {
     client.write("{}");
-  }, 300)
+  }, 300);
 });
 
 client.on('data', (data) => {

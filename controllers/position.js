@@ -26,7 +26,7 @@ export default function(Models, socket){
     Position.findAll().then(data => {
       socket.emit('getPositions', data);
     }).error(error => {
-      console.log("Error getting positions: ", error)
+      console.log("Error getting positions: ", error);
     });
   });
 }

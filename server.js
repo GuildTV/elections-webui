@@ -2,14 +2,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-import { webui_port } from "./config"
+import { webui_port } from "./config";
 
 import positionController from './controllers/position';
 import peopleController from './controllers/person';
 import templateController from './controllers/template';
 import { setup as graphSetup, bind as graphBind } from './controllers/graphs';
 
-import Models from "./models"
+import Models from "./models";
 
 const app = express();
 
@@ -36,7 +36,7 @@ io.sockets.on('connection', (socket) => {
   positionController(Models, socket);
   peopleController(Models, socket);
 
-  templateController(Models, socket)
+  templateController(Models, socket);
   graphBind(Models, socket);
 });
 

@@ -21,7 +21,9 @@ const UpdatePositionKey = "updatePosition";
 export default class Boards extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {positions: []}
+    this.state = {
+      positions: []
+    };
   }
 
   handelInitialData(positions) {
@@ -47,13 +49,13 @@ export default class Boards extends React.Component {
   }
 
   componentDidMount() {
-    this.refs.sock.socket.emit(GetPositionKey)
+    this.sock.socket.emit(GetPositionKey);
   }
 
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
 
-    this.refs.sock.socket.emit(RunTemplateKey, {
+    this.sock.socket.emit(RunTemplateKey, {
       template: e.target.getAttribute('data-id'),
       data: e.target.getAttribute('data-data'),
       dataId: e.target.getAttribute('data-key')
@@ -63,28 +65,28 @@ export default class Boards extends React.Component {
   render() {
     const sabbs = this.state.positions
       .filter(p => p.type == "candidateSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
     const nonSabbs = this.state.positions
       .filter(p => p.type == "candidateNonSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={this.runTemplate.bind(this)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
 
     return (
       <div>
-        <Socket.Listener event={ GetPositionKey } callback={ this.handelInitialData.bind(this) } ref="sock"/>
-        <Socket.Listener event={ UpdatePositionKey } callback={ this.handleStateChange.bind(this) } />
+        <Socket.Listener event={ GetPositionKey } callback={e => this.handelInitialData(e)} ref={e => this.sock = e} />
+        <Socket.Listener event={ UpdatePositionKey } callback={e => this.handleStateChange(e)} />
 
         <h3>Winners</h3>
         <p>
-          <Button data-id="winnersAll" data-key="winnersAll" onClick={this.runTemplate.bind(this)} className="btn-lg">All</Button>
-          <Button data-id="winnersSabbs" data-key="winnersSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Sabbs</Button>
-          <Button data-id="winnersNonSabbs" data-key="winnersNonSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Non-Sabbs</Button>
+          <Button data-id="winnersAll" data-key="winnersAll" onClick={(e) => this.runTemplate(e)} className="btn-lg">All</Button>
+          <Button data-id="winnersSabbs" data-key="winnersSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Sabbs</Button>
+          <Button data-id="winnersNonSabbs" data-key="winnersNonSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Non-Sabbs</Button>
         </p>
 
         <hr />
         <h3>Candidate Sequences</h3>
         <p>
-          <Button data-id="candidateSabbs" data-key="candidateSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Sabbs</Button>
-          <Button data-id="candidateNonSabbs" data-key="candidateNonSabbs" onClick={this.runTemplate.bind(this)} className="btn-lg">Non-Sabbs</Button>
+          <Button data-id="candidateSabbs" data-key="candidateSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Sabbs</Button>
+          <Button data-id="candidateNonSabbs" data-key="candidateNonSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Non-Sabbs</Button>
         </p>
 
         <hr />

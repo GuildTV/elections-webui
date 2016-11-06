@@ -33,15 +33,15 @@ export default class Elections extends React.Component {
         id: null,
         round: null
       }
-    }
+    };
   }
 
   componentDidMount() {
-    this.refs.sock.socket.emit(CurrentGraphId);
+    this.sock.socket.emit(CurrentGraphId);
   }
 
   loadedPositionData(positions) {
-    var dropdownRole = positions[0].id;
+    const dropdownRole = positions[0].id;
     this.setState({
       positions,
       dropdownRole
@@ -71,10 +71,10 @@ export default class Elections extends React.Component {
   }
 
   loadPositionData(){
-    var currentRole = this.state.dropdownRole;
+    const currentRole = this.state.dropdownRole;
     this.setState({ currentRole });
-    console.log("LOAD", LoadResultsKey, currentRole)
-    this.refs.sock.socket.emit(LoadResultsKey, { role: currentRole });
+    console.log("LOAD", LoadResultsKey, currentRole);
+    this.sock.socket.emit(LoadResultsKey, { role: currentRole });
   }
 
   handleGraphId(data){
@@ -83,7 +83,7 @@ export default class Elections extends React.Component {
   }
 
   clearGraphId(){
-    this.refs.sock.socket.emit(ShowResultsKey, {
+    this.sock.socket.emit(ShowResultsKey, {
       id: null,
       round: null
     });
@@ -106,13 +106,13 @@ export default class Elections extends React.Component {
   }
 
   render() {
-    var positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.fullName}</option>);
+    const positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.fullName}</option>);
 
     return (
       <div>
-        <Socket.Listener event={ GetPositionKey } callback={ this.loadedPositionData.bind(this) } ref="sock"/>
-        <Socket.Listener event={ UpdatePositionKey } callback={ this.handlePositionUpdate.bind(this) } />
-        <Socket.Listener event={ CurrentGraphId } callback={ this.handleGraphId.bind(this) } />
+        <Socket.Listener event={ GetPositionKey } callback={e => this.loadedPositionData(e)} ref={e => this.sock = e} />
+        <Socket.Listener event={ UpdatePositionKey } callback={e => this.handlePositionUpdate(e)} />
+        <Socket.Listener event={ CurrentGraphId } callback={e => this.handleGraphId(e)} />
 
         <Form horizontal>
           <fieldset>
@@ -132,12 +132,12 @@ export default class Elections extends React.Component {
                 Current position:
               </Col>
               <Col xs={8}>
-                <FormControl componentClass="select" onChange={this.handlePositionSelectionChange.bind(this)} value={this.state.dropdownRole}>
+                <FormControl componentClass="select" onChange={e => this.handlePositionSelectionChange(e)} value={this.state.dropdownRole}>
                   { positions }
                 </FormControl>
               </Col>
               <Col xs={2}>
-                <Button bsStyle="success" onClick={this.loadPositionData.bind(this)} >Preview</Button>
+                <Button bsStyle="success" onClick={() => this.loadPositionData()} >Preview</Button>
               </Col>
             </FormGroup>
         </fieldset>

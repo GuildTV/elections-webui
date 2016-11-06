@@ -9,12 +9,8 @@ import { Grid, Row, Col, Button } from 'react-bootstrap';
 /*
 * Internal Dependancies
 */
-import PeopleList from './PeopleList'
-import Person from './Person'
-
-/*
-* Variables
-*/
+import PeopleList from './PeopleList';
+import Person from './Person';
 
 /*
 * React
@@ -34,7 +30,7 @@ export default class EditPeople extends React.Component {
 
     console.log("Editing:", data.id);
 
-    this.refs.edit.LoadForm(data);
+    this.editElm.LoadForm(data);
     this.toggleList(false);
   }
 
@@ -56,8 +52,8 @@ export default class EditPeople extends React.Component {
           <Row>
             <Col xs={12}>
               <p><Button bsStyle="primary" onClick={() => this.toggleList()}>Toggle List</Button></p>
-              <PeopleList onEdit={this.LoadData.bind(this)} ref="list" style={listStyle} />
-              <Person ref="edit" />
+              <PeopleList onEdit={e => this.LoadData(e)} style={listStyle} />
+              <Person ref={e => this.editElm = e} />
             </Col>
           </Row>
         </Grid>
