@@ -17,7 +17,7 @@ export default function(Models, socket){
             socket.emit('updatePeople', p);
           });
         });
-      }).catch(e => console.log("Error saving new position: ", error));
+      }).catch(e => console.log("Error saving new position: ", e));
     }
 
     return Person.create(data).then(p => {

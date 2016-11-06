@@ -257,14 +257,6 @@ export default function(Models, socket){
       type: "KILL"
     }));
   });
-
-  // TODO - send templateState at appropriate points
-  // data format:
-  // {
-  //   state: "STOP", // or WAIT or PLAYING
-  //   dataId: "ado-ben",
-  //   templateId: "lowerThird"
-  // }
 }
 
 function getWinnersOfType(Models, type){
@@ -283,7 +275,7 @@ function getWinnersOfType(Models, type){
       }
     }]
   }).then(positions => {
-    return positions.map((v, i) => {
+    return positions.map(v => {
       if (v.People && v.People[0])
         return v.People[0];
 

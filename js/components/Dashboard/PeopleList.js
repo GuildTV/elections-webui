@@ -3,7 +3,6 @@
 */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import {
   Col,
@@ -51,7 +50,6 @@ export default class PeopleList extends React.Component {
         people.push(person);
     });
 
-    console.log(people)
     this.setState({people});
   }
 
@@ -62,7 +60,6 @@ export default class PeopleList extends React.Component {
 
   loadedNames(people){
     this.setState({ people });
-    console.log(people);
   }
 
   render() {

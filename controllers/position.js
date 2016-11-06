@@ -12,7 +12,7 @@ export default function(Models, socket){
         Object.assign(pos, data);
 
         return pos.save().then((p) => socket.emit('updatePosition', p));
-      }).catch(e => console.log("Error saving new position: ", error));
+      }).catch(e => console.log("Error saving new position: ", e));
     }
 
     return Position.create(data).then(p => {

@@ -85,7 +85,7 @@ export default class VotesTable extends React.Component {
       });
     });
 
-    console.log(rows)
+    // console.log(rows)
 
     this.setState({
       data: rows,

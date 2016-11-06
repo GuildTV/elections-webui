@@ -51,7 +51,7 @@ function migratePeople(){
       manifestoThree: manifesto.three,
       order: per.order,
       elected: !!per.elected
-    }).then((p) => {
+    }).then(() => {
       personMap[per.id] = per.firstName + " " + per.lastName;
 
       return true;
@@ -108,7 +108,7 @@ function migrateElections(){
     console.log(elims.length, "elimintions");
 
     const peopleIds = [];
-    rounds.forEach((v, i) => {
+    rounds.forEach(v => {
       const keys = Object.keys(v);
       peopleIds.push(...keys);
     });

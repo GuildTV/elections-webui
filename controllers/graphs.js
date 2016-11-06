@@ -6,8 +6,6 @@ const md5 = require('md5');
 import fs from 'fs';
 import { parseString } from 'xml2js';
 
-import { generateRon } from './ron';
-
 let GRAPHROLE = { // When in manual mode
   id: null,
   round: null
@@ -118,7 +116,7 @@ export function bind(Models, socket){
 }
 
 function generateResponseXML(Models, pid, maxRound){
-  const { Person, Position, Election, ElectionRound } = Models;
+  const { Position, Election } = Models;
 
   return Election.find({
     where:{

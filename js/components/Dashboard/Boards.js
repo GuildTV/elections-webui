@@ -42,7 +42,7 @@ export default class Boards extends React.Component {
     if(isNew) {
       positions.push(newData);
     }
-    console.log(positions)
+
     this.setState({positions});
   }
 
