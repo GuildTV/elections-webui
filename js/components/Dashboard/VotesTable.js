@@ -51,7 +51,7 @@ export default class VotesTable extends React.Component {
   }
 
   loadedElectionData(str) {
-    console.log("EL DATA", str);
+    // console.log("EL DATA", str);
     const xml = $($.parseXML(str));
 
     const rows = {}
