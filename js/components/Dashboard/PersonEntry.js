@@ -21,7 +21,7 @@ const ClearWinnerKey = "clearWinner";
 */
 
 const overlayCss = {
-  marginTop: "72px",
+  marginTop: "65px",
   textAlign: "center"
 };
 
