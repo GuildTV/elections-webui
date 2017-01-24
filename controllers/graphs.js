@@ -1,8 +1,7 @@
 const cors = require('cors');
 const md5 = require('md5');
 const request = require('request');
-
-import fs from 'fs';
+const builder = require('xmlbuilder');
 
 import { GraphScraper } from './graph-scraper';
 
@@ -16,7 +15,6 @@ let SCRAPE_LAST_MD5 = "";
 let SCRAPE_LAST_TIME = 0;
 
 export function setup(Models, app){
-  let { Position, Election, ElectionRound } = Models;
 
   // DEV ONLY!!
   // GRAPHROLE.id = 1;
@@ -56,7 +54,7 @@ export function setup(Models, app){
         SCRAPE_LAST_TIME = time;
 
         if (!error && response.statusCode == 200) {
-          const md5sum = md5(response.body);
+          const md5sum = md5(body);
           res.set('Content-Type', 'text/plain');
 
           if (md5sum != SCRAPE_LAST_MD5){
@@ -64,10 +62,10 @@ export function setup(Models, app){
             console.log("Got new data from sabbgraph");
 
             const scraper = new GraphScraper(Models);
-            scraper.ParseAndStash(response.body);
+            scraper.ParseAndStash(body);
           }
 
-          res.send(response.body);
+          res.send(body);
         }
       });
       

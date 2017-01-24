@@ -1,10 +1,7 @@
-const builder = require('xmlbuilder');
-const cors = require('cors');
-const xsd = require('libxml-xsd');
-const md5 = require('md5');
-
+import xsd from 'libxml-xsd';
 import { parseString } from 'xml2js';
 import mapSeries from 'promise-map-series';
+import fs from 'fs';
 
 export class GraphScraper {
   constructor(Models){
@@ -92,7 +89,7 @@ export class GraphScraper {
           positionId: position.id,
           candidates: "{}"
         }
-      }).spread((election, isNew) => {
+      }).spread(election => {
         election.candidates = JSON.stringify(data.candidates);
         return election.save().then(res => {
           console.log("Saved election #" + election.id);
@@ -111,7 +108,7 @@ export class GraphScraper {
           electionId: election.id,
           round: num, 
           results: JSON.stringify(result)
-        }).then(res => {
+        }).then(() => {
           console.log("Saved round #"+num+" for election #" + election.id);
         });
     });
@@ -121,12 +118,12 @@ export class GraphScraper {
     return this._parseXML(xmlStr, "./schema.xsd").then(xml => {
       const data = this._convertToJson(xml);
 
+      // log scrape to disk. just in case
+      fs.writeFile("scrapes/" + data.sabbGraphId + "-" + Date.now() + ".xml", xmlStr);
+
       return this._findAndSaveElection(data).then(election => {
         return this._saveRounds(election, data);
       }, err => console.log(err));
-
-      // log scrape to disk. just in case
-      fs.writeFile("scrapes/" + sabbGraphId + "-" + Date.now() + ".xml", str);
     }, err => Promise.reject(err));
   }
 }
