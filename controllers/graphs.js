@@ -1,18 +1,19 @@
-const builder = require('xmlbuilder');
 const cors = require('cors');
-const xsd = require('libxml-xsd');
 const md5 = require('md5');
+const request = require('request');
 
 import fs from 'fs';
-import { parseString } from 'xml2js';
 
 import { GraphScraper } from './graph-scraper';
+
+import { sabbGraphAddress } from '../config';
 
 let GRAPHROLE = { // When in manual mode
   id: null,
   round: null
 };
 let SCRAPE_LAST_MD5 = "";
+let SCRAPE_LAST_TIME = 0;
 
 export function setup(Models, app){
   let { Position, Election, ElectionRound } = Models;
@@ -38,23 +39,38 @@ export function setup(Models, app){
       generateResponseXML(Models, GRAPHROLE.id, GRAPHROLE.round).then(str => res.send(str));
     } else {
       // res.send("TODO - proxy sabbgraph");
-      // TODO - also store any graph data in the db, as well as log the scrapes to filesystem
+      const time = Date.now();
+      request({
+        method: "GET",
+        uri: sabbGraphAddress,
+        timeout: 2000, // 2s
+        qs: {
+          _time: time
+        },
+        encoding: "utf8",
+      }, function (error, response, body) {
+        // if not in order, then discard
+        if (SCRAPE_LAST_TIME > time)
+          return res.send("OUT_OF_ORDER");
 
-      const str = fs.readFileSync("./static/test/pres.xml", {encoding: "utf8"});
-      const md5sum = md5(str);
-      res.set('Content-Type', 'text/plain');
+        SCRAPE_LAST_TIME = time;
 
-      if (md5sum != SCRAPE_LAST_MD5){
-        // SCRAPE_LAST_MD5 = md5sum;
-        console.log("Got new data from sabbgraph");
+        if (!error && response.statusCode == 200) {
+          const md5sum = md5(response.body);
+          res.set('Content-Type', 'text/plain');
 
-        const scraper = new GraphScraper(Models);
-        scraper.ParseAndStash(str);
-      }
+          if (md5sum != SCRAPE_LAST_MD5){
+            SCRAPE_LAST_MD5 = md5sum;
+            console.log("Got new data from sabbgraph");
 
-      console.log(str)
-      res.send(str);
+            const scraper = new GraphScraper(Models);
+            scraper.ParseAndStash(response.body);
+          }
 
+          res.send(response.body);
+        }
+      });
+      
       // TODO - add a scrape now feature, in case graph dies, we can still manually trigger a scrape
     }
   });
