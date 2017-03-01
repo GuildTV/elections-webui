@@ -24,7 +24,7 @@ export default function(sequelize, DataTypes) {
     },
 
     photo: {
-      type: DataTypes.TEXT,
+      type: DataTypes.TEXT('long'),
       allowNull: false,
     },
 

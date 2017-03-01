@@ -51,6 +51,19 @@ export default class PeopleList extends React.Component {
   handleStateChange(newData) {
     console.log("PEOPLE", newData);
 
+    if (typeof newData == "object"){
+      let people = this.state.people.map(v => v);// make a copy
+      const index = people.findIndex(p => p.uid == newData.uid);
+      if(index >= 0)
+        people[index] = newData;
+      else
+        people.push(newData);
+
+
+      this.setState({people});
+      return;
+    }
+
     let people = this.state.people;
     newData.map(person => {
       const index = people.findIndex(p => p.uid == person.uid);
@@ -77,7 +90,7 @@ export default class PeopleList extends React.Component {
           <td>{ person.uid }</td>
           <td>{ person.firstName }</td>
           <td>{ person.lastName }</td>
-          <td>{ person.position?person.position.miniName:"ERROR" }</td>
+          <td>{ person.Position?person.Position.miniName:"ERROR" }</td>
           <td>{ person.elected?"Y":"" }</td>
           <td>{ person.order }</td>
           <td>

@@ -10,21 +10,21 @@ export class GraphScraper {
 
   _parseXML(xmlStr, schemaFile){
     return new Promise((resolve, reject) => {
-      xsd.parseFile(schemaFile, function(err, schema){
-        if (err){
-          console.log("XSD load error:", err);
-          return reject("XSD_LOAD_ERROR");
-        }
-        schema.validate(xmlStr, function(err, validationErrors){
-          if (err){
-            console.log("XML error:", err);
-            return reject("XML_ERROR");
-          }
+      // xsd.parseFile(schemaFile, function(err, schema){
+      //   if (err){
+      //     console.log("XSD load error:", err);
+      //     return reject("XSD_LOAD_ERROR");
+      //   }
+      //   schema.validate(xmlStr, function(err, validationErrors){
+      //     if (err){
+      //       console.log("XML error:", err);
+      //       return reject("XML_ERROR");
+      //     }
 
-          if (validationErrors){
-            console.log("XML Validation errors:", validationErrors);
-            return reject("XML_VALIDATION_ERROR");
-          }
+      //     if (validationErrors){
+      //       console.log("XML Validation errors:", validationErrors);
+      //       return reject("XML_VALIDATION_ERROR");
+      //     }
 
           parseString(xmlStr, (err, xml) => {
             // process and cache
@@ -35,14 +35,13 @@ export class GraphScraper {
 
             return resolve(xml);
           });
-        });
-      });
+      //   });
+      // });
     });
   }
 
   _convertToJson(xml){
-    const position = xml.root.position;
-    const sabbGraphId = position[0].$.id;
+    const sabbGraphId = xml.root.title;
 
     const rawCandidates = xml.root.candidates[0].candidate;
     const candidates = {};
@@ -55,12 +54,12 @@ export class GraphScraper {
     for (let round of rawRounds){
       const res = {};
 
-      for (let result of round.result) {
+      for (let result of round.results[0].result) {
         const id = result.$.candidate;
         if (result.$.eliminated)
           res[id] = "elim";
         else
-          res[id] = parseInt(result['_']);
+          res[id] = parseInt(result.$.votes);
       }
 
       results.push(res);

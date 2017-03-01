@@ -78,7 +78,7 @@ export default class VotesTable extends React.Component {
       $.each($(v).find("result"), (o, r) => {
         const cid = r.getAttribute('candidate');
         const elim = !!r.getAttribute('eliminated');
-        const val = r.innerHTML ? r.innerHTML : "?";
+        const val = r.getAttribute('votes');
 
         if (!elim)
           rows[cid].results[number] = val;

@@ -37,7 +37,8 @@ export default class Person extends React.Component {
       manifestoOne: "",
       manifestoTwo: "",
       manifestoThree: "",
-      order: 9
+      order: 9,
+      elected: false,
     };
   }
 
@@ -55,7 +56,8 @@ export default class Person extends React.Component {
         manifestoOne: "",
         manifestoTwo: "",
         manifestoThree: "",
-        order: 9
+        order: 9,
+        elected: false,
       });
     } else {
       this.setState(data);
@@ -111,7 +113,7 @@ export default class Person extends React.Component {
 
     e.preventDefault();
 
-    let {firstName, lastName, uid, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order} = this.state;
+    let {firstName, lastName, uid, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order, elected} = this.state;
 
     if (!uid || !firstName || !lastName || !positionId) {
       //todo error handling
@@ -129,7 +131,8 @@ export default class Person extends React.Component {
       manifestoTwo,
       manifestoThree,
       photo,
-      order
+      order,
+      elected
     };
 
     this.sock.socket.emit(NewPersonKey, data);
@@ -155,7 +158,7 @@ export default class Person extends React.Component {
       return false;
 
     const pos = filtered[0];
-    return pos.type.indexOf("candidate") == 0;
+    return pos.type == "candidateSabb";
   }
 
   render() {

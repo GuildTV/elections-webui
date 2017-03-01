@@ -109,7 +109,10 @@ function generateResponseXML(Models, pid, maxRound){
       return "BAD POSITION";
 
     const rootElm = builder.create('root');
-    rootElm.ele('position', { id: election.Position.miniName }, election.Position.fullName);
+    rootElm.ele('eventName', "Guild Officer Elections 2017");
+    rootElm.ele('subtitle', "");
+    rootElm.ele('extra', "Guild Officer Elections 2017");
+    rootElm.ele('title', election.Position.fullName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');
 
@@ -117,7 +120,6 @@ function generateResponseXML(Models, pid, maxRound){
     Object.keys(rawCandidates).forEach(id => {
       const cand = rawCandidates[id];
       candidates.ele('candidate', { id: id }, cand);
-      // TODO - figure out how to order (split cand into { name, order} ??)
     });
 
     const where = {};
@@ -130,6 +132,7 @@ function generateResponseXML(Models, pid, maxRound){
     }).then(data => {
       data.forEach(r => {
         const elm = rounds.ele('round', { number: r.round });
+        const innerElm = elm.ele('results');
         const results = JSON.parse(r.results);
 
         Object.keys(results).forEach(id => {
@@ -137,10 +140,14 @@ function generateResponseXML(Models, pid, maxRound){
           const elim = count == "elim";
 
           const props = { candidate: id };
-          if (elim)
+          if (elim) {
             props.eliminated = true;
+            props.votes = 0;
+          } else {
+            props.votes = count;
+          }
 
-          elm.ele('result', props, elim ? undefined : count);
+          innerElm.ele('result', props, undefined);
         });
       });
 

@@ -80,8 +80,8 @@ export default function(Models, socket){
       for(const key in data.data) {
         const person = data.data[key];
         const name = (person.firstName + " " + person.lastName).trim().toUpperCase();
-        let role = person.position.fullName.trim().toUpperCase();
-        if(person.position.type != "other"){
+        let role = person.Position.fullName.trim().toUpperCase();
+        if(person.Position.type != "other"){
           role += (person.elected ? " elect" : " candidate").toUpperCase();
         }
 
@@ -132,7 +132,6 @@ export default function(Models, socket){
         getWinnersOfType(Models, "candidateNonSabb").then(function(people){
           const half_length = Math.ceil(people.length / 2);
           const page1 = people.splice(0, half_length);
-
 
           const compiledSabbs = {
             candidates: sabbs
