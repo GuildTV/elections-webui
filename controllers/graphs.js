@@ -75,6 +75,8 @@ export function setup(Models, app){
 }
 
 export function bind(Models, socket){
+  const { Election } = Models;
+
   socket.on('getElections', (data) => {
     console.log("Get Elections data: ", data.position);
 
@@ -82,6 +84,17 @@ export function bind(Models, socket){
       return;
 
     generateResponseXML(Models, data.position).then(str => socket.emit('getElections', str));
+  });
+
+  socket.on('getElectionsList', () => {
+
+    return Election.findAll().then(elections => {
+      const roles = elections.map(e => {
+        return { name: e.positionName, id: e.id };
+      });
+
+      socket.emit('getElectionsList', roles);
+    });
   });
 
   socket.on('showResults', data => {
@@ -97,13 +110,12 @@ export function bind(Models, socket){
 }
 
 function generateResponseXML(Models, pid, maxRound){
-  const { Position, Election } = Models;
+  const { Election } = Models;
 
   return Election.find({
     where:{
-      positionId: pid
+      id: pid
     },
-    include: [ Position ]
   }).then(election => {
     if (!election)
       return "BAD POSITION";
@@ -112,7 +124,7 @@ function generateResponseXML(Models, pid, maxRound){
     rootElm.ele('eventName', "Guild Officer Elections 2017");
     rootElm.ele('subtitle', "");
     rootElm.ele('extra', "Guild Officer Elections 2017");
-    rootElm.ele('title', election.Position.fullName);
+    rootElm.ele('title', election.positionName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');
 

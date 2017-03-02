@@ -13,8 +13,7 @@ import VotesTable from './VotesTable';
 /*
 * Variables
 */
-const GetPositionKey = "getPositions";
-const UpdatePositionKey = "updatePosition";
+const GetPositionKey = "getElectionsList";
 const LoadResultsKey = "loadResults";
 const CurrentGraphId = "currentGraphId";
 const ShowResultsKey = "showResults";
@@ -38,6 +37,7 @@ export default class Elections extends React.Component {
 
   componentDidMount() {
     this.sock.socket.emit(CurrentGraphId);
+    this.sock.socket.emit(GetPositionKey);
   }
 
   loadedPositionData(positions) {
@@ -46,24 +46,6 @@ export default class Elections extends React.Component {
       positions,
       dropdownRole
     });
-  }
-
-  handlePositionUpdate(newData) {
-    let isNew = true;
-    let positions = this.state.positions.map((pos) => {
-      if (pos.id === newData.id) {
-        isNew = false;
-        return newData;
-      } else {
-        return pos;
-      }
-    });
-
-    if(isNew) {
-      positions.push(newData);
-    }
-
-    this.setState({ positions });
   }
 
   handlePositionSelectionChange(e){
@@ -85,6 +67,7 @@ export default class Elections extends React.Component {
   clearGraphId(){
     this.sock.socket.emit(ShowResultsKey, {
       id: null,
+      name: null,
       round: null
     });
   }
@@ -97,7 +80,7 @@ export default class Elections extends React.Component {
     let name = graphId.id;
     const position = positions.find(p => p.id == graphId.id);
     if (position)
-      name = position.fullName;
+      name = position.name;
 
     if (graphId.round >= 0)
       return name + " - Round " + (graphId.round+1);
@@ -106,12 +89,11 @@ export default class Elections extends React.Component {
   }
 
   render() {
-    const positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.fullName}</option>);
+    const positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>);
 
     return (
       <div>
         <Socket.Listener event={ GetPositionKey } callback={e => this.loadedPositionData(e)} ref={e => this.sock = e} />
-        <Socket.Listener event={ UpdatePositionKey } callback={e => this.handlePositionUpdate(e)} />
         <Socket.Listener event={ CurrentGraphId } callback={e => this.handleGraphId(e)} />
 
         <Form horizontal>

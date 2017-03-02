@@ -5,9 +5,10 @@ export default function(sequelize, DataTypes) {
       autoIncrement: true,
       primaryKey: true
     },
-    positionId: {
-      type: DataTypes.INTEGER,
+    positionName: {
+      type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
 
     candidates: {
@@ -17,7 +18,6 @@ export default function(sequelize, DataTypes) {
   }, {
     classMethods:{
       associate: function(models){
-        models.Election.belongsTo(models.Position);
         models.Election.hasMany(models.ElectionRound);
       }
     }

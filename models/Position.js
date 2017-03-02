@@ -5,10 +5,6 @@ export default function(sequelize, DataTypes) {
       autoIncrement: true,
       primaryKey: true
     },
-    sabbGraphId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
 
     type: {
       type: DataTypes.ENUM('candidateSabb', 'candidateNonSabb', 'other'),
@@ -45,7 +41,6 @@ export default function(sequelize, DataTypes) {
     classMethods:{
       associate: function(models){
         models.Position.hasMany(models.Person);
-        models.Position.hasMany(models.Election);
       }
     }
   });

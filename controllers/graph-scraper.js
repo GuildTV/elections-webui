@@ -75,26 +75,20 @@ export class GraphScraper {
   _findAndSaveElection(data){
     let { Position, Election } = this.Models;
 
-    return Position.findOne({
+    return Election.findOrInitialize({
       where: {
-        sabbGraphId: data.sabbGraphId
+        positionName: data.sabbGraphId[0]
+      }, 
+      defaults: {
+        positionName: data.sabbGraphId[0],
+        candidates: "{}"
       }
-    }).then(position => {
-      return Election.findOrInitialize({
-        where: {
-          positionId: position.id
-        }, 
-        defaults: {
-          positionId: position.id,
-          candidates: "{}"
-        }
-      }).spread(election => {
-        election.candidates = JSON.stringify(data.candidates);
-        return election.save().then(res => {
-          console.log("Saved election #" + election.id);
+    }).spread(election => {
+      election.candidates = JSON.stringify(data.candidates);
+      return election.save().then(res => {
+        console.log("Saved election #" + election.id);
 
-          return res;
-        });
+        return res;
       });
     });
   }

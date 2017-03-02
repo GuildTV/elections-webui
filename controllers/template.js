@@ -271,7 +271,8 @@ function getWinnersOfType(Models, type){
       include: [ Position ],
       where: {
         elected: true
-      }
+      },
+      required: false
     }]
   }).then(positions => {
     return positions.map(v => {

@@ -27,7 +27,6 @@ export default class Position extends React.Component {
 
     this.state = {
       id: undefined,
-      sabbGraphId: '',
       type: 'candidateSabb',
       fullName: '',
       compactName: '',
@@ -43,7 +42,6 @@ export default class Position extends React.Component {
     if(data === null || data === undefined){
       this.setState({
         id: undefined,
-        sabbGraphId: '',
         type: 'candidateSabb',
         fullName: '',
         compactName: '',
@@ -66,10 +64,6 @@ export default class Position extends React.Component {
   handleMiniNameChange(e) {
     this.setState({miniName: e.target.value});
   }
-  handleSabbGraphIdChange(e) {
-    this.setState({sabbGraphId: e.target.value});
-  }
-
   handleTypeChange(e) {
     this.setState({type: e.target.value});
   }
@@ -130,15 +124,6 @@ export default class Position extends React.Component {
                   <option value="candidateNonSabb">Candidate - Non Sabb</option>
                   <option value="other">Other</option>  
                 </FormControl>
-              </Col>
-            </FormGroup>
-
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                Sabb Graph Id
-              </Col>
-              <Col xs={10}>
-                <FormControl type="text" onChange={e => this.handleSabbGraphIdChange(e)} value={this.state.sabbGraphId} />
               </Col>
             </FormGroup>
 

@@ -8,10 +8,6 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
-        sabbGraphId: {
-          type: Sequelize.STRING,
-          allowNull: true
-        },
 
         type: {
           type: Sequelize.ENUM('candidateSabb', 'candidateNonSabb', 'other'),

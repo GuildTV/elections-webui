@@ -8,17 +8,10 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
-        positionId: {
-          type: Sequelize.INTEGER,
+        positionName: {
+          type: Sequelize.STRING,
           allowNull: false,
           unique: true,
-          references: {
-            model: "Positions",
-            key: 'id',
-            deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
-          },
-          onUpdate: 'CASCADE',
-          onDelete: 'RESTRICT'
         },
 
         candidates: {
