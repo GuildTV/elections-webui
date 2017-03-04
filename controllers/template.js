@@ -113,6 +113,11 @@ export default function(Models, socket){
             position: pos
           };
 
+          
+          if (compiledData.candidates.length == 0){
+            compiledData.candidates = [ generateRon(position) ];
+          }
+
           templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
         });
 
@@ -216,6 +221,10 @@ export default function(Models, socket){
         compiledData.position = position;
 
         compiledData.candidates = position.People;
+
+        if (compiledData.candidates.length == 0){
+          compiledData.candidates = [ generateRon(position) ];
+        }
 
         templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
 
