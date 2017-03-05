@@ -73,7 +73,15 @@ export default function(Models, socket){
     // not pretty, but data needs to be passed as an object of strings
     const templateData = {};
 
-    if(data.template.toLowerCase() == "lowerthird"){
+    if(data.template.toLowerCase() == "graph"){
+      templateData["data"] =  "<templateData>"
+        + "<componentData id=\"server\"><data id=\"text\" value=\"http://172.20.0.25:8088/graph\" /></componentData>"
+        + "<componentData id=\"interval\"><data id=\"text\" value=\"1500\" /></componentData>"
+        + "</templateData>";
+	
+
+
+    } else if(data.template.toLowerCase() == "lowerthird"){
       if(!data.data || !data.data.candidate)
         return;
 
@@ -115,7 +123,47 @@ export default function(Models, socket){
 
           
           if (compiledData.candidates.length == 0){
-            compiledData.candidates = [ generateRon(position) ];
+            compiledData.candidates = [ generateRon(pos) ];
+          }
+
+          templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+        });
+
+        console.log("Found " + (index-1) + " groups of candidates");
+
+        client.write(JSON.stringify({
+          type: "LOAD",
+          filename: data.template,
+          templateData: templateData,
+          templateDataId: data.dataId
+        }));
+      });
+
+      return;
+    } else if (data.template.toLowerCase() == "candidateall") {
+      Position.findAll({
+        order: [[ "type", "DESC" ], [ "order", "ASC" ]],
+        where: {
+          type: {
+            $in: [ "candidateSabb", "candidateNonSabb" ]
+          }
+        },
+        include: [{
+          model: Person,
+          include: [ Position ],
+          order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
+        }]
+      }).then(positions => {
+        const templateData = {};
+        let index = 1;
+        positions.forEach((pos) => {
+          const compiledData = {
+            candidates: pos.People,
+            position: pos
+          };
+
+          if (compiledData.candidates.length == 0){
+            compiledData.candidates = [ generateRon(pos) ];
           }
 
           templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";

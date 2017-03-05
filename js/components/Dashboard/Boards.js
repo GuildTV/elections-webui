@@ -75,6 +75,11 @@ export default class Boards extends React.Component {
         <Socket.Listener event={ GetPositionKey } callback={e => this.handelInitialData(e)} ref={e => this.sock = e} />
         <Socket.Listener event={ UpdatePositionKey } callback={e => this.handleStateChange(e)} />
 
+        <h3>Graph</h3>
+        <p>
+          <Button data-id="graph" data-key="graph" onClick={(e) => this.runTemplate(e)} className="btn-lg">Fullscreen</Button>
+        </p>
+
         <h3>Winners</h3>
         <p>
           <Button data-id="winnersAll" data-key="winnersAll" onClick={(e) => this.runTemplate(e)} className="btn-lg">All</Button>
@@ -85,6 +90,7 @@ export default class Boards extends React.Component {
         <hr />
         <h3>Candidate Sequences</h3>
         <p>
+          <Button data-id="candidateAll" data-key="candidateAll" onClick={(e) => this.runTemplate(e)} className="btn-lg">All</Button>
           <Button data-id="candidateSabbs" data-key="candidateSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Sabbs</Button>
           <Button data-id="candidateNonSabbs" data-key="candidateNonSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Non-Sabbs</Button>
         </p>
