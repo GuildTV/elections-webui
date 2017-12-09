@@ -103,7 +103,7 @@ export default class Elections extends React.Component {
                 Current Graph:
               </Col>
               <Col xs={8}>
-                { this.getGraphId() }
+                <FormControl.Static>{ this.getGraphId() }</FormControl.Static>
               </Col>
               <Col xs={2}>
                 <Button bsStyle="danger" onClick={() => this.clearGraphId()}>Clear</Button>

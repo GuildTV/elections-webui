@@ -133,9 +133,9 @@ export default function(Models, socket){
 
         client.write(JSON.stringify({
           type: "LOAD",
-          filename: data.template,
-          templateData: templateData,
-          templateDataId: data.dataId
+          timelineFile: data.template,
+          parameters: templateData,
+          instanceName: data.dataId
         }));
       });
 
@@ -173,9 +173,9 @@ export default function(Models, socket){
 
         client.write(JSON.stringify({
           type: "LOAD",
-          filename: data.template,
-          templateData: templateData,
-          templateDataId: data.dataId
+          timelineFile: data.template,
+          parameters: templateData,
+          instanceName: data.dataId
         }));
       });
 
@@ -202,9 +202,9 @@ export default function(Models, socket){
 
           client.write(JSON.stringify({
             type: "LOAD",
-            filename: data.template,
-            templateData: templateData,
-            templateDataId: data.dataId
+            timelineFile: data.template,
+            parameters: templateData,
+            instanceName: data.dataId
           }));
         });
       });
@@ -228,9 +228,9 @@ export default function(Models, socket){
 
         client.write(JSON.stringify({
           type: "LOAD",
-          filename: data.template,
-          templateData: templateData,
-          templateDataId: data.dataId
+          timelineFile: data.template,
+          parameters: templateData,
+          instanceName: data.dataId
         }));
       });
 
@@ -245,9 +245,9 @@ export default function(Models, socket){
 
         client.write(JSON.stringify({
           type: "LOAD",
-          filename: data.template,
-          templateData: templateData,
-          templateDataId: data.dataId
+          timelineFile: data.template,
+          parameters: templateData,
+          instanceName: data.dataId
         }));
       });
 
@@ -278,9 +278,9 @@ export default function(Models, socket){
 
         client.write(JSON.stringify({
           type: "LOAD",
-          filename: data.template,
-          templateData: templateData,
-          templateDataId: data.dataId
+          timelineFile: data.template,
+          parameters: templateData,
+          instanceName: data.dataId
         }));
       });
       return;
@@ -292,9 +292,9 @@ export default function(Models, socket){
 
     client.write(JSON.stringify({
       type: "LOAD",
-      filename: data.template,
-      templateData: templateData,
-      templateDataId: data.dataId
+      timelineFile: data.template,
+      parameters: templateData,
+      instanceName: data.dataId
     }));
   });
 

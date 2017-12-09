@@ -43,14 +43,31 @@ export default class Footer extends React.Component {
     super(props);
 
     this.state = {
-      state: "CLEAR",
-      dataId: "",
-      templateName: ""
+      state: {
+        state: "CLEAR",
+        stateMessage: null,
+        filename: "",
+        instanceName: ""
+      }
     };
   }
 
   ChangeTemplateState(data){
-    this.setState(data);
+    // if (data.id != this.props.id)
+    //   return;
+    
+    if (data.state == "CLEAR"){
+      this.setState({
+        state: {
+          state: "CLEAR",
+          stateMessage: null,
+          filename: "",
+          instanceName: ""
+        }
+      });
+    } else {
+      this.setState({ state: data });
+    }
   }
 
   KillButtonClick(){
@@ -66,6 +83,8 @@ export default class Footer extends React.Component {
   }
 
   render() {
+    const { instanceName, timelineFile, state, stateMessage } = this.state.state;
+
     return (
       <footer style={footerCss}>
         <Socket.Listener event={ ChangeTemplateStateKey } callback={d => this.ChangeTemplateState(d)} ref={e => this.sock = e} />
@@ -73,8 +92,9 @@ export default class Footer extends React.Component {
         <Grid style={{ height: "100%" }}>
           <Row style={{ height: "100%" }}>
             <Col xs={10}>
-              <h3>Active: { this.state.dataId }</h3>
-              <h4>Template: { this.state.templateName }</h4>
+              <h3>Active: { instanceName }</h3>
+              <h4>Template: { timelineFile}</h4>
+              <h4>State: { state }{ stateMessage ? " - " + stateMessage : "" }</h4>
               <p><Button bsStyle="danger" onClick={() => this.KillButtonClick()}>Kill</Button></p>
             </Col>
             <Col xs={2} style={{ height: "100%" }}>

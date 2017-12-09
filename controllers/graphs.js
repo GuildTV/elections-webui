@@ -36,7 +36,6 @@ export function setup(Models, app){
       // use hardcoded value
       generateResponseXML(Models, GRAPHROLE.id, GRAPHROLE.round).then(str => res.send(str));
     } else {
-      // res.send("TODO - proxy sabbgraph");
       const time = Date.now();
       request({
         method: "GET",

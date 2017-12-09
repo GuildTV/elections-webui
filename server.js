@@ -6,7 +6,7 @@ import { webui_port } from "./config";
 
 import positionController from './controllers/position';
 import peopleController from './controllers/person';
-import templateController from './controllers/template';
+import cvizController from './controllers/cviz';
 import { setup as graphSetup, bind as graphBind } from './controllers/graphs';
 
 import Models from "./models";
@@ -36,7 +36,7 @@ io.sockets.on('connection', (socket) => {
   positionController(Models, socket);
   peopleController(Models, socket);
 
-  templateController(Models, socket);
+  cvizController(Models, socket);
   graphBind(Models, socket);
 });
 
