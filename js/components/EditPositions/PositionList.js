@@ -3,7 +3,7 @@
 */
 
 import React from 'react';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 
 import { Table, Button } from 'react-bootstrap';
 
@@ -70,7 +70,7 @@ export default class PositionList extends React.Component {
   }
 
   componentDidMount() {
-    this.sock.socket.emit(GetPositionKey);
+    this.context.socket.emit(GetPositionKey);
   }
 
   render() {
@@ -91,8 +91,8 @@ export default class PositionList extends React.Component {
 
     return (
       <div style={this.props.style}>
-        <Socket.Listener event={ GetPositionKey } callback={d => this.handelInitialData(d)} ref={e => this.sock = e} />
-        <Socket.Listener event={ UpdatePositionKey } callback={d => this.handleStateChange(d)} />
+        <Event event={ GetPositionKey } handler={d => this.handelInitialData(d)} />
+        <Event event={ UpdatePositionKey } handler={d => this.handleStateChange(d)} />
         <Table>
           <thead>
             <tr>

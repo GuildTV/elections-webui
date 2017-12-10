@@ -3,7 +3,7 @@
 */
 
 import React from 'react';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 import $ from 'jquery';
 import {
   Table, Button
@@ -29,17 +29,17 @@ export default class VotesTable extends React.Component {
   }
 
   componentDidMount() {
-    this.sock.socket.emit(GetElectionsKey, { position: this.props.position });
+    this.context.socket.emit(GetElectionsKey, { position: this.props.position });
 
     // refresh every few seconds
     console.log("Starting votes table refresher");
     setInterval(() => {
-      this.sock.socket.emit(GetElectionsKey, { position: this.props.position });
+      this.context.socket.emit(GetElectionsKey, { position: this.props.position });
     }, 2000);
   }
 
   componentWillReceiveProps(newProps){
-    this.sock.socket.emit(GetElectionsKey, { position: newProps.position });
+    this.context.socket.emit(GetElectionsKey, { position: newProps.position });
   }
 
   showRound(roundNum){
@@ -48,7 +48,7 @@ export default class VotesTable extends React.Component {
       round: roundNum
     };
 
-    this.sock.socket.emit(ShowResultsKey, data);
+    this.context.socket.emit(ShowResultsKey, data);
   }
 
   loadedElectionData(str) {
@@ -132,7 +132,7 @@ export default class VotesTable extends React.Component {
   render() {
     return (
       <div>
-        <Socket.Listener event={ GetElectionsKey } callback={e => this.loadedElectionData(e)} ref={e => this.sock = e} />
+        <Event event={ GetElectionsKey } handler={e => this.loadedElectionData(e)} />
         { this.renderInner() }
       </div>
     );
@@ -164,3 +164,7 @@ export default class VotesTable extends React.Component {
     );
   }
 }
+
+VotesTable.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

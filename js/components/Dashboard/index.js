@@ -25,16 +25,20 @@ let bodyStyle = {
 * React
 */
 export default class Dashboard extends React.Component {
+  scroll() {
+    this.peopleElm.scroll();
+  }
+
   render() {
     return (
       <div>
-        <div style={bodyStyle}>
+        <div style={bodyStyle} onScroll={() => this.scroll()}>
           <Grid>
             <Row>
               <Col xs={12}>
                 <Tabs animation={false} id="tabs">
                   <Tab eventKey={1} title="People">
-                    <PeopleList />
+                    <PeopleList ref={e => this.peopleElm = e} />
                   </Tab>
                   <Tab eventKey={2} title="Boards">
                     <Boards />

@@ -21,7 +21,7 @@ const server = app.listen(webui_port, () => {
 const io = require('socket.io')(server);
 
 app.use(bodyParser.urlencoded({ extended: false } ));
-app.use(express.static('static'));
+app.use(express.static('public'));
 
 graphSetup(Models, app);
 

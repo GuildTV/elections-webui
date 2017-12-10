@@ -21,15 +21,23 @@ const ClearWinnerKey = "clearWinner";
 */
 
 const overlayCss = {
-  marginTop: "65px",
+  // marginTop: "65px",
   textAlign: "center"
 };
 
 export default class PersonEntry extends React.Component {
+  constructor(props){
+    super(props);
+
+    this.state = {
+      top: "0px",
+    };
+  }
+
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
 
-    this.props.sock.socket.emit(RunTemplateKey, {
+    this.context.socket.emit(RunTemplateKey, {
       template: e.target.getAttribute('data-id'),
       data: { candidate: this.props.data },
       dataId: this.props.data.uid
@@ -39,25 +47,22 @@ export default class PersonEntry extends React.Component {
   setWinner(){
     console.log("Setting winner:", this.props.data.id);
 
-    this.props.sock.socket.emit(SetWinnerKey, this.props.data);
+    this.context.socket.emit(SetWinnerKey, this.props.data);
   }
 
   clearWinner(){
     console.log("Clearing winner:", this.props.data.id);
 
-    this.props.sock.socket.emit(ClearWinnerKey, this.props.data);
-  }
-
-  closePopover(){
-
-    return false;
+    this.context.socket.emit(ClearWinnerKey, this.props.data);
   }
 
   render() {
     const hasManifestoPoints = this.props.data.manifestoOne.length > 2 || this.props.data.manifestoTwo.length > 2 || this.props.data.manifestoThree.length > 2;
 
+    const overCss = Object.assign({marginTop: this.state.top}, overlayCss);
+
     const overlayContent = (
-      <Popover id="" title="More Templates" style={overlayCss}>
+      <Popover id="" title="More Templates" style={overCss}>
         {
           hasManifestoPoints ?
             <span>
@@ -68,8 +73,8 @@ export default class PersonEntry extends React.Component {
         }
         {
           this.props.data.elected ?
-            <Button onClick={() => this.clearWinner()}>Clear Winner</Button> :
-            <Button onClick={() => this.setWinner()}>Mark Winner</Button>
+            <Button onClick={() => this.clearWinner()}>Clear Elect</Button> :
+            <Button onClick={() => this.setWinner()}>Mark Elect</Button>
         }
       </Popover>
     );
@@ -82,12 +87,12 @@ export default class PersonEntry extends React.Component {
 
     return (
       <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
-        <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName }</p>
+        <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName } { this.props.data.elected ? " Elect" : "" }</p>
         <p>
           <Button data-id="lowerThird" onClick={(e) => this.runTemplate(e)}>Lower Third</Button>&nbsp;
           {
             isCandidate ?
-            <OverlayTrigger key={Date.now()} container={this.props.parent} trigger="click" placement="right" rootClose overlay={ overlayContent }>
+            <OverlayTrigger key={Date.now()} trigger="click" placement="right" rootClose overlay={ overlayContent }>
               <Button bsStyle="info">More</Button>
             </OverlayTrigger> :
             ""
@@ -97,3 +102,7 @@ export default class PersonEntry extends React.Component {
     );
   }
 }
+
+PersonEntry.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

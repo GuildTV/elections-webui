@@ -2,7 +2,7 @@
 * External Dependancies
 */
 import React from 'react';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 
 import {
   Grid, Row, Col,
@@ -25,8 +25,9 @@ const footerCss = {
   bottom: 0,
   width: "100%",
   height: "200px",
-  backgroundColor: "#f5f5f5",
-  padding: "10px"
+  backgroundColor: "#464545",
+  padding: "10px",
+  borderTop: "5px solid #222222",
 };
 
 const goButtonCss = {
@@ -73,13 +74,13 @@ export default class Footer extends React.Component {
   KillButtonClick(){
     console.log("Sending KILL");
 
-    this.sock.socket.emit(KillTemplateKey);
+    this.context.socket.emit(KillTemplateKey);
   }
 
   GoButtonClick(){
     console.log("Sending GO");
 
-    this.sock.socket.emit(GoTemplateKey);
+    this.context.socket.emit(GoTemplateKey);
   }
 
   render() {
@@ -87,7 +88,7 @@ export default class Footer extends React.Component {
 
     return (
       <footer style={footerCss}>
-        <Socket.Listener event={ ChangeTemplateStateKey } callback={d => this.ChangeTemplateState(d)} ref={e => this.sock = e} />
+        <Event event={ ChangeTemplateStateKey } handler={d => this.ChangeTemplateState(d)} />
 
         <Grid style={{ height: "100%" }}>
           <Row style={{ height: "100%" }}>
@@ -106,3 +107,7 @@ export default class Footer extends React.Component {
     );
   }
 }
+
+Footer.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

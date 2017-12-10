@@ -3,7 +3,7 @@
 */
 
 import React from 'react';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 import Switch from 'react-bootstrap-switch';
 
 import {
@@ -91,7 +91,7 @@ export default class Position extends React.Component {
       return;
     }
 
-    this.sock.socket.emit(SavePositionKey, this.state);
+    this.context.socket.emit(SavePositionKey, this.state);
 
     this.LoadForm();
   }
@@ -99,7 +99,7 @@ export default class Position extends React.Component {
   render() {
     return (
       <div>
-        <Socket.Listener event={ SavePositionKey } callback={()=>{}} ref={e => this.sock = e} />
+        <Event event={ SavePositionKey } handler={()=>{}} />
 
         <Form horizontal onSubmit={e => this.handleSubmit(e)}>
           <fieldset>

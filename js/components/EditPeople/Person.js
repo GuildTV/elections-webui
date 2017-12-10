@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 
 import {
   Form, FormGroup, FormControl, ControlLabel, 
@@ -65,7 +65,7 @@ export default class Person extends React.Component {
   }
 
   componentDidMount() {
-    this.sock.socket.emit(GetPositionsKey);
+    this.context.socket.emit(GetPositionsKey);
   }
 
   handleFirstNameChange(e) {
@@ -135,7 +135,7 @@ export default class Person extends React.Component {
       elected
     };
 
-    this.sock.socket.emit(NewPersonKey, data);
+    this.context.socket.emit(NewPersonKey, data);
 
     this.LoadForm();
   }
@@ -225,7 +225,7 @@ export default class Person extends React.Component {
 
     return (
       <div>
-        <Socket.Listener event={ GetPositionsKey } callback={ e => this.handlePositionsLoad(e) } ref={e => this.sock = e} />
+        <Event event={ GetPositionsKey } handler={ e => this.handlePositionsLoad(e) } />
 
         <Form horizontal onSubmit={e => this.handleSubmit(e)}>
           <fieldset>

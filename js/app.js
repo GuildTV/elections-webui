@@ -1,17 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, hashHistory } from 'react-router';
+import { Socket } from 'react-socket-io';
 
-import '../less/app.less';
+import '../sass/app.scss';
 
 import TopBar from './components/TopBar';
 
 import routes from './routes';
 
 ReactDOM.render(
-  <div>
-    <TopBar />
-    <Router history={hashHistory} routes={routes} />
-  </div>,
+  <Socket>
+    <div>
+      <TopBar />
+      <Router history={hashHistory} routes={routes} />
+    </div>
+  </Socket>,
   document.getElementById('root')
 );

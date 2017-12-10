@@ -1,30 +1,55 @@
-var path = require('path');
-var webpack = require('webpack');
-
-module.exports = {
-  entry: './js/app.js',
+const config = {
+  // context: __dirname + '/src', // `__dirname` is root of project and `src` is source
+  entry: {
+    app: './js/app.js',
+  },
   output: {
-    path: __dirname,
-    filename: 'static/app.js',
-    publicPath: "static"
+    path: __dirname + '/public',
+    filename: "./app.js"
   },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /.jsx?$/,
+        test: /\.(sass|scss|css)$/, //Check for sass or scss file names
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader',
+        ]
+      },
+      {
+        test: /\.js$/, //Check for all js files
         loader: 'babel-loader',
-        exclude: /node_modules/,
         query: {
-          presets: ['es2015', 'react', 'stage-0']
+          presets: [ "env", "react" ]
         }
       },
-      { test: /\.less$/, loader: "style!css!less" },
-      { test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.woff2$|\.ttf$|\.eot$|\.otf$|\.wav$|\.mp3$/, loader: "file" }
+      { 
+        test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.woff2$|\.ttf$|\.eot$|\.otf$|\.wav$|\.mp3$/,
+        loader: "file"
+      },
     ]
   },
-  resolve: {
-    root: path.resolve('./js'),
-    extensions: ['', '.js']
+  devServer: {
+    contentBase: __dirname + '/public',
+    proxy: {
+      "/api": "http://localhost:8088",
+      "/socket.io": { target: "ws://localhost:8088", ws: true }
+    },
   },
-  plugins: []
+  resolve: {
+    modules: [
+      "node_modules",
+      "js",
+    ],
+  },
+
+  devtool: "eval-source-map", // Default development sourcemap
 };
+
+// Check if build is running in production mode, then change the sourcemap type
+if (process.env.NODE_ENV === "production") {
+  config.devtool = "source-map";
+}
+
+module.exports = config;

@@ -3,7 +3,7 @@
 */
 
 import React from 'react';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 import {
   Button
 } from 'react-bootstrap';
@@ -49,13 +49,13 @@ export default class Boards extends React.Component {
   }
 
   componentDidMount() {
-    this.sock.socket.emit(GetPositionKey);
+    this.context.socket.emit(GetPositionKey);
   }
 
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
 
-    this.sock.socket.emit(RunTemplateKey, {
+    this.context.socket.emit(RunTemplateKey, {
       template: e.target.getAttribute('data-id'),
       data: e.target.getAttribute('data-data'),
       dataId: e.target.getAttribute('data-key')
@@ -72,15 +72,15 @@ export default class Boards extends React.Component {
 
     return (
       <div>
-        <Socket.Listener event={ GetPositionKey } callback={e => this.handelInitialData(e)} ref={e => this.sock = e} />
-        <Socket.Listener event={ UpdatePositionKey } callback={e => this.handleStateChange(e)} />
+        <Event event={ GetPositionKey } handler={e => this.handelInitialData(e)} />
+        <Event event={ UpdatePositionKey } handler={e => this.handleStateChange(e)} />
 
         <h3>Graph</h3>
         <p>
           <Button data-id="graph" data-key="graph" onClick={(e) => this.runTemplate(e)} className="btn-lg">Fullscreen</Button>
         </p>
 
-        <h3>Winners</h3>
+        <h3>Elected Boards</h3>
         <p>
           <Button data-id="winnersAll" data-key="winnersAll" onClick={(e) => this.runTemplate(e)} className="btn-lg">All</Button>
           <Button data-id="winnersSabbs" data-key="winnersSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Sabbs</Button>
@@ -109,3 +109,7 @@ export default class Boards extends React.Component {
     );
   }
 }
+
+Boards.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

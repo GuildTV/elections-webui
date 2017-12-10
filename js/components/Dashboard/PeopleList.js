@@ -3,12 +3,13 @@
 */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import {
   Col,
   Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 
 import PersonEntry from './PersonEntry';
 
@@ -35,7 +36,7 @@ export default class PeopleList extends React.Component {
   }
 
   updateData(){
-    this.sock.socket.emit(GetPeopleKey);
+    this.context.socket.emit(GetPeopleKey);
   }
 
   handleStateChange(newData) {
@@ -62,17 +63,21 @@ export default class PeopleList extends React.Component {
     this.setState({ people });
   }
 
+  scroll() {
+    ReactDOM.findDOMNode(this.searchBox).click();
+  }
+
   render() {
     const peopleList = this.state.people
       .filter((p) => PeopleList.filterPerson(this.state.filter, p))
-      .map((p) => <PersonEntry key={p.id} sock={this.sock} parent={this} data={p} />);
+      .map((p) => <PersonEntry key={p.id} parent={this} data={p} />);
 
     $('.popover').remove();
 
     return (
       <div>
-        <Socket.Listener event={ GetPeopleKey } callback={d => this.loadedNames(d)} ref={e => this.sock = e} />
-        <Socket.Listener event={ UpdatePeopleKey } callback={d => this.handleStateChange(d)} />
+        <Event event={ GetPeopleKey } handler={d => this.loadedNames(d)} />
+        <Event event={ UpdatePeopleKey } handler={d => this.handleStateChange(d)} />
 
         <Form horizontal>
           <FormGroup>
@@ -80,7 +85,7 @@ export default class PeopleList extends React.Component {
               Search:
             </Col>
             <Col xs={8}>
-              <FormControl type="text" onChange={e => this.filterNames(e)} />
+              <FormControl type="text" onChange={e => this.filterNames(e)} ref={e => this.searchBox = e} />
             </Col>
             <Col xs={2}>
               <Button bsStyle="success" onClick={() => this.updateData()}>Refresh Data</Button>
@@ -115,3 +120,8 @@ export default class PeopleList extends React.Component {
     return false;
   }
 }
+
+PeopleList.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};
+

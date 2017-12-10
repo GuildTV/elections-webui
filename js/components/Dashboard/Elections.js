@@ -3,7 +3,7 @@
 */
 
 import React from 'react';
-import Socket from 'react-socket';
+import { Event } from 'react-socket-io';
 import {
   Col,
   Form, FormGroup, FormControl, ControlLabel, Button
@@ -36,8 +36,8 @@ export default class Elections extends React.Component {
   }
 
   componentDidMount() {
-    this.sock.socket.emit(CurrentGraphId);
-    this.sock.socket.emit(GetPositionKey);
+    this.context.socket.emit(CurrentGraphId);
+    this.context.socket.emit(GetPositionKey);
   }
 
   loadedPositionData(positions) {
@@ -56,7 +56,7 @@ export default class Elections extends React.Component {
     const currentRole = this.state.dropdownRole;
     this.setState({ currentRole });
     console.log("LOAD", LoadResultsKey, currentRole);
-    this.sock.socket.emit(LoadResultsKey, { role: currentRole });
+    this.context.socket.emit(LoadResultsKey, { role: currentRole });
   }
 
   handleGraphId(data){
@@ -65,7 +65,7 @@ export default class Elections extends React.Component {
   }
 
   clearGraphId(){
-    this.sock.socket.emit(ShowResultsKey, {
+    this.context.socket.emit(ShowResultsKey, {
       id: null,
       name: null,
       round: null
@@ -93,8 +93,8 @@ export default class Elections extends React.Component {
 
     return (
       <div>
-        <Socket.Listener event={ GetPositionKey } callback={e => this.loadedPositionData(e)} ref={e => this.sock = e} />
-        <Socket.Listener event={ CurrentGraphId } callback={e => this.handleGraphId(e)} />
+        <Event event={ GetPositionKey } handler={e => this.loadedPositionData(e)} />
+        <Event event={ CurrentGraphId } handler={e => this.handleGraphId(e)} />
 
         <Form horizontal>
           <fieldset>
@@ -130,3 +130,7 @@ export default class Elections extends React.Component {
     );
   }
 }
+
+Elections.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

@@ -1,7 +1,8 @@
 node_modules*
-npm-debug.log
+*.log
 rethink*
-static
+public
 dumps
 
 sequelize.json
+config.js
