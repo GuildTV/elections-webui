@@ -117,6 +117,11 @@ export default class PeopleList extends React.Component {
       console.log("MISSING POSITION:", p);
     }
 
+    if (p.elected) {
+      if ("elect".indexOf(filter) != -1)
+        return true;
+    }
+
     return false;
   }
 }

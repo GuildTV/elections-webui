@@ -124,3 +124,7 @@ export default class PeopleList extends React.Component {
     );
   }
 }
+
+PeopleList.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

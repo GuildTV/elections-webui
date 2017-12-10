@@ -3,7 +3,7 @@ const net = require('net');
 let lastState = {};
 let pingInterval = null;
 
-import { cvizHost, cvizPort } from '../config';
+import { cvizHost, cvizPort, graphAddress } from '../config';
 
 import { generateRon } from './ron';
 
@@ -75,8 +75,8 @@ export default function(Models, socket){
 
     if(data.template.toLowerCase() == "graph"){
       templateData["data"] =  "<templateData>"
-        + "<componentData id=\"server\"><data id=\"text\" value=\"http://172.20.0.25:8088/graph\" /></componentData>"
-        + "<componentData id=\"interval\"><data id=\"text\" value=\"1500\" /></componentData>"
+        + "<componentData id=\"server\"><data id=\"text\" value=\""+graphAddress+"\" /></componentData>"
+        + "<componentData id=\"interval\"><data id=\"text\" value=\"500\" /></componentData>"
         + "</templateData>";
 	
 

@@ -300,3 +300,7 @@ export default class Person extends React.Component {
     );
   }
 }
+
+Person.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

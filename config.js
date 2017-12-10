@@ -4,3 +4,5 @@ export const cvizHost = "10.42.13.159";
 export const cvizPort = 3456;
 
 export const sabbGraphAddress = "http://10.42.13.159:13370/";
+
+export const graphAddress = "http://172.20.0.25:8088/graph"; // Remote access of this service

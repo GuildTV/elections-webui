@@ -191,3 +191,7 @@ export default class Position extends React.Component {
     );
   }
 }
+
+Position.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};

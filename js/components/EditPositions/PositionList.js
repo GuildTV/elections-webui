@@ -112,3 +112,7 @@ export default class PositionList extends React.Component {
     );
   }
 }
+
+PositionList.contextTypes = {
+  socket: React.PropTypes.object.isRequired
+};
