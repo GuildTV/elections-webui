@@ -1,32 +1,71 @@
-export default function(Models, socket){
-  let { Position } = Models;
+export function setup(Models, app){
+  let { Position, Person } = Models;
 
-  socket.on('savePosition', (data) => {
-    console.log("Save Position: " + JSON.stringify(data));
-
-    if (data.id){
-      return Position.findById(data.id).then(pos => {
-        if (!pos)
-          return console.log("Failed to find position to update: ", data);
-
-        Object.assign(pos, data);
-
-        return pos.save().then((p) => socket.emit('updatePosition', p));
-      }).catch(e => console.log("Error saving new position: ", e));
-    }
-
-    return Position.create(data).then(p => {
-      socket.emit('updatePosition', p);
-    }).error(function(error){
-        console.log("Error saving new position: ", error);
-    });
-  });
-
-  socket.on('getPositions', () => {
-    Position.findAll().then(data => {
-      socket.emit('getPositions', data);
+  app.get('/api/positions', (req, res) => {
+    Position.findAll({
+      order: [
+        [ "type", "ASC" ],
+        [ "order", "ASC" ],
+      ]
+    }).then(data => {
+      res.send(data);
     }).error(error => {
-      console.log("Error getting positions: ", error);
+      res.status(500).send("Error getting positions: " + error);
     });
   });
+
+  app.get('/api/position/:id', (req, res) => {
+    const id = req.params.id;
+    Position.findById(id, {
+      include: [{
+        model: Person,
+        include: [ Position ],
+        order: [[ "order", "ASC" ], [ "lastName", "ASC" ]],
+        attributes: {
+          exclude: [ "photo" ]
+        }
+      }]
+    }).then(data => {
+      res.send(data);
+    }).error(error => {
+      res.status(500).send("Error getting position: " + error);
+    });
+  });
+
+
+  app.delete('/api/position/:id', (req, res) => {
+    const id = req.params.id;
+    Position.destroy({
+      where: {
+        id: id
+      }
+    }).then(() => {
+      res.send("OK");
+    }).error(error => {
+      res.sendStatus(500).send("Error deleting position: " + error);
+    });
+  });
+
+  app.post('/api/position/:id', (req, res) => {
+    const id = req.params.id;
+
+    Position.findById(id).then(per => {
+      Object.assign(per, req.body);
+
+      return per.save().then((p) => {
+        res.send(p);
+      });
+    }).error(error => {
+      res.sendStatus(500).send("Error saving position: " + error);
+    });
+  });
+
+  app.put('/api/position', (req, res) => {
+    Position.create(req.body).then(p => {
+      res.send(p);
+    }).error(error => {
+      res.sendStatus(500).send("Error creating position: " + error);
+    });
+  });
+
 }

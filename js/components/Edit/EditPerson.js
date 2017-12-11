@@ -1,28 +1,15 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Event } from 'react-socket-io';
-
-import {
+import axios from 'axios';
+import { withRouter } from 'react-router';
+import { LinkContainer } from 'react-router-bootstrap';
+import { 
+  Grid, Row, Col, 
   Form, FormGroup, FormControl, ControlLabel, 
-  Col, 
-  Button
+  Button,
 } from 'react-bootstrap';
 
-/*
-* Variables
-*/
-
-const NewPersonKey = "savePerson";
-const GetPositionsKey = "getPositions";
-
-/*
-* React
-*/
-export default class Person extends React.Component {
+class EditPersonInner extends React.Component {
   constructor(props) {
     super(props);
 
@@ -38,14 +25,51 @@ export default class Person extends React.Component {
       manifestoTwo: "",
       manifestoThree: "",
       order: 9,
+      winnerOrder: 9,
       elected: false,
     };
   }
 
+  componentDidMount() {
+    this.updateData(this.props);
+  }
+  componentWillReceiveProps(props){
+    this.updateData(props);
+  }
+  componentWillUnmount(){
+    this.setData({});
+  }
+  updateData(props){
+    const { id, posId } = props.params;
+    if (!id){
+      this.setData({});
+      if (posId)
+        this.setState({ positionId: posId });
+    } else {
+      axios.get('/api/person/'+id)
+      .then(res => {
+        this.setData(res.data || {});
+        console.log("Loaded person");
+      })
+      .catch(err => {
+        this.setData({});
+        alert("Get person error:", err);
+      });
+    }
 
-  LoadForm(data){
-    console.log(data);
-    if(data === null || data === undefined){
+    axios.get('/api/positions')
+    .then(res => {
+      this.setState({ _positions: res.data || [] });
+      console.log("Loaded positions");
+    })
+    .catch(err => {
+      this.setState({ _positions: [] });
+      alert("Get positions error:", err);
+    });
+  }
+
+  setData(data){
+    if(data === null || data === undefined || data === {}){
       this.setState({
         id: undefined,
         firstName: '',
@@ -57,15 +81,12 @@ export default class Person extends React.Component {
         manifestoTwo: "",
         manifestoThree: "",
         order: 9,
+        winnerOrder: 9,
         elected: false,
       });
     } else {
       this.setState(data);
     }
-  }
-
-  componentDidMount() {
-    this.context.socket.emit(GetPositionsKey);
   }
 
   handleFirstNameChange(e) {
@@ -109,8 +130,6 @@ export default class Person extends React.Component {
   }
 
   handleSubmit(e) {
-    console.log(this.state);
-
     e.preventDefault();
 
     let {firstName, lastName, uid, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order, elected} = this.state;
@@ -135,20 +154,40 @@ export default class Person extends React.Component {
       elected
     };
 
-    this.context.socket.emit(NewPersonKey, data);
-
-    this.LoadForm();
+    if (id) {
+      axios.post('/api/person/'+id, data)
+      .then(res => {
+        console.log("Saved person");
+        this.setState(res.data);
+      })
+      .catch(err => {
+        alert("Save person error:", err);
+      });
+    } else {
+      axios.put('/api/person', data)
+      .then(res => {
+        console.log("Created person");
+        this.props.router.push("/edit/person/" + res.data.id);
+      })
+      .catch(err => {
+        alert("Create person error:", err);
+      });
+    }
   }
 
-  handlePositionsLoad(data){
-    console.log("Got positions");
+  deletePerson() {
+    const id = this.props.params.id;
+    if (!id)
+      return;
 
-    const positionId = this.state.positionId ? this.state.positionId : data[0].id;
-
-    this.setState({
-      _positions: data,
-      positionId
-    });
+    axios.delete('/api/person/'+id)
+    .then(() => {
+      console.log("Deleted person");
+      this.props.router.push("/edit/position/" + this.state.positionId);
+    })
+    .catch(err => {
+      alert("Delete person error:", err);
+    });    
   }
 
   isCandidate(){
@@ -225,82 +264,94 @@ export default class Person extends React.Component {
 
     return (
       <div>
-        <Event event={ GetPositionsKey } handler={ e => this.handlePositionsLoad(e) } />
+        <Grid>
+          <Row>
+            <Col xs={12}>
+              <div>
+                <Form horizontal onSubmit={e => this.handleSubmit(e)}>
+                  <fieldset>
+                    <legend>Edit person</legend>
+                    <p>
+                      <LinkContainer to={this.state.positionId ? `/edit/position/${this.state.positionId}` : '/edit'}>
+                        <Button bsStyle="default">Back to position</Button>
+                      </LinkContainer>
+                    </p>
 
-        <Form horizontal onSubmit={e => this.handleSubmit(e)}>
-          <fieldset>
-            <legend>Edit person</legend>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        ID
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl.Static>{ this.state.id }</FormControl.Static>
+                      </Col>
+                    </FormGroup>
 
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                ID
-              </Col>
-              <Col xs={10}>
-                <FormControl.Static>{ this.state.id }</FormControl.Static>
-              </Col>
-            </FormGroup>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        First Name
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl type="text" onChange={e => this.handleFirstNameChange(e)} value={this.state.firstName} />
+                      </Col>
+                    </FormGroup>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        Last Name
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl type="text" onChange={e => this.handleLastNameChange(e)} value={this.state.lastName} />
+                      </Col>
+                    </FormGroup>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        UID
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl type="text" onChange={e => this.handleUidChange(e)} placeholder="Enter a unique identifer - e.g. ado-ben" value={this.state.uid} />
+                      </Col>
+                    </FormGroup>
 
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                First Name
-              </Col>
-              <Col xs={10}>
-                <FormControl type="text" onChange={e => this.handleFirstNameChange(e)} value={this.state.firstName} />
-              </Col>
-            </FormGroup>
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                Last Name
-              </Col>
-              <Col xs={10}>
-                <FormControl type="text" onChange={e => this.handleLastNameChange(e)} value={this.state.lastName} />
-              </Col>
-            </FormGroup>
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                UID
-              </Col>
-              <Col xs={10}>
-                <FormControl type="text" onChange={e => this.handleUidChange(e)} placeholder="Enter a unique identifer - e.g. ado-ben" value={this.state.uid} />
-              </Col>
-            </FormGroup>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        Position
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl componentClass="select" onChange={e => this.handlePositionChange(e)} value={this.state.positionId}>
+                          { positions }
+                        </FormControl>
+                      </Col>
+                    </FormGroup>
 
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                Position
-              </Col>
-              <Col xs={10}>
-                <FormControl componentClass="select" onChange={e => this.handlePositionChange(e)} value={this.state.positionId}>
-                  { positions }
-                </FormControl>
-              </Col>
-            </FormGroup>
+                    { candidateData }
 
-            { candidateData }
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        Order
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl type="number" min="0" onChange={e => this.handleOrderChange(e)} value={this.state.order} />
+                      </Col>
+                    </FormGroup>
 
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}>
-                Order
-              </Col>
-              <Col xs={10}>
-                <FormControl type="number" min="0" onChange={e => this.handleOrderChange(e)} value={this.state.order} />
-              </Col>
-            </FormGroup>
-
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={2}></Col>
-              <Col xs={10}>
-                <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
-                <Button bsStyle="warning" onClick={() => this.LoadForm()}>Clear</Button>
-              </Col>
-            </FormGroup>
-          </fieldset>
-        </Form>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}></Col>
+                      <Col xs={10}>
+                        <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
+                        { this.state.id 
+                          ? <Button bsStyle="danger" onClick={() => this.deletePerson()}>Delete</Button>
+                          : ""
+                        }
+                      </Col>
+                    </FormGroup>
+                  </fieldset>
+                </Form>
+              </div>
+            </Col>
+          </Row>
+        </Grid>
       </div>
     );
   }
 }
 
-Person.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};
+export const EditPerson = withRouter(EditPersonInner);

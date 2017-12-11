@@ -15,11 +15,12 @@ let SCRAPE_LAST_MD5 = "";
 let SCRAPE_LAST_TIME = 0;
 
 export function setup(Models, app){
+  const { Election } = Models;
 
   // DEV ONLY!!
   // GRAPHROLE.id = 1;
 
-  app.get('/graph', cors(), (req, res) => {
+  app.get('/api/graph', cors(), (req, res) => {
     // DEV ONLY:
     // Position.run().then(function (positions){
     //   console.log(positions)
@@ -71,41 +72,33 @@ export function setup(Models, app){
       // TODO - add a scrape now feature, in case graph dies, we can still manually trigger a scrape
     }
   });
-}
 
-export function bind(Models, socket){
-  const { Election } = Models;
-
-  socket.on('getElections', (data) => {
-    console.log("Get Elections data: ", data.position);
-
-    if(!data.position)
-      return;
-
-    generateResponseXML(Models, data.position).then(str => socket.emit('getElections', str));
-  });
-
-  socket.on('getElectionsList', () => {
-
+  app.get('/api/results/positions', (req, res) => {
     return Election.findAll().then(elections => {
       const roles = elections.map(e => {
         return { name: e.positionName, id: e.id };
       });
 
-      socket.emit('getElectionsList', roles);
-    });
+      res.send(roles);
+    }).catch(e => res.sendStatus(500).send(e));
   });
 
-  socket.on('showResults', data => {
-    console.log("Force results:", data);
-    GRAPHROLE = data;
-    socket.emit('currentGraphId', GRAPHROLE);
+  app.get('/api/results/position/:id', (req, res) => {
+    return generateResponseXML(Models, req.params.id)
+      .then(str => res.send(str))
+      .catch(e => res.sendStatus(500).send(e));
   });
 
-  socket.on('currentGraphId', () => {
-    console.log("Cur Graph ID");
-    socket.emit('currentGraphId', GRAPHROLE);
+  app.get('/api/results/current', (req, res) => {
+    res.send(GRAPHROLE);
   });
+  app.post('/api/results/current', (req, res) => {
+    console.log("Force results:", req.body);
+    GRAPHROLE = req.body;
+
+    res.send(GRAPHROLE);
+  });
+
 }
 
 function generateResponseXML(Models, pid, maxRound){
@@ -120,9 +113,9 @@ function generateResponseXML(Models, pid, maxRound){
       return "BAD POSITION";
 
     const rootElm = builder.create('root');
-    rootElm.ele('eventName', "Guild Officer Elections 2017");
+    rootElm.ele('eventName', "Guild Officer Elections 2018");
     rootElm.ele('subtitle', "");
-    rootElm.ele('extra', "Guild Officer Elections 2017");
+    rootElm.ele('extra', "Guild Officer Elections 2018");
     rootElm.ele('title', election.positionName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');

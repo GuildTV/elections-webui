@@ -13,7 +13,9 @@ ReactDOM.render(
   <Socket>
     <div>
       <TopBar />
-      <Router history={hashHistory} routes={routes} />
+      <div style={{ marginTop: "65px" }}>
+        <Router history={hashHistory} routes={routes} />
+      </div>
     </div>
   </Socket>,
   document.getElementById('root')

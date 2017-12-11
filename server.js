@@ -4,10 +4,10 @@ const bodyParser = require('body-parser');
 
 import { webui_port } from "./config";
 
-import positionController from './controllers/position';
-import peopleController from './controllers/person';
-import cvizController from './controllers/cviz';
-import { setup as graphSetup, bind as graphBind } from './controllers/graphs';
+import { setup as positionSetup } from './controllers/position';
+import { setup as peopleSetup } from './controllers/person';
+import { setup as cvizSetup, bind as cvizBind } from './controllers/cviz';
+import { setup as graphSetup } from './controllers/graphs';
 
 import Models from "./models";
 
@@ -21,9 +21,13 @@ const server = app.listen(webui_port, () => {
 const io = require('socket.io')(server);
 
 app.use(bodyParser.urlencoded({ extended: false } ));
+app.use(bodyParser.json({ limit: '10mb'}));
 app.use(express.static('public'));
 
 graphSetup(Models, app);
+positionSetup(Models, app);
+peopleSetup(Models, app);
+cvizSetup(Models, app);
 
 // Set socket.io listeners.
 io.sockets.on('connection', (socket) => {
@@ -33,17 +37,5 @@ io.sockets.on('connection', (socket) => {
     console.log('user disconnected');
   });
 
-  positionController(Models, socket);
-  peopleController(Models, socket);
-
-  cvizController(Models, socket);
-  graphBind(Models, socket);
-});
-
-// Set Express routes.
-app.get('/', (req, res) => {
-  if(process.env.NODE_ENV == "production")
-    res.sendFile(__dirname + '/views/index.html');
-  else
-    res.sendFile(__dirname + '/views/dev.html');
+  cvizBind(Models, socket);
 });

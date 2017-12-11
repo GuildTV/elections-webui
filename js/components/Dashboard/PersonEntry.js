@@ -1,24 +1,10 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
+import axios from 'axios';
 import {
   Col,
   Button,
   Popover, OverlayTrigger
 } from 'react-bootstrap';
-
-/*
-* Variables
-*/
-const RunTemplateKey = "runTemplate";
-const SetWinnerKey = "setWinner";
-const ClearWinnerKey = "clearWinner";
-
-/*
-* React
-*/
 
 const overlayCss = {
   // marginTop: "65px",
@@ -37,23 +23,37 @@ export default class PersonEntry extends React.Component {
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
 
-    this.context.socket.emit(RunTemplateKey, {
-      template: e.target.getAttribute('data-id'),
-      data: { candidate: this.props.data },
-      dataId: this.props.data.uid
+    axios.post('/api/run/person/'+this.props.data.id+'/'+e.target.getAttribute('data-id'))
+    .then(() => {
+      console.log("Run template");
+    })
+    .catch(err => {
+      alert("Run template error:", err);
     });
   }
 
   setWinner(){
     console.log("Setting winner:", this.props.data.id);
 
-    this.context.socket.emit(SetWinnerKey, this.props.data);
+    axios.post('/api/person/'+this.props.data.id+'/win')
+    .then(() => {
+      console.log("Set winner");
+    })
+    .catch(err => {
+      alert("Set winner error:", err);
+    });
   }
 
   clearWinner(){
     console.log("Clearing winner:", this.props.data.id);
 
-    this.context.socket.emit(ClearWinnerKey, this.props.data);
+    axios.post('/api/person/'+this.props.data.id+'/lose')
+    .then(() => {
+      console.log("Set loser");
+    })
+    .catch(err => {
+      alert("Set loser error:", err);
+    });
   }
 
   render() {
@@ -86,7 +86,7 @@ export default class PersonEntry extends React.Component {
       return (<p></p>);
 
     return (
-      <Col md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
+      <Col lg={3} md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
         <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName } { this.props.data.elected ? " Elect" : "" }</p>
         <p>
           <Button data-id="lowerThird" onClick={(e) => this.runTemplate(e)}>Lower Third</Button>&nbsp;

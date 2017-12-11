@@ -1,7 +1,5 @@
-/*
-* External Dependancies
-*/
 import React from 'react';
+import axios from 'axios';
 import { Event } from 'react-socket-io';
 
 import {
@@ -9,16 +7,7 @@ import {
   Button
 } from 'react-bootstrap';
 
-/*
-* Internal Dependancies
-*/
-
-/*
-* Variables
-*/
 const ChangeTemplateStateKey = "templateState";
-const GoTemplateKey = "templateGo";
-const KillTemplateKey = "templateKill";
 
 const footerCss = {
   position: "absolute",
@@ -36,16 +25,13 @@ const goButtonCss = {
   fontSize: "4em"
 };
 
-/*
-* React
-*/
 export default class Footer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       state: {
-        state: "CLEAR",
+        state: "clear",
         stateMessage: null,
         filename: "",
         instanceName: ""
@@ -54,13 +40,10 @@ export default class Footer extends React.Component {
   }
 
   ChangeTemplateState(data){
-    // if (data.id != this.props.id)
-    //   return;
-    
-    if (data.state == "CLEAR"){
+    if (data.state !== undefined && data.state.toLowerCase() == "clear"){
       this.setState({
         state: {
-          state: "CLEAR",
+          state: "clear",
           stateMessage: null,
           filename: "",
           instanceName: ""
@@ -74,13 +57,25 @@ export default class Footer extends React.Component {
   KillButtonClick(){
     console.log("Sending KILL");
 
-    this.context.socket.emit(KillTemplateKey);
+    axios.post('/api/cviz/kill')
+    .then(() => {
+      console.log("Kill template");
+    })
+    .catch(err => {
+      alert("Kill template error:", err);
+    });
   }
 
   GoButtonClick(){
     console.log("Sending GO");
 
-    this.context.socket.emit(GoTemplateKey);
+    axios.post('/api/cviz/cue')
+    .then(() => {
+      console.log("Cue template");
+    })
+    .catch(err => {
+      alert("Cue template error:", err);
+    });
   }
 
   render() {

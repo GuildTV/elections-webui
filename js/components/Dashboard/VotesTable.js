@@ -1,24 +1,10 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
-import { Event } from 'react-socket-io';
 import $ from 'jquery';
+import axios from 'axios';
 import {
   Table, Button
 } from 'react-bootstrap';
 
-/*
-* Variables
-*/
-const GetElectionsKey = "getElections";
-const ShowResultsKey = "showResults";
-
-
-/*
-* React
-*/
 export default class VotesTable extends React.Component {
   constructor(props) {
     super(props);
@@ -29,26 +15,57 @@ export default class VotesTable extends React.Component {
   }
 
   componentDidMount() {
-    this.context.socket.emit(GetElectionsKey, { position: this.props.position });
+    this.updateData(this.props);
 
     // refresh every few seconds
     console.log("Starting votes table refresher");
-    setInterval(() => {
-      this.context.socket.emit(GetElectionsKey, { position: this.props.position });
+    this.interval = setInterval(() => {
+      this.updateData(this.props);
     }, 2000);
+  }
+  componentWillUnmount() {
+    if (this.interval){
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+
+  updateData(props){
+    if (!props.position || props.position == "")
+      return;
+
+    axios.get('/api/results/position/'+props.position)
+    .then(res => {
+      this.loadedElectionData(res.data);
+      console.log("Loaded graph data");
+    })
+    .catch(err => {
+      console.error("Get graph data:", err);
+    });
   }
 
   componentWillReceiveProps(newProps){
-    this.context.socket.emit(GetElectionsKey, { position: newProps.position });
+    this.updateData(newProps);
   }
 
   showRound(roundNum){
+    if (!this.props.position || this.props.position == "")
+      return;
+    
     const data = {
       id: this.props.position,
       round: roundNum
     };
 
-    this.context.socket.emit(ShowResultsKey, data);
+    axios.post('/api/results/current', data)
+    .then(() => {
+      console.log("Set current graph info");
+    })
+    .catch(err => {
+      console.error("Get current graph info:", err);
+    });
+
+    this.props.roleChanged();
   }
 
   loadedElectionData(str) {
@@ -85,8 +102,6 @@ export default class VotesTable extends React.Component {
       });
     });
 
-    // console.log(rows)
-
     this.setState({
       data: rows,
       error: null
@@ -95,6 +110,7 @@ export default class VotesTable extends React.Component {
 
   renderInner() {
     const { data, error } = this.state;
+    const { graphId } = this.props;
 
     if (error)
       return <p>Error: { error }</p>;
@@ -103,7 +119,8 @@ export default class VotesTable extends React.Component {
 
     const roundCols = [];
     for (let i=0; i<roundCount; i++){
-      roundCols.push(<td key={i}>Round { i+1 }</td>);
+      const className = graphId.round == i ? "currentRound" : "";
+      roundCols.push(<td key={i} className={className}>Round { i+1 }</td>);
     }
 
     const rows = Object.keys(data).map(v => this.renderPerson(data[v], roundCount));
@@ -132,7 +149,6 @@ export default class VotesTable extends React.Component {
   render() {
     return (
       <div>
-        <Event event={ GetElectionsKey } handler={e => this.loadedElectionData(e)} />
         { this.renderInner() }
       </div>
     );
@@ -164,7 +180,3 @@ export default class VotesTable extends React.Component {
     );
   }
 }
-
-VotesTable.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};

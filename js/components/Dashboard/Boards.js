@@ -1,23 +1,9 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
-import { Event } from 'react-socket-io';
+import axios from 'axios';
 import {
   Button
 } from 'react-bootstrap';
 
-/*
-* Variables
-*/
-const RunTemplateKey = "runTemplate";
-const GetPositionKey = "getPositions";
-const UpdatePositionKey = "updatePosition";
-
-/*
-* React
-*/
 export default class Boards extends React.Component {
   constructor(props) {
     super(props);
@@ -26,61 +12,49 @@ export default class Boards extends React.Component {
     };
   }
 
-  handelInitialData(positions) {
-    this.setState({ positions });
-  }
-
-  handleStateChange(newData) {
-    let isNew = true;
-    let positions = this.state.positions.map((pos) => {
-      if (pos.id === newData.id) {
-        isNew = false;
-        return newData;
-      } else {
-        return pos;
-      }
-    });
-
-    if(isNew) {
-      positions.push(newData);
-    }
-
-    this.setState({positions});
-  }
-
   componentDidMount() {
-    this.context.socket.emit(GetPositionKey);
+    this.updateData();
+  }
+  componentWillUnmount(){
+    this.setState({
+      positions: [],
+    });
+  }
+  updateData(){
+    axios.get('/api/positions')
+    .then(res => {
+      this.setState({ positions: res.data || [] });
+      console.log("Loaded " + res.data.length + " positions");
+    })
+    .catch(err => {
+      this.setState({ positions: [] });
+      alert("Get positions error:", err);
+    });
   }
 
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
 
-    this.context.socket.emit(RunTemplateKey, {
-      template: e.target.getAttribute('data-id'),
-      data: e.target.getAttribute('data-data'),
-      dataId: e.target.getAttribute('data-key')
+    axios.post('/api/run/board/'+e.target.getAttribute('data-id')+'/'+e.target.getAttribute('data-key'))
+    .then(() => {
+      console.log("Run template");
+    })
+    .catch(err => {
+      alert("Run template error:", err);
     });
   }
 
   render() {
     const sabbs = this.state.positions
       .filter(p => p.type == "candidateSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-key={ p.id } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
     const nonSabbs = this.state.positions
       .filter(p => p.type == "candidateNonSabb")
-      .map(p => <Button key={p.id} data-id="candidateBoard" data-data={ p.id } data-key={ p.miniName } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
+      .map(p => <Button key={p.id} data-id="candidateBoard" data-key={ p.id } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
 
     return (
       <div>
-        <Event event={ GetPositionKey } handler={e => this.handelInitialData(e)} />
-        <Event event={ UpdatePositionKey } handler={e => this.handleStateChange(e)} />
-
-        <h3>Graph</h3>
-        <p>
-          <Button data-id="graph" data-key="graph" onClick={(e) => this.runTemplate(e)} className="btn-lg">Fullscreen</Button>
-        </p>
-
-        <h3>Elected Boards</h3>
+        <h3>Winner Boards</h3>
         <p>
           <Button data-id="winnersAll" data-key="winnersAll" onClick={(e) => this.runTemplate(e)} className="btn-lg">All</Button>
           <Button data-id="winnersSabbs" data-key="winnersSabbs" onClick={(e) => this.runTemplate(e)} className="btn-lg">Sabbs</Button>
@@ -96,7 +70,7 @@ export default class Boards extends React.Component {
         </p>
 
         <hr />
-        <h3>Candidate Individual</h3>
+        <h3>Individual Role</h3>
         <h4>Sabbs</h4>
         <p>
           { sabbs }

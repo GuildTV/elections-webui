@@ -73,7 +73,7 @@ export class GraphScraper {
   }
 
   _findAndSaveElection(data){
-    let { Position, Election } = this.Models;
+    let { Election } = this.Models;
 
     return Election.findOrInitialize({
       where: {

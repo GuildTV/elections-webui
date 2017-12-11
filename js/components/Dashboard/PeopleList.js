@@ -1,27 +1,14 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
+import axios from 'axios';
 import {
   Col,
   Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
-import { Event } from 'react-socket-io';
 
 import PersonEntry from './PersonEntry';
 
-/*
-* Variables
-*/
-const GetPeopleKey = "getPeople";
-const UpdatePeopleKey = "updatePeople";
-
-/*
-* React
-*/
 export default class PeopleList extends React.Component {
   constructor(props) {
     super(props);
@@ -34,33 +21,26 @@ export default class PeopleList extends React.Component {
   componentDidMount() {
     this.updateData();
   }
-
-  updateData(){
-    this.context.socket.emit(GetPeopleKey);
-  }
-
-  handleStateChange(newData) {
-    console.log("PEOPLE", newData);
-
-    let people = this.state.people;
-    newData.map(person => {
-      const index = people.findIndex(p => p.uid == person.uid);
-      if(index >= 0)
-        people[index] = person;
-      else
-        people.push(person);
+  componentWillUnmount(){
+    this.setState({
+      people: [],
     });
-
-    this.setState({people});
+  }
+  updateData(){
+    axios.get('/api/peoplelist')
+    .then(res => {
+      this.setState({ people: res.data || [] });
+      console.log("Loaded people list of " + res.data.length);
+    })
+    .catch(err => {
+      this.setState({ people: [] });
+      alert("Get people error:", err);
+    });
   }
 
   filterNames(e){
     const filter = e.target.value;
     this.setState({ filter });
-  }
-
-  loadedNames(people){
-    this.setState({ people });
   }
 
   scroll() {
@@ -76,9 +56,6 @@ export default class PeopleList extends React.Component {
 
     return (
       <div>
-        <Event event={ GetPeopleKey } handler={d => this.loadedNames(d)} />
-        <Event event={ UpdatePeopleKey } handler={d => this.handleStateChange(d)} />
-
         <Form horizontal>
           <FormGroup>
             <Col componentClass={ControlLabel} xs={2}>
@@ -125,8 +102,3 @@ export default class PeopleList extends React.Component {
     return false;
   }
 }
-
-PeopleList.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};
-

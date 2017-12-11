@@ -1,26 +1,12 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
-import { Event } from 'react-socket-io';
+import axios from 'axios';
 import {
   Col,
   Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
 
 import VotesTable from './VotesTable';
-/*
-* Variables
-*/
-const GetPositionKey = "getElectionsList";
-const LoadResultsKey = "loadResults";
-const CurrentGraphId = "currentGraphId";
-const ShowResultsKey = "showResults";
 
-/*
-* React
-*/
 export default class Elections extends React.Component {
   constructor(props) {
     super(props);
@@ -36,16 +22,35 @@ export default class Elections extends React.Component {
   }
 
   componentDidMount() {
-    this.context.socket.emit(CurrentGraphId);
-    this.context.socket.emit(GetPositionKey);
+    this.updateData();
   }
 
-  loadedPositionData(positions) {
-    const dropdownRole = positions[0].id;
-    this.setState({
-      positions,
-      dropdownRole
+  updateData(){
+    axios.get('/api/results/current')
+    .then(res => {
+      this.setState({ graphId: res.data || {} });
+      console.log("Loaded current graph info");
+    })
+    .catch(err => {
+      this.setState({ graphId: {
+        id: null,
+        round: null,
+      } });
+      alert("Get current graph info error:", err);
     });
+
+    axios.get('/api/results/positions')
+    .then(res => {
+      this.setState({ 
+        positions: res.data || [],
+        dropdownRole: res.data[0].id,
+      });
+      console.log("Loaded graph positions");
+    })
+    .catch(err => {
+      this.setState({ positions: []});
+      alert("Get graph positions error:", err);
+    }); 
   }
 
   handlePositionSelectionChange(e){
@@ -55,20 +60,23 @@ export default class Elections extends React.Component {
   loadPositionData(){
     const currentRole = this.state.dropdownRole;
     this.setState({ currentRole });
-    console.log("LOAD", LoadResultsKey, currentRole);
-    this.context.socket.emit(LoadResultsKey, { role: currentRole });
-  }
-
-  handleGraphId(data){
-    console.log("Graph ID:", data);
-    this.setState({ graphId: data });
   }
 
   clearGraphId(){
-    this.context.socket.emit(ShowResultsKey, {
+    const data = {
       id: null,
       name: null,
       round: null
+    };
+
+    axios.post('/api/results/current', data)
+    .then(() => {
+      this.setState({ graphId: data });
+      console.log("Set current graph info");
+    })
+    .catch(err => {
+      this.setState({ graphId: {}});
+      alert("Set current graph info error:", err);
     });
   }
 
@@ -89,12 +97,13 @@ export default class Elections extends React.Component {
   }
 
   render() {
-    const positions = this.state.positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>);
+    const positions = this.state.positions.map((p) => {
+      const name = p.id == this.state.graphId.id ? " - " + p.name + " - " : p.name;
+      return <option key={p.id} value={p.id}>{name}</option>;
+    });
 
     return (
       <div>
-        <Event event={ GetPositionKey } handler={e => this.loadedPositionData(e)} />
-        <Event event={ CurrentGraphId } handler={e => this.handleGraphId(e)} />
 
         <Form horizontal>
           <fieldset>
@@ -125,12 +134,8 @@ export default class Elections extends React.Component {
         </fieldset>
         </Form>
 
-        <VotesTable position={this.state.currentRole} />
+        <VotesTable position={this.state.currentRole} graphId={this.state.graphId} roleChanged={() => this.updateData()}/>
       </div>
     );
   }
 }
-
-Elections.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};

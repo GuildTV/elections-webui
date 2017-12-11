@@ -3,7 +3,7 @@ const net = require('net');
 let lastState = {};
 let pingInterval = null;
 
-import { cvizHost, cvizPort, graphAddress } from '../config';
+import { cvizHost, cvizPort } from '../config';
 
 import { generateRon } from './ron';
 
@@ -25,7 +25,7 @@ client.connect(cvizPort, cvizHost, function() {
   console.log('Connected to cviz');
 
   pingInterval = setInterval(() => {
-    client.write("{}");
+    client.write("{}\n");
   }, 300);
 });
 
@@ -49,14 +49,12 @@ client.on('close', () => {
   }
 });
 
-export default function(Models, socket){
-  let { Person, Position } = Models;
-
+export function bind(Models, socket){
   socket.emit('templateState', lastState);
 
   client.on('data', (data) => {
     try {
-      if(data == "{}")
+      if(data == "{}" || data == "{}\n")
         return;
 
       data = JSON.parse(data);
@@ -65,253 +63,6 @@ export default function(Models, socket){
     } catch (e){
         console.log("Error", e);
     }
-  });
-
-  socket.on('runTemplate', data => {
-    console.log("runTemplate", data);
-
-    // not pretty, but data needs to be passed as an object of strings
-    const templateData = {};
-
-    if(data.template.toLowerCase() == "graph"){
-      templateData["data"] =  "<templateData>"
-        + "<componentData id=\"server\"><data id=\"text\" value=\""+graphAddress+"\" /></componentData>"
-        + "<componentData id=\"interval\"><data id=\"text\" value=\"500\" /></componentData>"
-        + "</templateData>";
-	
-
-
-    } else if(data.template.toLowerCase() == "lowerthird"){
-      if(!data.data || !data.data.candidate)
-        return;
-
-      for(const key in data.data) {
-        const person = data.data[key];
-        const name = (person.firstName + " " + person.lastName).trim().toUpperCase();
-        let role = person.Position.fullName.trim().toUpperCase();
-        if(person.Position.type != "other"){
-          role += (person.elected ? " elect" : " candidate").toUpperCase();
-        }
-
-        templateData[key] =  "<templateData>"
-        + "<componentData id=\"f0\"><data id=\"text\" value=\"" + name + "\" /></componentData>"
-        + "<componentData id=\"f1\"><data id=\"text\" value=\"" + role + "\" /></componentData>"
-        + "</templateData>";
-      }
-
-    } else if (data.template.toLowerCase() == "candidatesabbs" || data.template.toLowerCase() == "candidatenonsabbs") {
-      let type = (data.template.toLowerCase() == "candidatesabbs") ? "candidateSabb" : "candidateNonSabb";
-
-      Position.findAll({
-        where: {
-          type: type
-        },
-        order: [[ "order", "ASC" ]],
-        include: [{
-          model: Person,
-          include: [ Position ],
-          order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
-        }]
-      }).then(positions => {
-        const templateData = {};
-        let index = 1;
-        positions.forEach((pos) => {
-          const compiledData = {
-            candidates: pos.People,
-            position: pos
-          };
-
-          
-          if (compiledData.candidates.length == 0){
-            compiledData.candidates = [ generateRon(pos) ];
-          }
-
-          templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-        });
-
-        console.log("Found " + (index-1) + " groups of candidates");
-
-        client.write(JSON.stringify({
-          type: "LOAD",
-          timelineFile: data.template,
-          parameters: templateData,
-          instanceName: data.dataId
-        }));
-      });
-
-      return;
-    } else if (data.template.toLowerCase() == "candidateall") {
-      Position.findAll({
-        order: [[ "type", "DESC" ], [ "order", "ASC" ]],
-        where: {
-          type: {
-            $in: [ "candidateSabb", "candidateNonSabb" ]
-          }
-        },
-        include: [{
-          model: Person,
-          include: [ Position ],
-          order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
-        }]
-      }).then(positions => {
-        const templateData = {};
-        let index = 1;
-        positions.forEach((pos) => {
-          const compiledData = {
-            candidates: pos.People,
-            position: pos
-          };
-
-          if (compiledData.candidates.length == 0){
-            compiledData.candidates = [ generateRon(pos) ];
-          }
-
-          templateData["data" + (index++)] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-        });
-
-        console.log("Found " + (index-1) + " groups of candidates");
-
-        client.write(JSON.stringify({
-          type: "LOAD",
-          timelineFile: data.template,
-          parameters: templateData,
-          instanceName: data.dataId
-        }));
-      });
-
-      return;
-    } else if (data.template.toLowerCase() == "winnersall"){
-      getWinnersOfType(Models, "candidateSabb").then(function(sabbs){
-        getWinnersOfType(Models, "candidateNonSabb").then(function(people){
-          const half_length = Math.ceil(people.length / 2);
-          const page1 = people.splice(0, half_length);
-
-          const compiledSabbs = {
-            candidates: sabbs
-          };
-          const compiledData = {
-            candidates: page1
-          };
-          const compiledData2 = {
-            candidates: people
-          };
-
-          templateData["nonsabbs1"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-          templateData["nonsabbs2"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>";
-          templateData["sabbs"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledSabbs) + "]]></componentData></templateData>";
-
-          client.write(JSON.stringify({
-            type: "LOAD",
-            timelineFile: data.template,
-            parameters: templateData,
-            instanceName: data.dataId
-          }));
-        });
-      });
-
-      return;
-    } else if (data.template.toLowerCase() == "winnersnonsabbs"){
-      getWinnersOfType(Models, "candidateNonSabb").then(function(people){
-        const half_length = Math.ceil(people.length / 2);
-        const page1 = people.splice(0, half_length);
-
-
-        const compiledData = {
-          candidates: page1
-        };
-        const compiledData2 = {
-          candidates: people
-        };
-
-        templateData["data1"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-        templateData["data2"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>";
-
-        client.write(JSON.stringify({
-          type: "LOAD",
-          timelineFile: data.template,
-          parameters: templateData,
-          instanceName: data.dataId
-        }));
-      });
-
-      return;
-    } else if (data.template.toLowerCase() == "winnerssabbs"){
-      getWinnersOfType(Models, "candidateSabb").then(function(people){
-        const compiledData = {
-          candidates: people
-        };
-
-        templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-
-        client.write(JSON.stringify({
-          type: "LOAD",
-          timelineFile: data.template,
-          parameters: templateData,
-          instanceName: data.dataId
-        }));
-      });
-
-      return;
-    } else if (data.template.toLowerCase() == "candidateboard") {
-      const compiledData = {};
-      Position.findById(data.data, {
-        include: [{
-          model: Person,
-          order: [
-            [ "order", "ASC" ],
-            [ "lastName", "ASC" ]
-          ]
-        }]
-      }).then(function(position){
-        if(!position)
-          return;
-
-        compiledData.position = position;
-
-        compiledData.candidates = position.People;
-
-        if (compiledData.candidates.length == 0){
-          compiledData.candidates = [ generateRon(position) ];
-        }
-
-        templateData["data"] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
-
-        client.write(JSON.stringify({
-          type: "LOAD",
-          timelineFile: data.template,
-          parameters: templateData,
-          instanceName: data.dataId
-        }));
-      });
-      return;
-    }else {
-      for(const key in data.data) {
-        templateData[key] = "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data.data[key]) + "]]></componentData></templateData>";
-      }
-    }
-
-    client.write(JSON.stringify({
-      type: "LOAD",
-      timelineFile: data.template,
-      parameters: templateData,
-      instanceName: data.dataId
-    }));
-  });
-
-  socket.on('templateGo', () => {
-    console.log("templateGo");
-
-    client.write(JSON.stringify({
-      type: "CUE"
-    }));
-  });
-
-  socket.on('templateKill', () => {
-    console.log("templateKill");
-
-    client.write(JSON.stringify({
-      type: "KILL"
-    }));
   });
 }
 
@@ -339,4 +90,247 @@ function getWinnersOfType(Models, type){
       return generateRon(v);
     });
   });
+}
+
+export function setup(Models, app){
+  const { Person, Position } = Models;
+
+  app.post('/api/cviz/cue', (req, res) => {
+    console.log("templateGo");
+
+    client.write(JSON.stringify({
+      type: "CUE"
+    })+"\n");
+    res.send("OK");
+  });
+
+  app.post('/api/cviz/kill', (req, res) => {
+    console.log("templateKill");
+
+    client.write(JSON.stringify({
+      type: "KILL"
+    })+"\n");
+    res.send("OK");
+  });
+
+  app.post('/api/run/person/:id/:template', (req, res) => {
+    console.log("Run template for person", req.params);
+
+    return Person.findById(req.params.id, {
+      include: [ Position ]
+    }).then(data => {
+      // Special handling for lowerthird as it is flash and wants a subset of the data
+      if (req.params.template.toLowerCase() == "lowerthird"){
+        const name = (data.firstName + " " + data.lastName).trim().toUpperCase();
+        let role = data.Position.fullName.trim().toUpperCase();
+        if(data.Position.type != "other"){
+          role += (data.elected ? " elect" : " candidate").toUpperCase();
+        }
+
+        const templateData = {
+          candidate: "<templateData>"
+            + "<componentData id=\"f0\"><data id=\"text\" value=\"" + name + "\" /></componentData>"
+            + "<componentData id=\"f1\"><data id=\"text\" value=\"" + role + "\" /></componentData>"
+            + "</templateData>"
+        };
+
+        client.write(JSON.stringify({
+          type: "LOAD",
+          timelineFile: req.params.template,
+          parameters: templateData,
+          instanceName: data.uid
+        })+"\n");
+
+        res.send("OK");
+        return;
+      }
+
+      const templateData = {
+        candidate: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data) + "]]></componentData></templateData>"
+      };
+
+      client.write(JSON.stringify({
+        type: "LOAD",
+        timelineFile: req.params.template,
+        parameters: templateData,
+        instanceName: data.uid
+      })+"\n");
+
+      res.send("OK");
+    }).error(error => {
+      res.status(500).send("Failed to load person: " + error);
+    });
+  });
+
+  app.post('/api/run/board/:template/:key', (req, res) => {
+    console.log("Run board template", req.params);
+
+    switch (req.params.template.toLowerCase()){
+      case "winnersall":
+        return getWinnersOfType(Models, "candidateSabb").then(function(sabbs){
+          return getWinnersOfType(Models, "candidateNonSabb").then(function(nonsabbs){
+            const half_length = Math.ceil(nonsabbs.length / 2);
+            const nonsabbs1 = nonsabbs.splice(0, half_length);
+
+            const compiledSabbs = { candidates: sabbs };
+            const compiledData = { candidates: nonsabbs1 };
+            const compiledData2 = { candidates: nonsabbs };
+
+            const templateData = {
+              nonsabbs1: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>",
+              nonsabbs2: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>",
+              sabbs: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledSabbs) + "]]></componentData></templateData>",
+            };
+
+            client.write(JSON.stringify({
+              type: "LOAD",
+              timelineFile: req.params.template,
+              parameters: templateData,
+              instanceName: req.params.key,
+            })+"\n");
+          res.send("OK");
+          });
+        }).error(error => {
+          res.status(500).send("Failed to run: " + error);
+        });
+
+      case "winnersnonsabbs":
+        return getWinnersOfType(Models, "candidateNonSabb").then(function(nonsabbs){
+          const half_length = Math.ceil(nonsabbs.length / 2);
+          const nonsabbs1 = nonsabbs.splice(0, half_length);
+
+          const compiledData = { candidates: nonsabbs1 };
+          const compiledData2 = { candidates: nonsabbs };
+
+          const templateData = {
+            data1: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>",
+            data2: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>",
+          };
+
+          client.write(JSON.stringify({
+            type: "LOAD",
+            timelineFile: req.params.template,
+            parameters: templateData,
+            instanceName: req.params.key,
+          })+"\n");
+          res.send("OK");
+        }).error(error => {
+          res.status(500).send("Failed to run: " + error);
+        });
+
+      case "winnerssabbs":
+        return getWinnersOfType(Models, "candidateSabb").then(function(people){
+          const compiledData = { candidates: people };
+
+          const templateData = {
+            data: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>",
+          };
+
+          client.write(JSON.stringify({
+            type: "LOAD",
+            timelineFile: req.params.template,
+            parameters: templateData,
+            instanceName: req.params.key,
+          })+"\n");
+          res.send("OK");
+        }).error(error => {
+          res.status(500).send("Failed to run: " + error);
+        });
+
+      case "candidateboard":
+        return Position.findById(req.params.key, {
+          include: [{
+            model: Person,
+            order: [
+              [ "order", "ASC" ],
+              [ "lastName", "ASC" ]
+            ]
+          }]
+        }).then(function(position){
+          const templateData = {
+            data: buildCandidateForPosition(position),
+          };
+
+          client.write(JSON.stringify({
+            type: "LOAD",
+            timelineFile: req.params.template,
+            parameters: templateData,
+            instanceName: req.params.key,
+          })+"\n");
+          res.send("OK");
+        }).error(error => {
+          res.status(500).send("Failed to run: " + error);
+        });
+
+      case "candidateall":
+        return candidatesForType(Models, null, req.params.template, req.params.key)
+          .then(() => res.send("OK"))
+          .error(error => {
+            res.status(500).send("Failed to run: " + error);
+          });
+
+      case "candidatesabbs":
+        return candidatesForType(Models, "candidateSabb", req.params.template, req.params.key)
+          .then(() => res.send("OK"))
+          .error(error => {
+            res.status(500).send("Failed to run: " + error);
+          });
+
+      case "candidatenonsabbs":
+        return candidatesForType(Models, "candidateNonSabb", req.params.template, req.params.key)
+          .then(() => res.send("OK"))
+          .error(error => {
+            res.status(500).send("Failed to run: " + error);
+          });
+    }
+
+    res.send("OK");
+  });
+}
+
+function candidatesForType(Models, type, template, key){
+  const { Person, Position } = Models;
+
+  const candType = type ? [ type ] : [ "candidateSabb", "candidateNonSabb" ];
+  return Position.findAll({
+    order: [[ "type", "DESC" ], [ "order", "ASC" ]],
+    where: {
+      type: {
+        $in: candType
+      }
+    },
+    include: [{
+      model: Person,
+      include: [ Position ],
+      order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
+    }]
+  }).then(positions => {
+    const templateData = {};
+    let index = 1;
+    positions.forEach((pos) => {
+      templateData["data" + (index++)] = buildCandidateForPosition(pos);
+    });
+
+    console.log("Found " + (index-1) + " groups of candidates");
+
+    client.write(JSON.stringify({
+      type: "LOAD",
+      timelineFile: template,
+      parameters: templateData,
+      instanceName: key,
+    })+"\n");
+  });
+}
+
+function buildCandidateForPosition(pos){
+  const compiledData = {
+    candidates: pos.People,
+    position: pos
+  };
+
+  if (compiledData.candidates.length == 0){
+    compiledData.candidates = [ generateRon(pos) ];
+  }
+
+  return "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
 }

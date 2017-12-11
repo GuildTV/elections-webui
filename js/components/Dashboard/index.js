@@ -1,7 +1,3 @@
-/*
-* External Dependancies
-*/
-
 import React from 'react';
 import {
   Grid, Row, Col,
@@ -12,18 +8,13 @@ import PeopleList from './PeopleList';
 import Boards from './Boards';
 import Elections from './Elections';
 import Footer from './Footer';
+import Misc from './Misc';
 
-/*
-* Variables
-*/
 let bodyStyle = {
   overflowY: "scroll",
   height: "calc(100vh - 72px - 200px)"
 };
 
-/*
-* React
-*/
 export default class Dashboard extends React.Component {
   scroll() {
     this.peopleElm.scroll();
@@ -33,7 +24,7 @@ export default class Dashboard extends React.Component {
     return (
       <div>
         <div style={bodyStyle} onScroll={() => this.scroll()}>
-          <Grid>
+          <Grid fluid={true}>
             <Row>
               <Col xs={12}>
                 <Tabs animation={false} id="tabs">
@@ -45,6 +36,9 @@ export default class Dashboard extends React.Component {
                   </Tab>
                   <Tab eventKey={3} title="Elections" >
                     <Elections />
+                  </Tab>
+                  <Tab eventKey={4} title="Misc">
+                    <Misc />
                   </Tab>
                 </Tabs>
               </Col>
