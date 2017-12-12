@@ -3,6 +3,11 @@ import {
   Button
 } from 'react-bootstrap';
 
+const scrollStyle = {
+  height: "calc(100vh - 72px - 200px - 43px)",
+  overflowY: "scroll",
+};
+
 export default class Boards extends React.Component {
   runTemplate(e){
     console.log("Running template:", e.target.getAttribute('data-id'));
@@ -16,7 +21,7 @@ export default class Boards extends React.Component {
 
   render() {
     return (
-      <div>
+      <div style={scrollStyle}>
         <h3>Graph</h3>
         <p>
           <Button data-id="graph" data-key="graph" onClick={(e) => this.runTemplate(e)} className="btn-lg">Fullscreen</Button>

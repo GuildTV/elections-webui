@@ -4,6 +4,11 @@ import {
   Button
 } from 'react-bootstrap';
 
+const scrollStyle = {
+  height: "calc(100vh - 72px - 200px - 43px)",
+  overflowY: "scroll",
+};
+
 export default class Boards extends React.Component {
   constructor(props) {
     super(props);
@@ -53,7 +58,7 @@ export default class Boards extends React.Component {
       .map(p => <Button key={p.id} data-id="candidateBoard" data-key={ p.id } onClick={(e) => this.runTemplate(e)} className="btn-lg">{p.miniName}</Button>);
 
     return (
-      <div>
+      <div style={scrollStyle}>
         <h3>Winner Boards</h3>
         <p>
           <Button data-id="winnersAll" data-key="winnersAll" onClick={(e) => this.runTemplate(e)} className="btn-lg">All</Button>
@@ -83,7 +88,3 @@ export default class Boards extends React.Component {
     );
   }
 }
-
-Boards.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};

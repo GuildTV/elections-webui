@@ -18,8 +18,6 @@ const server = app.listen(webui_port, () => {
   console.log(`listening on *:${webui_port}`);
 });
 
-const io = require('socket.io')(server);
-
 app.use(bodyParser.urlencoded({ extended: false } ));
 app.use(bodyParser.json({ limit: '10mb'}));
 app.use(express.static('public'));
@@ -28,14 +26,3 @@ graphSetup(Models, app);
 positionSetup(Models, app);
 peopleSetup(Models, app);
 cvizSetup(Models, app);
-
-// Set socket.io listeners.
-io.sockets.on('connection', (socket) => {
-  console.log('a user connected');
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-
-  cvizBind(Models, socket);
-});

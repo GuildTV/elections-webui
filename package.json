@@ -1,7 +1,7 @@
 {
   "name": "elections-webui",
   "private": true,
-  "version": "0.0.1",
+  "version": "2.0.0",
   "description": "A Web user interface for Guild elections Graphics",
   "author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
   "scripts": {
@@ -48,12 +48,11 @@
     "react-dom": "^15.3.2",
     "react-router": "^3.0.0",
     "react-router-bootstrap": "^0.23.3",
-    "react-socket-io": "^0.2.4",
     "request": "^2.79.0",
     "sass-loader": "^6.0.6",
     "sequelize": "^3.24.8",
     "sequelize-cli": "^2.4.0",
-    "socket.io": "^1.5.1",
+    "uuid": "^3.1.0",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.7",
     "xml2js": "^0.4.17",

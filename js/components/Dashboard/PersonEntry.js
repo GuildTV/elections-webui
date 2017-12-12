@@ -93,7 +93,7 @@ export default class PersonEntry extends React.Component {
           {
             isCandidate ?
             <OverlayTrigger key={Date.now()} trigger="click" placement="right" rootClose overlay={ overlayContent }>
-              <Button bsStyle="info">More</Button>
+              <Button bsStyle="primary">More</Button>
             </OverlayTrigger> :
             ""
           }
@@ -102,7 +102,3 @@ export default class PersonEntry extends React.Component {
     );
   }
 }
-
-PersonEntry.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};

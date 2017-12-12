@@ -1,7 +1,69 @@
 const net = require('net');
+const uuidv4 = require('uuid/v4');
+
+const cvizSlot = "default";
 
 let lastState = {};
+
 let pingInterval = null;
+
+let adjustmentList = [];
+let templateName = null;
+
+//DEV
+adjustmentList = [
+  // { id: uuidv4(), key: "ado", data: "" },
+  // { id: uuidv4(), key: "rro", data: "" },
+  // { id: uuidv4(), key: "hco", data: "" },
+  // { id: uuidv4(), key: "wo", data: "" },
+  // { id: uuidv4(), key: "wo", data: "" },
+  // { id: uuidv4(), key: "pres", data: "" },
+  // { id: uuidv4(), key: "iso", data: "" },
+  // { id: uuidv4(), key: "lgbtqso", data: "" },
+  // { id: uuidv4(), key: "eeo", data: "" },
+  // { id: uuidv4(), key: "eo", data: "" },
+  // { id: uuidv4(), key: "pgso", data: "" },
+  // { id: uuidv4(), key: "hso", data: "" },
+  // { id: uuidv4(), key: "emso", data: "" },
+  // { id: uuidv4(), key: "arafo", data: "" },
+]
+
+function isRunningTemplate(name){
+  if (!lastState || !lastState.timelineFile)
+    return false;
+
+  return lastState.timelineFile == name;
+}
+function isRunningAnything(){
+  if (!lastState || !lastState.state)
+    return false;
+
+  return lastState.state.toLowerCase() != "clear";
+}
+
+function buildClientState(){
+  if (!lastState || !lastState.state)
+    return lastState;
+
+  if (lastState.timelineFile != templateName && lastState.state.toLowerCase() != "clear"){
+    adjustmentList = [];
+    templateName = lastState.timelineFile;
+  }
+
+  if (lastState.state.toLowerCase() == "cueorchild"){
+    if (adjustmentList.length > 0)
+      return Object.assign({}, lastState, {
+        state: "cue",
+        stateMessage: "Start adjustment: " + adjustmentList[0].key,
+      });
+    else
+      return Object.assign({}, lastState, {
+        state: "cue",
+      });
+  }
+
+  return lastState;
+}
 
 import { cvizHost, cvizPort } from '../config';
 
@@ -34,8 +96,13 @@ client.on('data', (data) => {
     if(data == "{}")
       return;
 
-    lastState = JSON.parse(data);
-    console.log("Received", lastState);
+    const blob = JSON.parse(data);
+    if (blob.timelineSlot  != cvizSlot)
+      return; // Not a slot we care about
+
+    // console.log("New state", lastState);
+
+    lastState = blob;
   } catch (e){
     console.log("Error", e);
   }
@@ -48,23 +115,6 @@ client.on('close', () => {
     pingInterval = null;
   }
 });
-
-export function bind(Models, socket){
-  socket.emit('templateState', lastState);
-
-  client.on('data', (data) => {
-    try {
-      if(data == "{}" || data == "{}\n")
-        return;
-
-      data = JSON.parse(data);
-
-      socket.emit('templateState', data);
-    } catch (e){
-        console.log("Error", e);
-    }
-  });
-}
 
 function getWinnersOfType(Models, type){
   let { Person, Position } = Models;
@@ -95,8 +145,61 @@ function getWinnersOfType(Models, type){
 export function setup(Models, app){
   const { Person, Position } = Models;
 
+  app.get('/api/cviz/status', (req, res) => {
+    res.send({
+      adjustments: adjustmentList,
+      state: buildClientState(),
+    });
+  });
+
+  app.delete('/api/cviz/adjustment/:id', (req, res) => {
+    adjustmentList = adjustmentList.filter(a => a.id != req.params.id);
+
+    res.send({
+      adjustments: adjustmentList,
+      state: buildClientState(),
+    });
+  });
+
+  app.post('/api/cviz/adjustment/clear', (req, res) => {
+    adjustmentList = [];
+
+    res.send({
+      adjustments: adjustmentList,
+      state: buildClientState(),
+    });
+  });
+
+  app.post('/api/cviz/adjustment/next/:id', (req, res) => {
+    const entry = adjustmentList.find(a => a.id == req.params.id);
+    if (!entry){
+      res.sendStatus(500).send("Failed to find");
+      return;
+    }
+
+    adjustmentList = adjustmentList.filter(a => a.id != req.params.id);
+    adjustmentList.unshift(entry);
+
+    res.send({
+      adjustments: adjustmentList,
+      state: buildClientState(),
+    });
+  });
+
   app.post('/api/cviz/cue', (req, res) => {
     console.log("templateGo");
+
+    if (lastState.state.toLowerCase() == "cueorchild" && adjustmentList.length > 0){
+      const adjust = adjustmentList.shift();
+      client.write(JSON.stringify({
+        type: "RUNCHILD",
+        parameters: {},
+        instanceName: adjust.key,
+      })+"\n");
+      res.send("OK");
+
+      return;
+    }
 
     client.write(JSON.stringify({
       type: "CUE"
@@ -106,6 +209,8 @@ export function setup(Models, app){
 
   app.post('/api/cviz/kill', (req, res) => {
     console.log("templateKill");
+
+    templateName = null;
 
     client.write(JSON.stringify({
       type: "KILL"
@@ -165,6 +270,59 @@ export function setup(Models, app){
   app.post('/api/run/board/:template/:key', (req, res) => {
     console.log("Run board template", req.params);
 
+    function queueWinners(data) {
+      if (!isRunningTemplate("winners") && isRunningAnything())
+        return "RUNNING_OTHER";
+      if (!isRunningTemplate("winners"))
+        adjustmentList = [];
+
+      templateName = "winners";
+      for(let k of data){
+        adjustmentList.push({
+          id: uuidv4(),
+          key: k[0],
+          data: { data: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify({ candidates: k[1] }) + "]]></componentData></templateData>" },
+        });
+      }
+
+      if (!isRunningAnything()){
+        const first = adjustmentList.shift();
+        client.write(JSON.stringify({
+          type: "LOAD",
+          timelineFile: "winners",
+          parameters: first.data,
+          instanceName: first.key,
+        })+"\n");
+      }
+      return "OK";
+    }
+    function queueCandidates(data) {
+      if (!isRunningTemplate("candidates") && isRunningAnything())
+        return "RUNNING_OTHER";
+      if (!isRunningTemplate("candidates"))
+        adjustmentList = [];
+
+      templateName = "candidates";
+      for(let k of data){
+        adjustmentList.push({
+          id: uuidv4(),
+          key: k[0],
+          data: { data: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify({ candidates: k[1] }) + "]]></componentData></templateData>" },
+        });
+      }
+
+      if (!isRunningAnything()){
+        const first = adjustmentList.shift();
+        client.write(JSON.stringify({
+          type: "LOAD",
+          timelineFile: "candidates",
+          parameters: first.data,
+          instanceName: first.key,
+        })+"\n");
+      }
+      return "OK";
+    }
+
     switch (req.params.template.toLowerCase()){
       case "winnersall":
         return getWinnersOfType(Models, "candidateSabb").then(function(sabbs){
@@ -172,23 +330,13 @@ export function setup(Models, app){
             const half_length = Math.ceil(nonsabbs.length / 2);
             const nonsabbs1 = nonsabbs.splice(0, half_length);
 
-            const compiledSabbs = { candidates: sabbs };
-            const compiledData = { candidates: nonsabbs1 };
-            const compiledData2 = { candidates: nonsabbs };
+            const data = [
+              [ "Non Sabbs 1", nonsabbs1 ],
+              [ "Non Sabbs 2", nonsabbs ],
+              [ "Sabbs", sabbs ],
+            ];
 
-            const templateData = {
-              nonsabbs1: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>",
-              nonsabbs2: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>",
-              sabbs: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledSabbs) + "]]></componentData></templateData>",
-            };
-
-            client.write(JSON.stringify({
-              type: "LOAD",
-              timelineFile: req.params.template,
-              parameters: templateData,
-              instanceName: req.params.key,
-            })+"\n");
-          res.send("OK");
+            res.send(queueWinners(data));
           });
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
@@ -199,40 +347,24 @@ export function setup(Models, app){
           const half_length = Math.ceil(nonsabbs.length / 2);
           const nonsabbs1 = nonsabbs.splice(0, half_length);
 
-          const compiledData = { candidates: nonsabbs1 };
-          const compiledData2 = { candidates: nonsabbs };
+          const data = [
+            [ "Non Sabbs 1", nonsabbs1 ],
+            [ "Non Sabbs 2", nonsabbs ],
+          ];
 
-          const templateData = {
-            data1: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>",
-            data2: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData2) + "]]></componentData></templateData>",
-          };
-
-          client.write(JSON.stringify({
-            type: "LOAD",
-            timelineFile: req.params.template,
-            parameters: templateData,
-            instanceName: req.params.key,
-          })+"\n");
-          res.send("OK");
+          res.send(queueWinners(data));
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
 
       case "winnerssabbs":
         return getWinnersOfType(Models, "candidateSabb").then(function(people){
-          const compiledData = { candidates: people };
 
-          const templateData = {
-            data: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>",
-          };
+          const data = [
+            [ "Sabbs", people ],
+          ];
 
-          client.write(JSON.stringify({
-            type: "LOAD",
-            timelineFile: req.params.template,
-            parameters: templateData,
-            instanceName: req.params.key,
-          })+"\n");
-          res.send("OK");
+          res.send(queueWinners(data));
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
@@ -247,38 +379,33 @@ export function setup(Models, app){
             ]
           }]
         }).then(function(position){
-          const templateData = {
-            data: buildCandidateForPosition(position),
-          };
 
-          client.write(JSON.stringify({
-            type: "LOAD",
-            timelineFile: req.params.template,
-            parameters: templateData,
-            instanceName: req.params.key,
-          })+"\n");
-          res.send("OK");
+          const data = [
+            [ position.fullName, buildCandidateForPosition(position) ],
+          ];
+
+          res.send(queueCandidates(data));
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
 
       case "candidateall":
         return candidatesForType(Models, null, req.params.template, req.params.key)
-          .then(() => res.send("OK"))
+          .then(data => res.send(queueCandidates(data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
 
       case "candidatesabbs":
         return candidatesForType(Models, "candidateSabb", req.params.template, req.params.key)
-          .then(() => res.send("OK"))
+          .then(data => res.send(queueCandidates(data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
 
       case "candidatenonsabbs":
         return candidatesForType(Models, "candidateNonSabb", req.params.template, req.params.key)
-          .then(() => res.send("OK"))
+          .then(data => res.send(queueCandidates(data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
@@ -305,20 +432,28 @@ function candidatesForType(Models, type, template, key){
       order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
     }]
   }).then(positions => {
-    const templateData = {};
+
+    const data = [
+      // [ position.fullName, buildCandidateForPosition(position) ],
+    ];
+
+    // const templateData = {};
     let index = 1;
     positions.forEach((pos) => {
-      templateData["data" + (index++)] = buildCandidateForPosition(pos);
+      data.push([ pos.fullName, buildCandidateForPosition(pos) ])
+      // templateData["data" + (index++)] = buildCandidateForPosition(pos);
     });
 
-    console.log("Found " + (index-1) + " groups of candidates");
+    return data;
 
-    client.write(JSON.stringify({
-      type: "LOAD",
-      timelineFile: template,
-      parameters: templateData,
-      instanceName: key,
-    })+"\n");
+    // console.log("Found " + (index-1) + " groups of candidates");
+
+    // client.write(JSON.stringify({
+    //   type: "LOAD",
+    //   timelineFile: template,
+    //   parameters: templateData,
+    //   instanceName: key,
+    // })+"\n");
   });
 }
 

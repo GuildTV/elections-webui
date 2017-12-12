@@ -1,16 +1,13 @@
 import React from 'react';
 import axios from 'axios';
-import { Event } from 'react-socket-io';
 
 import {
   Grid, Row, Col,
   Button
 } from 'react-bootstrap';
 
-const ChangeTemplateStateKey = "templateState";
-
 const footerCss = {
-  position: "absolute",
+  position: "fixed",
   bottom: 0,
   width: "100%",
   height: "200px",
@@ -39,18 +36,20 @@ export default class Footer extends React.Component {
     };
   }
 
-  ChangeTemplateState(data){
-    if (data.state !== undefined && data.state.toLowerCase() == "clear"){
-      this.setState({
-        state: {
+  SelectTemplateState(data){
+    // console.log(data);
+    try {
+      if (data.state.state.toLowerCase() == "clear")
+        return {
           state: "clear",
           stateMessage: null,
           filename: "",
           instanceName: ""
-        }
-      });
-    } else {
-      this.setState({ state: data });
+        };
+
+      return data.state;
+    } catch (e){
+      return ((data || {}).state || {});
     }
   }
 
@@ -79,12 +78,10 @@ export default class Footer extends React.Component {
   }
 
   render() {
-    const { instanceName, timelineFile, state, stateMessage } = this.state.state;
+    const { instanceName, timelineFile, state, stateMessage } = this.SelectTemplateState(this.props.data);
 
     return (
       <footer style={footerCss}>
-        <Event event={ ChangeTemplateStateKey } handler={d => this.ChangeTemplateState(d)} />
-
         <Grid style={{ height: "100%" }}>
           <Row style={{ height: "100%" }}>
             <Col xs={10}>
@@ -102,7 +99,3 @@ export default class Footer extends React.Component {
     );
   }
 }
-
-Footer.contextTypes = {
-  socket: React.PropTypes.object.isRequired
-};

@@ -3,11 +3,16 @@ import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import axios from 'axios';
 import {
-  Col,
+  Col, Row,
   Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
 
 import PersonEntry from './PersonEntry';
+
+const scrollStyle = {
+  height: "calc(100vh - 72px - 200px - 43px - 65px - 43px)",
+  overflowY: "scroll",
+};
 
 export default class PeopleList extends React.Component {
   constructor(props) {
@@ -71,7 +76,9 @@ export default class PeopleList extends React.Component {
         </Form>
         <hr />
 
-        { peopleList }
+        <Row style={scrollStyle}>
+          { peopleList }
+        </Row> 
       </div>
     );
   }

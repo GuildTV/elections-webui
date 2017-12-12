@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import {
   Grid, Row, Col,
   Tabs, Tab
@@ -9,21 +10,66 @@ import Boards from './Boards';
 import Elections from './Elections';
 import Footer from './Footer';
 import Misc from './Misc';
+import Sidebar from './Sidebar';
 
 let bodyStyle = {
-  overflowY: "scroll",
-  height: "calc(100vh - 72px - 200px)"
+  marginBottom: "200px",
 };
 
 export default class Dashboard extends React.Component {
+  constructor(props){
+    super(props);
+
+    this.state = {
+      adjustments: [],
+      adjustmentCurrent: null,
+      state: [],
+    };
+    this.inflight = false;
+  }
+
   scroll() {
     this.peopleElm.scroll();
   }
 
+  componentDidMount(){
+    this.updateData();
+
+    this.interval = setInterval(() => {
+      this.updateData();
+    }, 50);
+  }
+  componentWillUnmount(){
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+  updateData(){
+    if (this.inflight)
+      return;
+
+    this.inflight = true;
+    axios.get('/api/cviz/status')
+    .then(res => {
+      this.inflight = false
+      this.setState(res.data)
+    })
+    .catch(err => {
+      this.inflight = false
+      this.setState({
+        adjustments: [],
+        adjustmentCurrent: null,
+        state: [],
+      });
+    });
+  }
+
   render() {
     return (
-      <div>
-        <div style={bodyStyle} onScroll={() => this.scroll()}>
+      <div className="sidebar">
+        <Sidebar data={this.state} />
+        <div id="dashTabs" style={bodyStyle} onScroll={() => this.scroll()}>
           <Grid fluid={true}>
             <Row>
               <Col xs={12}>
@@ -45,7 +91,7 @@ export default class Dashboard extends React.Component {
             </Row>
           </Grid>
         </div>
-        <Footer />
+        <Footer data={this.state} />
       </div>
     );
   }

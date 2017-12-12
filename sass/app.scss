@@ -1,9 +1,14 @@
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap-sprockets";
 @import "node_modules/bootswatch/darkly/variables";
+@import "./variables";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/bootswatch/darkly/bootswatch";
 
 @import "./switch";
+
+body {
+  overflow-y: hidden;
+}
 
 .tab-pane {
   margin-top: 1em;
@@ -14,7 +19,52 @@
   margin-bottom: 5px;
 }
 
-
 td.currentRound {
   background: $brand-primary;
+}
+
+#dashTabs {
+  display: inline-block;
+  width: 100vw;
+  vertical-align: top;
+}
+#dashSidebar {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: top;
+
+  margin-top: -5px;
+
+  h3, h4 {
+    margin-top: 0;
+  }
+
+  .entryList {
+    height: 100%;
+    padding-bottom: calc(60px + 40px);
+
+    &> div {
+      overflow-y: scroll;
+      height: 100%;
+    }
+  }
+
+  .sidebarEntry {
+
+    hr {
+      border-color: #666;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  }
+}
+
+.sidebar {
+  #dashTabs {
+    width: calc(100vw - 320px);
+  }
+  #dashSidebar {
+    width: 320px;
+  }
 }

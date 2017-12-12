@@ -7,6 +7,11 @@ import {
 
 import VotesTable from './VotesTable';
 
+const scrollStyle = {
+  height: "calc(100vh - 72px - 200px - 43px)",
+  overflowY: "scroll",
+};
+
 export default class Elections extends React.Component {
   constructor(props) {
     super(props);
@@ -103,8 +108,7 @@ export default class Elections extends React.Component {
     });
 
     return (
-      <div>
-
+      <div style={scrollStyle}>
         <Form horizontal>
           <fieldset>
             <FormGroup>
