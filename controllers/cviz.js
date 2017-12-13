@@ -224,42 +224,31 @@ export function setup(Models, app){
     return Person.findById(req.params.id, {
       include: [ Position ]
     }).then(data => {
-      // Special handling for lowerthird as it is flash and wants a subset of the data
-      if (req.params.template.toLowerCase() == "lowerthird"){
-        const name = (data.firstName + " " + data.lastName).trim().toUpperCase();
-        let role = data.Position.fullName.trim().toUpperCase();
-        if(data.Position.type != "other"){
-          role += (data.elected ? " elect" : " candidate").toUpperCase();
-        }
+      let type = req.params.template;
+      if (type.toLowerCase() == "sidebarphoto" || type.toLowerCase() == "sidebartext")
+        type = "sidebar";
 
-        const templateData = {
-          candidate: "<templateData>"
-            + "<componentData id=\"f0\"><data id=\"text\" value=\"" + name + "\" /></componentData>"
-            + "<componentData id=\"f1\"><data id=\"text\" value=\"" + role + "\" /></componentData>"
-            + "</templateData>"
-        };
+      if (!isRunningTemplate(type) && isRunningAnything())
+        return res.send("RUNNING_OTHER");
+      if (!isRunningTemplate(type))
+        adjustmentList = [];
 
+      templateName = type;
+      adjustmentList.push({
+        id: uuidv4(),
+        key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
+        data: { candidate: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data) + "]]></componentData></templateData>" },
+      });
+
+      if (!isRunningAnything()){
+        const first = adjustmentList.shift();
         client.write(JSON.stringify({
           type: "LOAD",
-          timelineFile: req.params.template,
-          parameters: templateData,
-          instanceName: data.uid
+          timelineFile: type,
+          parameters: first.data,
+          instanceName: first.key,
         })+"\n");
-
-        res.send("OK");
-        return;
       }
-
-      const templateData = {
-        candidate: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data) + "]]></componentData></templateData>"
-      };
-
-      client.write(JSON.stringify({
-        type: "LOAD",
-        timelineFile: req.params.template,
-        parameters: templateData,
-        instanceName: data.uid
-      })+"\n");
 
       res.send("OK");
     }).error(error => {
@@ -270,13 +259,13 @@ export function setup(Models, app){
   app.post('/api/run/board/:template/:key', (req, res) => {
     console.log("Run board template", req.params);
 
-    function queueWinners(data) {
-      if (!isRunningTemplate("winners") && isRunningAnything())
+    function queueBoard(type, data) {
+      if (!isRunningTemplate(type) && isRunningAnything())
         return "RUNNING_OTHER";
-      if (!isRunningTemplate("winners"))
+      if (!isRunningTemplate(type))
         adjustmentList = [];
 
-      templateName = "winners";
+      templateName = type;
       for(let k of data){
         adjustmentList.push({
           id: uuidv4(),
@@ -289,33 +278,7 @@ export function setup(Models, app){
         const first = adjustmentList.shift();
         client.write(JSON.stringify({
           type: "LOAD",
-          timelineFile: "winners",
-          parameters: first.data,
-          instanceName: first.key,
-        })+"\n");
-      }
-      return "OK";
-    }
-    function queueCandidates(data) {
-      if (!isRunningTemplate("candidates") && isRunningAnything())
-        return "RUNNING_OTHER";
-      if (!isRunningTemplate("candidates"))
-        adjustmentList = [];
-
-      templateName = "candidates";
-      for(let k of data){
-        adjustmentList.push({
-          id: uuidv4(),
-          key: k[0],
-          data: { data: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify({ candidates: k[1] }) + "]]></componentData></templateData>" },
-        });
-      }
-
-      if (!isRunningAnything()){
-        const first = adjustmentList.shift();
-        client.write(JSON.stringify({
-          type: "LOAD",
-          timelineFile: "candidates",
+          timelineFile: type,
           parameters: first.data,
           instanceName: first.key,
         })+"\n");
@@ -336,7 +299,7 @@ export function setup(Models, app){
               [ "Sabbs", sabbs ],
             ];
 
-            res.send(queueWinners(data));
+            res.send(queueBoard("winners", data));
           });
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
@@ -352,7 +315,7 @@ export function setup(Models, app){
             [ "Non Sabbs 2", nonsabbs ],
           ];
 
-          res.send(queueWinners(data));
+          res.send(queueBoard("winners", data));
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
@@ -364,7 +327,7 @@ export function setup(Models, app){
             [ "Sabbs", people ],
           ];
 
-          res.send(queueWinners(data));
+          res.send(queueBoard("winners", data));
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
@@ -384,28 +347,28 @@ export function setup(Models, app){
             [ position.fullName, buildCandidateForPosition(position) ],
           ];
 
-          res.send(queueCandidates(data));
+          res.send(queueBoard("candidates", data));
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
 
       case "candidateall":
         return candidatesForType(Models, null, req.params.template, req.params.key)
-          .then(data => res.send(queueCandidates(data)))
+          .then(data => res.send(queueBoard("candidates", data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
 
       case "candidatesabbs":
         return candidatesForType(Models, "candidateSabb", req.params.template, req.params.key)
-          .then(data => res.send(queueCandidates(data)))
+          .then(data => res.send(queueBoard("candidates", data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
 
       case "candidatenonsabbs":
         return candidatesForType(Models, "candidateNonSabb", req.params.template, req.params.key)
-          .then(data => res.send(queueCandidates(data)))
+          .then(data => res.send(queueBoard("candidates", data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
@@ -432,28 +395,7 @@ function candidatesForType(Models, type, template, key){
       order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
     }]
   }).then(positions => {
-
-    const data = [
-      // [ position.fullName, buildCandidateForPosition(position) ],
-    ];
-
-    // const templateData = {};
-    let index = 1;
-    positions.forEach((pos) => {
-      data.push([ pos.fullName, buildCandidateForPosition(pos) ])
-      // templateData["data" + (index++)] = buildCandidateForPosition(pos);
-    });
-
-    return data;
-
-    // console.log("Found " + (index-1) + " groups of candidates");
-
-    // client.write(JSON.stringify({
-    //   type: "LOAD",
-    //   timelineFile: template,
-    //   parameters: templateData,
-    //   instanceName: key,
-    // })+"\n");
+    return positions.map(pos => [ pos.fullName, buildCandidateForPosition(pos) ]);
   });
 }
 

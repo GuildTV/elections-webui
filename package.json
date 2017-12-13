@@ -30,6 +30,7 @@
     "bootswatch": "^3.3.7",
     "classnames": "^2.2.5",
     "cors": "^2.8.1",
+    "deep-equal": "^1.0.1",
     "eslint": "^3.9.1",
     "eslint-plugin-react": "^6.5.0",
     "express": "^4.14.0",

@@ -4,6 +4,7 @@ import {
   Grid, Row, Col,
   Tabs, Tab
 } from 'react-bootstrap';
+import equal from 'deep-equal';
 
 import PeopleList from './PeopleList';
 import Boards from './Boards';
@@ -21,9 +22,10 @@ export default class Dashboard extends React.Component {
     super(props);
 
     this.state = {
-      adjustments: [],
-      adjustmentCurrent: null,
-      state: [],
+      data: {
+        adjustments: [],
+        state: {},
+      },
     };
     this.inflight = false;
   }
@@ -53,22 +55,25 @@ export default class Dashboard extends React.Component {
     axios.get('/api/cviz/status')
     .then(res => {
       this.inflight = false
-      this.setState(res.data)
+      if (!equal(res.data, this.state.data))
+        this.setState({ data: res.data });
     })
     .catch(err => {
       this.inflight = false
       this.setState({
-        adjustments: [],
-        adjustmentCurrent: null,
-        state: [],
+        data: {
+          adjustments: [],
+          state: {},
+        },
       });
+      console.log(err)
     });
   }
 
   render() {
     return (
       <div className="sidebar">
-        <Sidebar data={this.state} />
+        <Sidebar data={this.state.data} />
         <div id="dashTabs" style={bodyStyle} onScroll={() => this.scroll()}>
           <Grid fluid={true}>
             <Row>
@@ -91,7 +96,7 @@ export default class Dashboard extends React.Component {
             </Row>
           </Grid>
         </div>
-        <Footer data={this.state} />
+        <Footer data={this.state.data} />
       </div>
     );
   }
