@@ -5,6 +5,8 @@ import {
   Nav,
 } from 'react-bootstrap';
 
+import { twitter } from "../../../config";
+
 export default class TopBar extends React.Component {
   render() {
     return (
@@ -18,7 +20,8 @@ export default class TopBar extends React.Component {
         <Navbar.Collapse>
           <Nav pullRight>
             <MenuItem eventKey={1.1} href={"#/"}>Dashboard</MenuItem>
-            <MenuItem eventKey={1.2} href={"#/edit"}>Edit</MenuItem>
+            { twitter.enable ? <MenuItem eventKey={1.1} href={"#/twitter"}>Twitter</MenuItem> : "" }
+            <MenuItem eventKey={1.3} href={"#/edit"}>Edit</MenuItem>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

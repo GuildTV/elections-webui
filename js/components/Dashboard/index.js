@@ -54,19 +54,19 @@ export default class Dashboard extends React.Component {
     this.inflight = true;
     axios.get('/api/cviz/status')
     .then(res => {
-      this.inflight = false
+      this.inflight = false;
       if (!equal(res.data, this.state.data))
         this.setState({ data: res.data });
     })
     .catch(err => {
-      this.inflight = false
+      this.inflight = false;
       this.setState({
         data: {
           adjustments: [],
           state: {},
         },
       });
-      console.log(err)
+      console.log(err);
     });
   }
 

@@ -2,12 +2,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-import { webui_port } from "./config";
+import { webui_port, twitter as twitterConfig } from "./config";
 
 import { setup as positionSetup } from './controllers/position';
 import { setup as peopleSetup } from './controllers/person';
-import { setup as cvizSetup, bind as cvizBind } from './controllers/cviz';
+import { setup as cvizSetup } from './controllers/cviz';
 import { setup as graphSetup } from './controllers/graphs';
+import { bind as twitterBind, setupIo as twitterSetupIo } from './controllers/twitter';
 
 import Models from "./models";
 
@@ -26,3 +27,18 @@ graphSetup(Models, app);
 positionSetup(Models, app);
 peopleSetup(Models, app);
 cvizSetup(Models, app);
+
+const io = require('socket.io')(server);
+io.on('connection', function(client){
+  console.log("New connection from " + client.handshake.address + ":" + client.handshake.port);
+
+  if (twitterConfig.enable)
+    twitterBind(Models, client, io);
+
+  client.on('disconnect', function(){
+    console.log("Lost client");
+  });
+});
+
+if (twitterConfig.enable)
+  twitterSetupIo(io);

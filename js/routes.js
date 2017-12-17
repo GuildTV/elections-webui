@@ -6,6 +6,7 @@ import {
   EditPerson, 
 } from './components/Edit';
 import Dashboard from './components/Dashboard';
+import TweetList from './components/Twitter';
 
 export default (
   <Route>
@@ -15,6 +16,7 @@ export default (
     <Route path="/edit/position/:id/edit" component={EditPosition} />
     <Route path="/edit/position/:id" component={ViewPosition} />
     <Route path="/edit" component={PositionList} />
+    <Route path="/twitter" component={TweetList} />
     <Route path="/" component={Dashboard} />
   </Route>
 );

@@ -4,3 +4,26 @@ export const cvizHost = "127.0.0.1";
 export const cvizPort = 3456;
 
 export const sabbGraphAddress = "http://127.0.0.1:13370/";
+
+export const twitter = {
+  enable: false,
+  
+  accessToken: "",
+  accessTokenSecret: "",
+
+  consumerKey: "",
+  consumerSecret: "",
+
+  username: "guildtv_live",
+
+  scrapeInterval: 30 * 1000,
+
+  caspar: {
+    host: "192.168.27.170",
+    port: 5250,
+
+    layers: [ 20, 21 ],
+
+    filename: "caspar-graphics/elections-2016-v2/twitter"
+  }
+};

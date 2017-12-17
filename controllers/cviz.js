@@ -10,24 +10,6 @@ let pingInterval = null;
 let adjustmentList = [];
 let templateName = null;
 
-//DEV
-adjustmentList = [
-  // { id: uuidv4(), key: "ado", data: "" },
-  // { id: uuidv4(), key: "rro", data: "" },
-  // { id: uuidv4(), key: "hco", data: "" },
-  // { id: uuidv4(), key: "wo", data: "" },
-  // { id: uuidv4(), key: "wo", data: "" },
-  // { id: uuidv4(), key: "pres", data: "" },
-  // { id: uuidv4(), key: "iso", data: "" },
-  // { id: uuidv4(), key: "lgbtqso", data: "" },
-  // { id: uuidv4(), key: "eeo", data: "" },
-  // { id: uuidv4(), key: "eo", data: "" },
-  // { id: uuidv4(), key: "pgso", data: "" },
-  // { id: uuidv4(), key: "hso", data: "" },
-  // { id: uuidv4(), key: "emso", data: "" },
-  // { id: uuidv4(), key: "arafo", data: "" },
-]
-
 function isRunningTemplate(name){
   if (!lastState || !lastState.timelineFile)
     return false;
@@ -193,7 +175,7 @@ export function setup(Models, app){
       const adjust = adjustmentList.shift();
       client.write(JSON.stringify({
         type: "RUNCHILD",
-        parameters: {},
+        parameters: adjust.parameters,
         instanceName: adjust.key,
       })+"\n");
       res.send("OK");
@@ -233,11 +215,14 @@ export function setup(Models, app){
       if (!isRunningTemplate(type))
         adjustmentList = [];
 
+      if (req.params.template.toLowerCase() == "sidebartext")
+        data.photo = null;
+
       templateName = type;
       adjustmentList.push({
         id: uuidv4(),
         key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
-        data: { candidate: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(data) + "]]></componentData></templateData>" },
+        parameters: { data: JSON.stringify(data) },
       });
 
       if (!isRunningAnything()){
@@ -245,7 +230,7 @@ export function setup(Models, app){
         client.write(JSON.stringify({
           type: "LOAD",
           timelineFile: type,
-          parameters: first.data,
+          parameters: first.parameters,
           instanceName: first.key,
         })+"\n");
       }
@@ -270,7 +255,7 @@ export function setup(Models, app){
         adjustmentList.push({
           id: uuidv4(),
           key: k[0],
-          data: { data: "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify({ candidates: k[1] }) + "]]></componentData></templateData>" },
+          parameters: { data: JSON.stringify(k[1]) },
         });
       }
 
@@ -279,7 +264,7 @@ export function setup(Models, app){
         client.write(JSON.stringify({
           type: "LOAD",
           timelineFile: type,
-          parameters: first.data,
+          parameters: first.parameters,
           instanceName: first.key,
         })+"\n");
       }
@@ -294,9 +279,9 @@ export function setup(Models, app){
             const nonsabbs1 = nonsabbs.splice(0, half_length);
 
             const data = [
-              [ "Non Sabbs 1", nonsabbs1 ],
-              [ "Non Sabbs 2", nonsabbs ],
-              [ "Sabbs", sabbs ],
+              [ "Non Sabbs 1", { candidates: nonsabbs1 } ],
+              [ "Non Sabbs 2", { candidates: nonsabbs } ],
+              [ "Sabbs", { candidates: sabbs } ],
             ];
 
             res.send(queueBoard("winners", data));
@@ -311,8 +296,8 @@ export function setup(Models, app){
           const nonsabbs1 = nonsabbs.splice(0, half_length);
 
           const data = [
-            [ "Non Sabbs 1", nonsabbs1 ],
-            [ "Non Sabbs 2", nonsabbs ],
+            [ "Non Sabbs 1", { candidates: nonsabbs1 } ],
+            [ "Non Sabbs 2", { candidates: nonsabbs } ],
           ];
 
           res.send(queueBoard("winners", data));
@@ -324,7 +309,7 @@ export function setup(Models, app){
         return getWinnersOfType(Models, "candidateSabb").then(function(people){
 
           const data = [
-            [ "Sabbs", people ],
+            [ "Sabbs", { candidates: people } ],
           ];
 
           res.send(queueBoard("winners", data));
@@ -353,21 +338,21 @@ export function setup(Models, app){
         });
 
       case "candidateall":
-        return candidatesForType(Models, null, req.params.template, req.params.key)
+        return candidatesForType(Models, null)
           .then(data => res.send(queueBoard("candidates", data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
 
       case "candidatesabbs":
-        return candidatesForType(Models, "candidateSabb", req.params.template, req.params.key)
+        return candidatesForType(Models, "candidateSabb")
           .then(data => res.send(queueBoard("candidates", data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
           });
 
       case "candidatenonsabbs":
-        return candidatesForType(Models, "candidateNonSabb", req.params.template, req.params.key)
+        return candidatesForType(Models, "candidateNonSabb")
           .then(data => res.send(queueBoard("candidates", data)))
           .error(error => {
             res.status(500).send("Failed to run: " + error);
@@ -378,7 +363,7 @@ export function setup(Models, app){
   });
 }
 
-function candidatesForType(Models, type, template, key){
+function candidatesForType(Models, type){
   const { Person, Position } = Models;
 
   const candType = type ? [ type ] : [ "candidateSabb", "candidateNonSabb" ];
@@ -402,12 +387,13 @@ function candidatesForType(Models, type, template, key){
 function buildCandidateForPosition(pos){
   const compiledData = {
     candidates: pos.People,
-    position: pos
+    position: pos.toJSON()
   };
+  compiledData.position.People = undefined;
 
   if (compiledData.candidates.length == 0){
     compiledData.candidates = [ generateRon(pos) ];
   }
 
-  return "<templateData><componentData id=\"data\"><![CDATA[" + JSON.stringify(compiledData) + "]]></componentData></templateData>";
+  return compiledData;
 }
