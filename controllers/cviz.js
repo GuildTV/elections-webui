@@ -86,7 +86,7 @@ client.on('data', (data) => {
 
     lastState = blob;
   } catch (e){
-    console.log("Error", e);
+    // console.log("Error", e);
   }
 });
 

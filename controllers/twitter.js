@@ -1,5 +1,6 @@
 import Twit from 'twit';
 import CasparCG from "caspar-cg";
+import slashes from 'slashes';
 import { twitter as config } from '../config';
 
 const twitter = new Twit({
@@ -26,32 +27,20 @@ ccg.on("connected", function () {
   //ensure all video layers are not visible
   config.caspar.layers.forEach(l => {
     console.log("Reset layer:", l);
-    ccg.sendCommand("CLEAR 1-" + l);
+    ccg.sendCommand("CLEAR "+config.caspar.channel+"-" + l);
   });
 });
 ccg.connect();
 
 function sendTweetToCaspar(data){
-  ccg.sendCommand("CG 1-"+config.caspar.layers[0]+" SWAP 1-"+config.caspar.layers[1]);
-  ccg.sendCommand("CG 1-"+config.caspar.layers[0]+" STOP 1");
+  ccg.sendCommand("SWAP "+config.caspar.channel+"-"+config.caspar.layers[0]+" "+config.caspar.channel+"-"+config.caspar.layers[1]);
+  ccg.sendCommand("CG "+config.caspar.channel+"-"+config.caspar.layers[0]+" STOP 1");
 
   if(!data)
     return;
 
-  //componentData id=\"id\"><data id=\"text\" value=\"welfare-ross\" /></componentData>
-  const xml = builder.create('templateData', undefined, undefined, { headless: true });
-  xml.ele('componentData', { id: "handle" }).ele('data', { id: "text", value: data.handle });
-  xml.ele('componentData', { id: "username" }).ele('data', { id: "text", value: data.username });
-  xml.ele('componentData', { id: "text" }).ele('data', { id: "text", value: data.text });
-  if(data.img)
-    xml.ele('componentData', { id: "img" }).ele('data', { id: "text", value: data.img });
-
-  let xmlString = xml.end();
-  xmlString = xmlString.replace(/"/g, '\\"');
-
-  console.log(xmlString);
-
-  ccg.sendCommand("CG 1-"+config.caspar.layers[1]+" ADD 1 \""+config.caspar.filename+"\" 1 \""+xmlString+"\"");
+  const dataStr = slashes.add(JSON.stringify(data));
+  ccg.sendCommand("CG "+config.caspar.channel+"-"+config.caspar.layers[1]+" ADD 1 \""+config.caspar.filename+"\" 1 \""+dataStr+"\"");
 }
 
 function resolveOriginalTweet(tweet){
@@ -88,24 +77,22 @@ function updateList(){
     params.since_id = latest_tweet;
 
   console.log("Scraping for tweets");
-  twitter.get('statuses/user_timeline', params, function(err, data) {
+  twitter.get('statuses/user_timeline', params, (err, data) => {
     console.log("Got some tweets");
-    const new_list = [];
+    const new_list = {};
     for(let i in data){
       if(data[i] === undefined || data[i].id === undefined)
         continue;
-      if(tweet_list[data[i].id] === undefined) {
-        // io.emit('tweet.debug', data[i]);
-
-        const tw = resolveOriginalTweet(data[i]);
-        tweet_list[data[i].id] = data[i];
-        new_list[data[i].id] = tw;
-        if(data[i].id > latest_tweet)
-          latest_tweet = data[i].id;
+      const tw = resolveOriginalTweet(data[i]);
+      if(tweet_list[tw.raw_id] === undefined) {
+        tweet_list[tw.raw_id] = tw;
+        new_list[tw.raw_id] = tw;
+        if(tw.raw_id > latest_tweet)
+          latest_tweet = tw.raw_id;
       }
     }
 
-    io.emit('feed.latest', new_list);
+    io.emit('twitter.latest', new_list);
   });
 }
 
@@ -115,34 +102,27 @@ setTimeout(updateList, config.scrapeInterval);
 
 export function bind(Models, socket, io){
 
-  socket.on('feed.latest', function(){
+  socket.on('twitter.all', function(){
+    updateList();
+
+    socket.emit('twitter.all', tweet_list);   
+  });
+
+  socket.on('twitter.refresh', function(){
     updateList();
   });
 
-  socket.on('feed.all', function(){
-    const list = {};
-    for(let i in tweet_list){
-      list[i] = resolveOriginalTweet(tweet_list[i]);
-    }
-    socket.emit('feed.all', list);//TODO - resolve    
-  });
-
-  socket.on('feed.refresh', function(){
-    updateList();
-  });
-
-  socket.on('tweet.use', function(params){
+  socket.on('twitter.show', function(params){
     //send this to the tv!
 
     if(params.raw_id === undefined || params.id === undefined)
       return;
 
-    if(tweet_list[params.raw_id] === undefined)
+    const tweetData = tweet_list[params.raw_id];
+    if(tweetData === undefined)
       return;
 
-    const tweetData = resolveOriginalTweet(tweet_list[params.raw_id]);
-
-    io.emit('tweet.use', tweetData);
+    io.emit('twitter.show', tweetData);
     sendTweetToCaspar(tweetData);
 
     console.log("Twitter: Show: ", params);
@@ -151,8 +131,7 @@ export function bind(Models, socket, io){
     tweet_list[params.raw_id] = undefined;
   });
 
-  socket.on('tweet.delete', function(params){
-
+  socket.on('twitter.delete', function(params){
     if(params.raw_id === undefined || params.id === undefined)
       return;
 
@@ -162,14 +141,14 @@ export function bind(Models, socket, io){
     //delete
     tweet_list[params.raw_id] = undefined;
 
-    io.emit('tweet.delete', params);
+    io.emit('twitter.delete', params);
     console.log("Twitter: Delete: ", params);
   });
 
-  socket.on('tweet.stop', function(params){
+  socket.on('twitter.clear', function(params){
     //clear screen
 
-    io.emit('tweet.stop', params);
+    io.emit('twitter.clear', params);
     sendTweetToCaspar();
 
     console.log("Twitter: Clearing screen ");

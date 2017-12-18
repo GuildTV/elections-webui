@@ -22,6 +22,7 @@ export const twitter = {
     host: "192.168.27.170",
     port: 5250,
 
+    channel: 1,
     layers: [ 20, 21 ],
 
     filename: "caspar-graphics/elections-2016-v2/twitter"
