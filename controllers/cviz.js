@@ -36,7 +36,7 @@ function buildClientState(){
     if (adjustmentList.length > 0)
       return Object.assign({}, lastState, {
         state: "cue",
-        stateMessage: "Start adjustment: " + adjustmentList[0].key,
+        stateMessage: "Load adjustment: " + adjustmentList[0].key,
       });
     else
       return Object.assign({}, lastState, {
@@ -171,7 +171,7 @@ export function setup(Models, app){
   app.post('/api/cviz/cue', (req, res) => {
     console.log("templateGo");
 
-    if (lastState.state.toLowerCase() == "cueorchild" && adjustmentList.length > 0){
+    if ((lastState.state || "").toLowerCase() == "cueorchild" && adjustmentList.length > 0){
       const adjust = adjustmentList.shift();
       client.write(JSON.stringify({
         type: "RUNCHILD",
@@ -218,11 +218,15 @@ export function setup(Models, app){
       if (req.params.template.toLowerCase() == "sidebartext")
         data.photo = null;
 
+      const v = { sidebar_data: JSON.stringify(data) };
+
       templateName = type;
       adjustmentList.push({
         id: uuidv4(),
         key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
-        parameters: { data: JSON.stringify(data) },
+        parameters: { 
+          data: JSON.stringify(v)
+        },
       });
 
       if (!isRunningAnything()){
@@ -271,20 +275,74 @@ export function setup(Models, app){
       return "OK";
     }
 
+    function splitWinnersIntoPages(prefix, data){
+      const page_count = Math.ceil(data.length / 4);
+      const num_4_pages = data.length - (page_count * 3);
+
+      const res_data = [];
+      let offset = 0;
+
+      for (let i=1; i<=page_count; i++){        
+        const count = num_4_pages >= i ? 4 : 3;
+        const cands = data.slice(offset, offset+count);
+        offset += count;
+
+        console.log(data.length, cands.length, offset);
+
+        const page_data = {};
+        if (cands.length > 0){
+          const c = cands[0];
+          page_data.win1_name = c.firstName + " " + c.lastName;
+          page_data.win1_position = c.Position.fullName;
+          if (c.photo)
+            page_data.win1_photo = trimPhoto(c.photo);
+        }
+        if (cands.length > 1){
+          const c = cands[1];
+          page_data.win2_name = c.firstName + " " + c.lastName;
+          page_data.win2_position = c.Position.fullName;
+          if (c.photo)
+            page_data.win2_photo = trimPhoto(c.photo);
+        }
+        if (cands.length > 2){
+          const c = cands[2];
+          page_data.win3_name = c.firstName + " " + c.lastName;
+          page_data.win3_position = c.Position.fullName;
+          if (c.photo)
+            page_data.win3_photo = trimPhoto(c.photo);
+        }
+        if (cands.length > 3){
+          const c = cands[3];
+          page_data.win4_show = true;
+          page_data.win4_name = c.firstName + " " + c.lastName;
+          page_data.win4_position = c.Position.fullName;
+          if (c.photo)
+            page_data.win4_photo = trimPhoto(c.photo);
+        } else {
+          page_data.win4_show = false;
+        }
+
+        res_data.push([ prefix + " " + i, page_data ]);
+      }
+
+      return res_data;
+    }
+
+    function trimPhoto(photo){
+      if (photo.indexOf("data:image/png;base64,") == 0)
+        return photo.substring("data:image/png;base64,".length);
+      return photo;
+    }
+
     switch (req.params.template.toLowerCase()){
       case "winnersall":
         return getWinnersOfType(Models, "candidateSabb").then(function(sabbs){
           return getWinnersOfType(Models, "candidateNonSabb").then(function(nonsabbs){
-            const half_length = Math.ceil(nonsabbs.length / 2);
-            const nonsabbs1 = nonsabbs.splice(0, half_length);
+            const data = splitWinnersIntoPages("Non Sabbs", nonsabbs);
+            const data2 = splitWinnersIntoPages("Sabbs", sabbs);
+            const comb = data.concat(data2);
 
-            const data = [
-              [ "Non Sabbs 1", { candidates: nonsabbs1 } ],
-              [ "Non Sabbs 2", { candidates: nonsabbs } ],
-              [ "Sabbs", { candidates: sabbs } ],
-            ];
-
-            res.send(queueBoard("winners", data));
+            res.send(queueBoard("winners", comb));
           });
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
@@ -292,25 +350,17 @@ export function setup(Models, app){
 
       case "winnersnonsabbs":
         return getWinnersOfType(Models, "candidateNonSabb").then(function(nonsabbs){
-          const half_length = Math.ceil(nonsabbs.length / 2);
-          const nonsabbs1 = nonsabbs.splice(0, half_length);
-
-          const data = [
-            [ "Non Sabbs 1", { candidates: nonsabbs1 } ],
-            [ "Non Sabbs 2", { candidates: nonsabbs } ],
-          ];
+          const data = splitWinnersIntoPages("Non Sabbs", nonsabbs);
 
           res.send(queueBoard("winners", data));
+
         }).error(error => {
           res.status(500).send("Failed to run: " + error);
         });
 
       case "winnerssabbs":
         return getWinnersOfType(Models, "candidateSabb").then(function(people){
-
-          const data = [
-            [ "Sabbs", { candidates: people } ],
-          ];
+          const data = splitWinnersIntoPages("Sabbs", people);
 
           res.send(queueBoard("winners", data));
         }).error(error => {
