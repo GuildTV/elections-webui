@@ -59,8 +59,11 @@ function resolveOriginalTweet(tweet){
     id: tweet.id,
     handle: tweet.user.screen_name,
     username: tweet.user.name,
-    text: tweet.text
+    text: tweet.full_text
   };
+
+  var reg = /https:\/\/t.co\/(.{10})/g;
+  simple.text = simple.text.replace(reg, "");
 
   if(tweet.entities && tweet.entities.media && tweet.entities.media.length > 0)
     simple.img = tweet.entities.media[0].media_url+":large";
@@ -71,7 +74,8 @@ function resolveOriginalTweet(tweet){
 function updateList(){
   const params = { 
     screen_name: config.username,
-    count: 100
+    count: 100,
+    tweet_mode: "extended"
   };
   if(latest_tweet > -1)
     params.since_id = latest_tweet;
