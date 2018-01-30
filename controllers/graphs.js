@@ -153,6 +153,15 @@ function generateResponseXML(Models, pid, maxRound){
 
           innerElm.ele('result', props, undefined);
         });
+
+        Object.keys(rawCandidates).forEach(id => {
+          if (results[id] !== undefined)
+            return;
+
+          const props = { candidate: id };
+          innerElm.ele('result', props, undefined);
+        });
+
       });
 
       return rootElm.end({ pretty: true});
