@@ -9,6 +9,7 @@ import { setup as peopleSetup } from './controllers/person';
 import { setup as cvizSetup } from './controllers/cviz';
 import { setup as graphSetup } from './controllers/graphs';
 import { bind as twitterBind, setupIo as twitterSetupIo } from './controllers/twitter';
+import { setup as tickerSetup } from './controllers/ticker';
 
 import Models from "./models";
 
@@ -27,6 +28,7 @@ graphSetup(Models, app);
 positionSetup(Models, app);
 peopleSetup(Models, app);
 cvizSetup(Models, app);
+tickerSetup(Models, app);
 
 const io = require('socket.io')(server);
 io.on('connection', function(client){

@@ -1,6 +1,5 @@
 import Twit from 'twit';
-import CasparCG from "caspar-cg";
-import slashes from 'slashes';
+import { CasparCG } from "casparcg-connection";
 import { twitter as config } from '../config';
 
 const twitter = new Twit({
@@ -20,27 +19,29 @@ export function setupIo(new_io){
   io = new_io;
 }
 
-const ccg = new CasparCG(config.caspar.host, config.caspar.port);
-ccg.on("connected", function () {
-  console.log("Connected to CasparCG (Twitter)");
+const ccg = new CasparCG({
+  host: config.caspar.host, 
+  port: config.caspar.port,
+  autoReconnectInterval: 100,
+  onConnected: () => {
+    console.log("Connected to CasparCG (Twitter)");
 
-  //ensure all video layers are not visible
-  config.caspar.layers.forEach(l => {
-    console.log("Reset layer:", l);
-    ccg.sendCommand("CLEAR "+config.caspar.channel+"-" + l);
-  });
+    //ensure all video layers are not visible
+    config.caspar.layers.forEach(l => {
+      console.log("Reset layer:", l);
+      ccg.clear(config.caspar.channel, l);
+    });
+  }
 });
-ccg.connect();
 
 function sendTweetToCaspar(data){
-  ccg.sendCommand("SWAP "+config.caspar.channel+"-"+config.caspar.layers[0]+" "+config.caspar.channel+"-"+config.caspar.layers[1]);
-  ccg.sendCommand("CG "+config.caspar.channel+"-"+config.caspar.layers[0]+" STOP 1");
+  ccg.createCommand("SWAP "+config.caspar.channel+"-"+config.caspar.layers[0]+" "+config.caspar.channel+"-"+config.caspar.layers[1]);
+  ccg.cgClear(config.caspar.channel, config.caspar.layers[0]);
 
   if(!data)
     return;
 
-  const dataStr = slashes.add(JSON.stringify(data));
-  ccg.sendCommand("CG "+config.caspar.channel+"-"+config.caspar.layers[1]+" ADD 1 \""+config.caspar.filename+"\" 1 \""+dataStr+"\"");
+  ccg.cgAdd(config.caspar.channel, config.caspar.layers[1], 0, config.caspar.filename, true, data);
 }
 
 function resolveOriginalTweet(tweet){

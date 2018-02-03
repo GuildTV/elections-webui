@@ -42,7 +42,7 @@ export function setup(Models, app){
     }).then(() => {
       res.send("OK");
     }).error(error => {
-      res.sendStatus(500).send("Error deleting position: " + error);
+      res.status(500).send("Error deleting position: " + error);
     });
   });
 
@@ -56,7 +56,7 @@ export function setup(Models, app){
         res.send(p);
       });
     }).error(error => {
-      res.sendStatus(500).send("Error saving position: " + error);
+      res.status(500).send("Error saving position: " + error);
     });
   });
 
@@ -64,7 +64,7 @@ export function setup(Models, app){
     Position.create(req.body).then(p => {
       res.send(p);
     }).error(error => {
-      res.sendStatus(500).send("Error creating position: " + error);
+      res.status(500).send("Error creating position: " + error);
     });
   });
 

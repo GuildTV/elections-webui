@@ -80,13 +80,13 @@ export function setup(Models, app){
       });
 
       res.send(roles);
-    }).catch(e => res.sendStatus(500).send(e));
+    }).catch(e => res.status(500).send(e));
   });
 
   app.get('/api/results/position/:id', (req, res) => {
     return generateResponseXML(Models, req.params.id)
       .then(str => res.send(str))
-      .catch(e => res.sendStatus(500).send(e));
+      .catch(e => res.status(500).send(e));
   });
 
   app.get('/api/results/current', (req, res) => {

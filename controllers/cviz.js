@@ -155,7 +155,7 @@ export function setup(Models, app){
   app.post('/api/cviz/adjustment/next/:id', (req, res) => {
     const entry = adjustmentList.find(a => a.id == req.params.id);
     if (!entry){
-      res.sendStatus(500).send("Failed to find");
+      res.status(500).send("Failed to find");
       return;
     }
 

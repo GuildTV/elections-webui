@@ -32,7 +32,7 @@ export function setup(Models, app){
     }).then(() => {
       res.send("OK");
     }).error(error => {
-      res.sendStatus(500).send("Error deleting person: " + error);
+      res.status(500).send("Error deleting person: " + error);
     });
   });
 
@@ -46,7 +46,7 @@ export function setup(Models, app){
         res.send(p);
       });
     }).error(error => {
-      res.sendStatus(500).send("Error saving person: " + error);
+      res.status(500).send("Error saving person: " + error);
     });
   });
 
@@ -54,7 +54,7 @@ export function setup(Models, app){
     Person.create(req.body).then(p => {
       res.send(p);
     }).error(error => {
-      res.sendStatus(500).send("Error creating person: " + error);
+      res.status(500).send("Error creating person: " + error);
     });
   });
 
@@ -67,7 +67,7 @@ export function setup(Models, app){
         res.send("OK");
       });
     }).error(error => {
-      res.sendStatus(500).send("Error setting winner: " + error);
+      res.status(500).send("Error setting winner: " + error);
     });
   });
 
@@ -77,7 +77,7 @@ export function setup(Models, app){
 
       res.send("OK");
     }).error(error => {
-      res.sendStatus(500).send("Error clearing winner: " + error);
+      res.status(500).send("Error clearing winner: " + error);
     });
   });
 

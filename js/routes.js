@@ -7,6 +7,7 @@ import {
 } from './components/Edit';
 import Dashboard from './components/Dashboard';
 import TweetList from './components/Twitter';
+import TickerPage from './components/Ticker';
 
 export default (
   <Route>
@@ -17,6 +18,7 @@ export default (
     <Route path="/edit/position/:id" component={ViewPosition} />
     <Route path="/edit" component={PositionList} />
     <Route path="/twitter" component={TweetList} />
+    <Route path="/ticker" component={TickerPage} />
     <Route path="/" component={Dashboard} />
   </Route>
 );

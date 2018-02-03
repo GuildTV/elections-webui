@@ -1,0 +1,39 @@
+.ticker-page {
+  overflow-y: scroll;
+  height: calc(100vh - 70px);
+
+  .floating-controls {
+    position: fixed;
+    right: 0;
+  }
+
+  .ticker-table {
+    font-size: 1.3em;
+    width: 100%;
+
+    tr:nth-child(even) {
+      background-color: #333;
+    }
+    tr:nth-child(odd) {
+      background-color: #222;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    tr.disabled {
+      p {
+        color: #999;
+      }
+    }
+
+    td {
+      padding: 5px 10px;
+
+      &.borderLeft {
+        border-left: 1px solid #fff;
+      }
+    }
+  }
+}

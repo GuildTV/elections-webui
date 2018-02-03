@@ -21,7 +21,8 @@ const config = {
         test: /\.js$/, //Check for all js files
         loader: 'babel-loader',
         query: {
-          presets: [ "env", "react" ]
+          presets: [ "env", "react", "stage-0" ],
+          plugins: [ "transform-decorators-legacy" ]
         }
       },
       { 
