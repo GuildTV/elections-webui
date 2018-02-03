@@ -45,6 +45,12 @@ export class TickerEdit extends React.Component {
     });
   }
 
+  submit(e) {
+    e.preventDefault();
+
+    this.close(true);
+  }
+
   render() {
     const { text, showModal } = this.state;
 
@@ -60,10 +66,10 @@ export class TickerEdit extends React.Component {
           <Modal.Title>Ticker Item Text</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form horizontal>
+          <Form horizontal onSubmit={e => this.submit(e)}>
             <FormGroup controlId="formHorizontalEmail">
               <Col sm={12}>
-                <FormControl type="text" value={text} onChange={change} />
+                <FormControl type="text" value={text} onChange={change} autoFocus={true} />
               </Col>
             </FormGroup>
           </Form>
