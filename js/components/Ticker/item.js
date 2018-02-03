@@ -59,23 +59,6 @@ const cardTarget = {
   },
 };
 
-export function MacroOpNames(data, targetLength){
-  const parts = [ data.id ];
-  for (let f of Object.keys(IdFields)){
-    const val = data[f];
-    if (val !== undefined && val !== null)
-      parts.push(IdFields[f](data.id, val));
-  }
-
-  if (targetLength === undefined)
-    return parts;
-
-  while (parts.length < targetLength)
-    parts.push("");
-
-  return parts;
-}
-
 @DropTarget("TickerItem", cardTarget, connect => ({
   connectDropTarget: connect.dropTarget(),
 }))
@@ -97,12 +80,6 @@ export class TickerItem extends React.Component {
     e.preventDefault();
 
     return this.props.showEdit();
-  }
-
-  doDel(e){
-    e.preventDefault();
-
-    this.props.doDel();
   }
 
   setEnabled(e){

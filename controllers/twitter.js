@@ -63,7 +63,7 @@ function resolveOriginalTweet(tweet){
     text: tweet.full_text
   };
 
-  var reg = /https:\/\/t.co\/(.{10})/g;
+  const reg = /https:\/\/t.co\/(.{10})/g;
   simple.text = simple.text.replace(reg, "");
 
   if(tweet.entities && tweet.entities.media && tweet.entities.media.length > 0)

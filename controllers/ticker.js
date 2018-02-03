@@ -1,5 +1,4 @@
 const cors = require('cors');
-const request = require('request');
 import mapSeries from 'promise-map-series';
 
 let purge_now = false;

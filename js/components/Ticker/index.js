@@ -42,18 +42,15 @@ export default class TickerPage extends React.Component {
   }
 
   saveData(){
-    console.log("TODO - saveData")
-
     axios.post('/api/ticker/save', { data: this.state.data })
     .then(res => {
-      console.log(res.data)
       this.setState({
         hasChanges: false,
         data: res.data.data || [],
-      })
+      });
     })
     .catch(err => {
-      alert("Failed to save: " + err)
+      alert("Failed to save: " + err);
     });
   }
 
@@ -91,7 +88,7 @@ export default class TickerPage extends React.Component {
       const newItem = {
         text: res,
         enabled: true,
-      }
+      };
 
       this.setState(update(this.state, {
         hasChanges: { $set: true},

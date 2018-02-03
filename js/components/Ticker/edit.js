@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Modal,
   Col, 
-  Form, FormGroup, ControlLabel, FormControl,
+  Form, FormGroup, FormControl,
   Button,
 } from 'react-bootstrap';
 
