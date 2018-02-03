@@ -71,6 +71,11 @@ export default class Dashboard extends React.Component {
   }
 
   render() {
+
+    // <Tab eventKey={4} title="Misc">
+      // <Misc />
+    // </Tab>
+
     return (
       <div className="sidebar">
         <Sidebar data={this.state.data} />
@@ -85,11 +90,8 @@ export default class Dashboard extends React.Component {
                   <Tab eventKey={2} title="Boards">
                     <Boards />
                   </Tab>
-                  <Tab eventKey={3} title="Elections" >
+                  <Tab eventKey={3} title="Graphs" >
                     <Elections />
-                  </Tab>
-                  <Tab eventKey={4} title="Misc">
-                    <Misc />
                   </Tab>
                 </Tabs>
               </Col>

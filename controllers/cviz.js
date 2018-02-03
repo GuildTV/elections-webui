@@ -259,7 +259,10 @@ export function setup(Models, app){
         adjustmentList.push({
           id: uuidv4(),
           key: k[0],
-          parameters: { data: JSON.stringify(k[1]) },
+          parameters: { 
+            data: JSON.stringify(k[1]),
+            name: JSON.stringify({ f1: k[0] }),
+          },
         });
       }
 
@@ -289,7 +292,10 @@ export function setup(Models, app){
 
         console.log(data.length, cands.length, offset);
 
-        const page_data = {};
+        const page_data = {
+          position: prefix,
+        };
+
         if (cands.length > 0){
           const c = cands[0];
           page_data.win1_name = c.firstName + " " + c.lastName;
@@ -338,8 +344,8 @@ export function setup(Models, app){
       case "winnersall":
         return getWinnersOfType(Models, "candidateSabb").then(function(sabbs){
           return getWinnersOfType(Models, "candidateNonSabb").then(function(nonsabbs){
-            const data = splitWinnersIntoPages("Non Sabbs", nonsabbs);
-            const data2 = splitWinnersIntoPages("Sabbs", sabbs);
+            const data = splitWinnersIntoPages("Part-time Officer Elects", nonsabbs);
+            const data2 = splitWinnersIntoPages("Full-time Officer Elects", sabbs);
             const comb = data.concat(data2);
 
             res.send(queueBoard("winners", comb));
@@ -350,7 +356,7 @@ export function setup(Models, app){
 
       case "winnersnonsabbs":
         return getWinnersOfType(Models, "candidateNonSabb").then(function(nonsabbs){
-          const data = splitWinnersIntoPages("Non Sabbs", nonsabbs);
+          const data = splitWinnersIntoPages("Part-time Officer Elects", nonsabbs);
 
           res.send(queueBoard("winners", data));
 
@@ -360,7 +366,7 @@ export function setup(Models, app){
 
       case "winnerssabbs":
         return getWinnersOfType(Models, "candidateSabb").then(function(people){
-          const data = splitWinnersIntoPages("Sabbs", people);
+          const data = splitWinnersIntoPages("Full-time Officer Elects", people);
 
           res.send(queueBoard("winners", data));
         }).error(error => {

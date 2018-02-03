@@ -201,7 +201,7 @@ class EditPositionInner extends React.Component {
                     </FormGroup>
                     <FormGroup>
                       <Col componentClass={ControlLabel} xs={2}>
-                        Compact Name
+                        Prefix Name
                       </Col>
                       <Col xs={10}>
                         <FormControl type="text" onChange={e => this.handleCompactNameChange(e)} value={this.state.compactName} />
