@@ -20,9 +20,10 @@ export default class TopBar extends React.Component {
         <Navbar.Collapse>
           <Nav pullRight>
             <MenuItem eventKey={1.1} href={"#/"}>Dashboard</MenuItem>
-            { twitter.enable ? <MenuItem eventKey={1.2} href={"#/twitter"}>Twitter</MenuItem> : "" }
-            <MenuItem eventKey={1.3} href={"#/ticker"}>Ticker</MenuItem>
-            <MenuItem eventKey={1.4} href={"#/edit"}>Edit</MenuItem>
+            <MenuItem eventKey={1.2} href={"#/lowerthird"}>Lower Thirds</MenuItem>
+            { twitter.enable ? <MenuItem eventKey={1.3} href={"#/twitter"}>Twitter</MenuItem> : "" }
+            <MenuItem eventKey={1.4} href={"#/ticker"}>Ticker</MenuItem>
+            <MenuItem eventKey={1.5} href={"#/edit"}>Edit</MenuItem>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

@@ -21,7 +21,9 @@ export default class Sidebar extends React.Component {
     if (!confirm("Are you sure?"))
       return;
 
-    axios.post('/api/cviz/adjustment/clear')
+    const { slot } = this.props;
+
+    axios.post('/api/cviz/'+slot+'/adjustment/clear')
     .then(() => console.log("Cleared adjustments"))
     .catch(err => console.log("Clear error: ", err));
   }
@@ -50,16 +52,18 @@ export default class Sidebar extends React.Component {
 
 class SidebarEntry extends React.Component {
   handleRemove() {
+    const { slot } = this.props;
     const id = this.props.data.id;
 
-    axios.delete('/api/cviz/adjustment/'+id)
+    axios.delete('/api/cviz/'+slot+'/adjustment/'+id)
     .then(() => console.log("Removed:", id))
     .catch(err => console.log("Remove error: ", err));
   }
   handleSetNext() {
+    const { slot } = this.props;
     const id = this.props.data.id;
 
-    axios.post('/api/cviz/adjustment/next/'+id)
+    axios.post('/api/cviz/'+slot+'/adjustment/next/'+id)
     .then(() => console.log("Set next:", id))
     .catch(err => console.log("Clear error: ", err));
   }

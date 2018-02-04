@@ -10,10 +10,7 @@ import PeopleList from '../Components/PeopleList';
 import Sidebar from '../Components/Sidebar';
 
 import PersonEntry from './PersonEntry';
-import Boards from './Boards';
-import Elections from './Elections';
 import Footer from './Footer';
-// import Misc from './Misc';
 
 let bodyStyle = {
   marginBottom: "200px",
@@ -40,7 +37,7 @@ export default class Dashboard extends React.Component {
     this.socket = socket();
 
     this.socket.on('cviz.status', d => {
-      if (d.slot != "default")
+      if (d.slot != "lowerthird")
         return;
 
       console.log("CViz: new status");
@@ -68,7 +65,7 @@ export default class Dashboard extends React.Component {
     if (this.inflight)
       return;
 
-    this.socket.emit('cviz.status', { slot: "default" });
+    this.socket.emit('cviz.status', { slot: "lowerthird" });
 
     this.inflight = true;
   }
@@ -78,41 +75,27 @@ export default class Dashboard extends React.Component {
     if (!isValid)
       return false;
 
-    const hasManifestoPoints = p.manifestoOne.length > 2 || p.manifestoTwo.length > 2 || p.manifestoThree.length > 2;
-    const isCandidate = isValid && p.Position.type.indexOf('candidate') == 0;
+    // const hasManifestoPoints = p.manifestoOne.length > 2 || p.manifestoTwo.length > 2 || p.manifestoThree.length > 2;
+    // const isCandidate = isValid && p.Position.type.indexOf('candidate') == 0;
 
-    return isCandidate && hasManifestoPoints;
+    // return isCandidate && hasManifestoPoints;
+    return true;
   }
 
   render() {
-
-    // <Tab eventKey={4} title="Misc">
-      // <Misc />
-    // </Tab>
-
     return (
       <div className="sidebar">
-        <Sidebar data={this.state.data} slot="default" />
+        <Sidebar data={this.state.data} slot="lowerthird" />
         <div id="dashTabs" style={bodyStyle} onScroll={() => this.scroll()}>
           <Grid fluid={true}>
             <Row>
               <Col xs={12}>
-                <Tabs animation={false} id="tabs">
-                  <Tab eventKey={1} title="People">
-                    <PeopleList ref={e => this.peopleElm = e} filter={this.filterPeople} control={PersonEntry} />
-                  </Tab>
-                  <Tab eventKey={2} title="Boards">
-                    <Boards />
-                  </Tab>
-                  <Tab eventKey={3} title="Graphs" >
-                    <Elections />
-                  </Tab>
-                </Tabs>
+                <PeopleList ref={e => this.peopleElm = e} filter={this.filterPeople} control={PersonEntry} />
               </Col>
             </Row>
           </Grid>
         </div>
-        <Footer data={this.state.data} slot="default" />
+        <Footer data={this.state.data} slot="lowerthird" />
       </div>
     );
   }

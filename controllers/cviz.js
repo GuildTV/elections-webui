@@ -1,5 +1,6 @@
 const net = require('net');
 const uuidv4 = require('uuid/v4');
+import equal from 'deep-equal';
 
 const cvizSlot = "default";
 
@@ -51,6 +52,8 @@ import { cvizHost, cvizPort } from '../config';
 
 import { generateRon } from './ron';
 
+const websocketHandlers = [];
+
 const client = new net.Socket();
 client.setNoDelay(true);
 client.setTimeout(500);
@@ -79,12 +82,21 @@ client.on('data', (data) => {
       return;
 
     const blob = JSON.parse(data);
-    if (blob.timelineSlot  != cvizSlot)
+    if (blob.timelineSlot != cvizSlot)
       return; // Not a slot we care about
 
     // console.log("New state", lastState);
+    
+    // TODO - handle multiple slots
+    if (equal(blob, lastState))
+      return;
 
     lastState = blob;
+
+    // emit to all handlers
+    for (let h of websocketHandlers)
+      h(blob.timelineSlot);
+
   } catch (e){
     // console.log("Error", e);
   }
@@ -124,17 +136,36 @@ function getWinnersOfType(Models, type){
   });
 }
 
+export function bind(Models, socket, io){
+
+  function emitStatus(slot){
+    socket.emit('cviz.status', {
+      slot: slot,
+      data: { // TODO
+        adjustments: adjustmentList,
+        state: buildClientState(),
+      }
+    });
+  }
+
+  websocketHandlers.push(emitStatus)
+  socket.on('disconnect', () => {
+    const index = websocketHandlers.indexOf(emitStatus);
+    if (index > -1)
+      websocketHandlers.splice(index, 1);
+  });
+
+  socket.on('cviz.status', () => emitStatus("default"));
+
+}
+
 export function setup(Models, app){
   const { Person, Position } = Models;
 
-  app.get('/api/cviz/status', (req, res) => {
-    res.send({
-      adjustments: adjustmentList,
-      state: buildClientState(),
-    });
-  });
+  app.delete('/api/cviz/:slot/adjustment/:id', (req, res) => {
+    if (req.params.slot != "default")
+      return res.status(500).send("");
 
-  app.delete('/api/cviz/adjustment/:id', (req, res) => {
     adjustmentList = adjustmentList.filter(a => a.id != req.params.id);
 
     res.send({
@@ -143,7 +174,10 @@ export function setup(Models, app){
     });
   });
 
-  app.post('/api/cviz/adjustment/clear', (req, res) => {
+  app.post('/api/cviz/:slot/adjustment/clear', (req, res) => {
+    if (req.params.slot != "default")
+      return res.status(500).send("");
+
     adjustmentList = [];
 
     res.send({
@@ -152,7 +186,10 @@ export function setup(Models, app){
     });
   });
 
-  app.post('/api/cviz/adjustment/next/:id', (req, res) => {
+  app.post('/api/cviz/:slot/adjustment/next/:id', (req, res) => {
+    if (req.params.slot != "default")
+      return res.status(500).send("");
+
     const entry = adjustmentList.find(a => a.id == req.params.id);
     if (!entry){
       res.status(500).send("Failed to find");
@@ -168,7 +205,10 @@ export function setup(Models, app){
     });
   });
 
-  app.post('/api/cviz/cue', (req, res) => {
+  app.post('/api/cviz/:slot/cue', (req, res) => {
+    if (req.params.slot != "default")
+      return res.status(500).send("");
+
     console.log("templateGo");
 
     if ((lastState.state || "").toLowerCase() == "cueorchild" && adjustmentList.length > 0){
@@ -189,7 +229,10 @@ export function setup(Models, app){
     res.send("OK");
   });
 
-  app.post('/api/cviz/kill', (req, res) => {
+  app.post('/api/cviz/:slot/kill', (req, res) => {
+    if (req.params.slot != "default")
+      return res.status(500).send("");
+
     console.log("templateKill");
 
     templateName = null;
