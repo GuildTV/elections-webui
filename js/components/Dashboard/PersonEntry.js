@@ -76,7 +76,11 @@ export default class PersonEntry extends React.Component {
       <Col lg={3} md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
         <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName } { this.props.data.elected ? " Elect" : "" }</p>
         <p>
-          <Button data-id="SidebarPhoto" onClick={(e) => this.runTemplate(e)}>Sidebar - Photo</Button>&nbsp;
+          {
+            this.props.data.hasPhoto ? 
+              <Button data-id="SidebarPhoto" onClick={(e) => this.runTemplate(e)}>Sidebar - Photo</Button>: 
+              ""
+          } &nbsp;
           <Button data-id="sidebarText" onClick={(e) => this.runTemplate(e)}>Sidebar - Text</Button>&nbsp;
           <OverlayTrigger key={Date.now()} trigger="click" placement="right" rootClose overlay={ overlayContent }>
             <Button bsStyle="primary">More</Button>

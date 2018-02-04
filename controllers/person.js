@@ -5,9 +5,15 @@ export function setup(Models, app){
     Person.findAll({
       include: [ Position ],
       attributes: {
-        exclude: [ "photo" ]
+        // exclude: [ "photo" ]
       }
     }).then(data => {
+      for (let i in data) {
+        data[i] = data[i].toJSON();
+        data[i].hasPhoto = data[i].photo != "";
+        data[i].photo = undefined;
+      }
+
       res.send(data);
     }).error(error => {
       res.status(500).send("Error getting people list: " + error);
