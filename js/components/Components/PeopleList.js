@@ -65,11 +65,16 @@ export default class PeopleList extends React.Component {
             <Col componentClass={ControlLabel} xs={2}>
               Search:
             </Col>
-            <Col xs={8}>
+            <Col xs={7}>
               <FormControl type="text" onChange={e => this.filterNames(e)} ref={e => this.searchBox = e} />
             </Col>
-            <Col xs={2}>
+            <Col xs={3}>
               <Button bsStyle="success" onClick={() => this.updateData()}>Refresh Data</Button>
+              {
+                this.props.addCustom
+                ? <Button bsStyle="primary" onClick={() => this.props.addCustom()}>Add Custom</Button>
+                : ""
+              }
             </Col>
           </FormGroup>
         </Form>

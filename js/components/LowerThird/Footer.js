@@ -37,7 +37,6 @@ export default class Footer extends React.Component {
   }
 
   SelectTemplateState(data){
-    // console.log(data);
     try {
       if (data.state.state.toLowerCase() == "clear")
         return {

@@ -18,7 +18,7 @@ module.exports = {
             deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
           },
           onUpdate: 'CASCADE',
-          onDelete: 'RESTRICT'
+          onDelete: 'CASCADE'
         },
 
         firstName: {

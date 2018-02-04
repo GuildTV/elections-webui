@@ -277,6 +277,49 @@ export function setup(Models, app){
     res.send("OK");
   });
 
+  app.post('/api/run/lowerthird', (req, res) => {
+    console.log("Run template for data", req.body);
+
+    const state = slots["lowerthird"];
+    if (!state)
+      return res.status(500).send("");
+
+    if (!state.isRunningTemplate("lowerthird") && state.isRunningAnything())
+      return res.send("RUNNING_OTHER");
+    if (!state.isRunningTemplate("lowerthird"))
+      state.adjustmentList = [];
+
+    const type = req.body.headline ? "GE2018/LT-ANI-HEADLINE" : "GE2018/LT-ANI-GREY";
+
+    const v = { 
+      f0: req.body.f0 || "GUILD ELECTIONS 2018",
+      f1: req.body.f1 || "",
+    };
+
+    state.templateName = "lowerthird";
+    state.adjustmentList.push({
+      id: uuidv4(),
+      key: (v.f0 + " " + v.f1).trim().toUpperCase(),
+      parameters: { 
+        data: JSON.stringify(v),
+        type: type
+      },
+    });
+
+    if (!state.isRunningAnything()){
+      const first = state.adjustmentList.shift();
+      client.write(JSON.stringify({
+        timelineSlot: "lowerthird",
+        type: "LOAD",
+        timelineFile: "lowerthird",
+        parameters: first.parameters,
+        instanceName: first.key,
+      })+"\n");
+    }
+
+    res.send("OK");
+  });
+
   app.post('/api/run/lowerthird/:id', (req, res) => {
     console.log("Run template for person", req.params);
 

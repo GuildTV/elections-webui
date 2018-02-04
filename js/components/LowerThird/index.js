@@ -1,5 +1,6 @@
 import React from 'react';
 import socket from 'socket.io-client';
+import axios from 'axios';
 import {
   Grid, Row, Col,
   Tabs, Tab
@@ -11,6 +12,7 @@ import Sidebar from '../Components/Sidebar';
 
 import PersonEntry from './PersonEntry';
 import Footer from './Footer';
+import RandomInput from './RandomInput';
 
 let bodyStyle = {
   marginBottom: "200px",
@@ -37,7 +39,6 @@ export default class Dashboard extends React.Component {
     this.socket = socket();
 
     this.socket.on('cviz.status', d => {
-      console.log(d)
       if (d.slot != "lowerthird")
         return;
 
@@ -72,26 +73,32 @@ export default class Dashboard extends React.Component {
   }
 
   filterPeople(p){
-    const isValid = p.Position && p.Position.type;
-    if (!isValid)
-      return false;
+    return p.Position && p.Position.type;
+  }
 
-    // const hasManifestoPoints = p.manifestoOne.length > 2 || p.manifestoTwo.length > 2 || p.manifestoThree.length > 2;
-    // const isCandidate = isValid && p.Position.type.indexOf('candidate') == 0;
-
-    // return isCandidate && hasManifestoPoints;
-    return true;
+  showCustom(){
+    this.Editor.open().then(d => {
+      axios.post('/api/run/lowerthird', d)
+      .then(() => {
+        console.log("Run custom lowerthird");
+      })
+      .catch(err => {
+        alert("Run custom lowerthird error:", err);
+      });
+    });
   }
 
   render() {
     return (
       <div className="sidebar">
+        <RandomInput ref={e => this.Editor = e} />
+
         <Sidebar data={this.state.data} slot="lowerthird" />
         <div id="dashTabs" style={bodyStyle} onScroll={() => this.scroll()}>
           <Grid fluid={true}>
             <Row>
               <Col xs={12}>
-                <PeopleList ref={e => this.peopleElm = e} filter={this.filterPeople} control={PersonEntry} />
+                <PeopleList ref={e => this.peopleElm = e} filter={this.filterPeople} control={PersonEntry} addCustom={() => this.showCustom()} />
               </Col>
             </Row>
           </Grid>
