@@ -39,6 +39,8 @@ export default class Dashboard extends React.Component {
   componentDidMount(){
     this.socket = socket();
 
+    this.socket.on('people.reload', () => this.peopleElm.updateData());
+
     this.socket.on('cviz.status', d => {
       if (d.slot != "default")
         return;
@@ -99,7 +101,7 @@ export default class Dashboard extends React.Component {
               <Col xs={12}>
                 <Tabs animation={false} id="tabs">
                   <Tab eventKey={1} title="People">
-                    <PeopleList ref={e => this.peopleElm = e} filter={this.filterPeople} control={PersonEntry} />
+                    <PeopleList ref={e => this.peopleElm = e} filter={this.filterPeople} control={PersonEntry} hasTabs={true} />
                   </Tab>
                   <Tab eventKey={2} title="Boards">
                     <Boards />

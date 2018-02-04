@@ -3,7 +3,6 @@ import axios from 'axios';
 import {
   Col,
   Button,
-  Popover, OverlayTrigger
 } from 'react-bootstrap';
 
 const overlayCss = {
@@ -32,48 +31,10 @@ export default class PersonEntry extends React.Component {
     });
   }
 
-  setWinner(){
-    console.log("Setting winner:", this.props.data.id);
-
-    axios.post('/api/person/'+this.props.data.id+'/win')
-    .then(() => {
-      console.log("Set winner");
-       // TODO - update list
-    })
-    .catch(err => {
-      alert("Set winner error:", err);
-    });
-  }
-
-  clearWinner(){
-    console.log("Clearing winner:", this.props.data.id);
-
-    axios.post('/api/person/'+this.props.data.id+'/lose')
-    .then(() => {
-      console.log("Set loser");
-       // TODO - update list
-    })
-    .catch(err => {
-      alert("Set loser error:", err);
-    });
-  }
-
   render() {
     const { Position, elected, firstName, lastName, hasPhoto } = this.props.data;
     if(!Position && Position.type)
       return (<p></p>);
-
-    const overCss = Object.assign({marginTop: this.state.top}, overlayCss);
-
-    const overlayContent = (
-      <Popover id="" title="More Templates" style={overCss}>
-        {
-          elected ?
-            <Button onClick={() => this.clearWinner()}>Clear Elect</Button> :
-            <Button onClick={() => this.setWinner()}>Mark Elect</Button>
-        }
-      </Popover>
-    );
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
@@ -85,9 +46,6 @@ export default class PersonEntry extends React.Component {
               ""
           } &nbsp;
           <Button data-id="sidebarText" onClick={(e) => this.runTemplate(e)}>Sidebar - Text</Button>&nbsp;
-          <OverlayTrigger key={Date.now()} trigger="click" placement="right" rootClose overlay={ overlayContent }>
-            <Button bsStyle="primary">More</Button>
-          </OverlayTrigger> 
         </p>
       </Col>
     );

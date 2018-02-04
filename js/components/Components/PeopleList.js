@@ -7,11 +7,6 @@ import {
   Form, FormGroup, FormControl, ControlLabel, Button
 } from 'react-bootstrap';
 
-const scrollStyle = {
-  height: "calc(100vh - 72px - 200px - 43px - 65px - 43px)",
-  overflowY: "scroll",
-};
-
 export default class PeopleList extends React.Component {
   constructor(props) {
     super(props);
@@ -51,6 +46,11 @@ export default class PeopleList extends React.Component {
   }
 
   render() {
+    const scrollStyle = {
+      height: "calc(100vh - 72px - 200px - 43px - 43px" + (this.props.hasTabs ? " - 65px" : "") + ")",
+      overflowY: "scroll",
+    };
+
     const peopleList = this.state.people
       .filter(this.props.filter)
       .filter((p) => PeopleList.filterPerson(this.state.filter, p))

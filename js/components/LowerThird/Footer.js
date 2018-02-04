@@ -102,7 +102,7 @@ export default class Footer extends React.Component {
               <h3>Active: { instanceName }</h3>
               <h4>Template: { timelineFile}</h4>
               <h4>State: { state }{ stateMessage ? " - " + stateMessage : "" }</h4>
-              <p><Button bsStyle="danger" onClick={() => this.KillButtonClick()}>Kill</Button></p>
+              <p><Button bsStyle="danger" onClick={() => this.KillButtonClick()}>Kill All</Button></p>
             </Col>
             <Col xs={2} style={{ height: "100%" }}>
               <Button bsStyle="warning" style={goButtonCss} onClick={() => this.HideButtonClick()}>Hide</Button>

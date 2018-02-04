@@ -1,4 +1,4 @@
-export function setup(Models, app){
+export function setup(Models, app, io){
   let { Position, Person } = Models;
 
   app.get('/api/peoplelist', (req, res) => {
@@ -36,6 +36,7 @@ export function setup(Models, app){
         id: id
       }
     }).then(() => {
+      io.emit('people.reload');
       res.send("OK");
     }).error(error => {
       res.status(500).send("Error deleting person: " + error);
@@ -49,6 +50,7 @@ export function setup(Models, app){
       Object.assign(per, req.body);
 
       return per.save().then((p) => {
+        io.emit('people.reload');
         res.send(p);
       });
     }).error(error => {
@@ -58,6 +60,7 @@ export function setup(Models, app){
 
   app.put('/api/person', (req, res) => {
     Person.create(req.body).then(p => {
+      io.emit('people.reload');
       res.send(p);
     }).error(error => {
       res.status(500).send("Error creating person: " + error);
@@ -70,6 +73,7 @@ export function setup(Models, app){
       person.save().then(() => {
         console.log("Set winner:", (person.firstName + " " + person.lastName).trim());
         
+        io.emit('people.reload');
         res.send("OK");
       });
     }).error(error => {
@@ -81,6 +85,7 @@ export function setup(Models, app){
     return clearWinner(req.params.id).then(person => {
       console.log("Cleared winner:", (person.firstName + " " + person.lastName).trim());
 
+      io.emit('people.reload');
       res.send("OK");
     }).error(error => {
       res.status(500).send("Error clearing winner: " + error);
@@ -98,7 +103,7 @@ export function setup(Models, app){
           positionId: per.Position.id,
           elected: true
         }
-      });
+      }).then(() => per);
     });
   }
 }

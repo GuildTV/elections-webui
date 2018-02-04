@@ -38,6 +38,8 @@ export default class Dashboard extends React.Component {
   componentDidMount(){
     this.socket = socket();
 
+    this.socket.on('people.reload', () => this.peopleElm.updateData());
+
     this.socket.on('cviz.status', d => {
       if (d.slot != "lowerthird")
         return;

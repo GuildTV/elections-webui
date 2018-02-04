@@ -24,13 +24,14 @@ app.use(bodyParser.urlencoded({ extended: false } ));
 app.use(bodyParser.json({ limit: '10mb'}));
 app.use(express.static('public'));
 
+const io = require('socket.io')(server);
+
 graphSetup(Models, app);
 positionSetup(Models, app);
-peopleSetup(Models, app);
+peopleSetup(Models, app, io);
 cvizSetup(Models, app);
 tickerSetup(Models, app);
 
-const io = require('socket.io')(server);
 io.on('connection', function(client){
   console.log("New connection from " + client.handshake.address + ":" + client.handshake.port);
 
