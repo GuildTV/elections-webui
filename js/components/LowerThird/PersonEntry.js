@@ -20,15 +20,15 @@ export default class PersonEntry extends React.Component {
     };
   }
 
-  runTemplate(e){
-    console.log("Running template:", e.target.getAttribute('data-id'));
+  runLowerThird(e){
+    console.log("Running lowerthird");
 
-    axios.post('/api/run/person/'+this.props.data.id+'/'+e.target.getAttribute('data-id'))
+    axios.post('/api/run/lowerthird/'+this.props.data.id)
     .then(() => {
-      console.log("Run template");
+      console.log("Run lowerthird");
     })
     .catch(err => {
-      alert("Run template error:", err);
+      alert("Run lowerthird error:", err);
     });
   }
 
@@ -78,7 +78,7 @@ export default class PersonEntry extends React.Component {
       <Col lg={3} md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
         <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName } { this.props.data.elected ? " Elect" : "" }</p>
         <p>
-          <Button data-id="lowerThird" onClick={(e) => this.runTemplate(e)}>Lower Third</Button>&nbsp;
+          <Button data-id="lowerThird" onClick={(e) => this.runLowerThird(e)}>Lower Third</Button>&nbsp;
           {
             isCandidate ?
             <OverlayTrigger key={Date.now()} trigger="click" placement="right" rootClose overlay={ overlayContent }>

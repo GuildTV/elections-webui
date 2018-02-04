@@ -79,6 +79,19 @@ export default class Footer extends React.Component {
     });
   }
 
+  HideButtonClick(){
+    const { slot } = this.props;
+    console.log("Sending Hide");
+
+    axios.post('/api/cviz/'+slot+'/cue/direct')
+    .then(() => {
+      console.log("Direct Cue template");
+    })
+    .catch(err => {
+      alert("Direct Cue template error:", err);
+    });
+  }
+
   render() {
     const { instanceName, timelineFile, state, stateMessage } = this.SelectTemplateState(this.props.data);
 
@@ -86,14 +99,17 @@ export default class Footer extends React.Component {
       <footer style={footerCss}>
         <Grid style={{ height: "100%" }}>
           <Row style={{ height: "100%" }}>
-            <Col xs={10}>
+            <Col xs={8}>
               <h3>Active: { instanceName }</h3>
               <h4>Template: { timelineFile}</h4>
               <h4>State: { state }{ stateMessage ? " - " + stateMessage : "" }</h4>
               <p><Button bsStyle="danger" onClick={() => this.KillButtonClick()}>Kill</Button></p>
             </Col>
             <Col xs={2} style={{ height: "100%" }}>
-              <Button bsStyle="success" style={goButtonCss} onClick={() => this.GoButtonClick()}>Go</Button>
+              <Button bsStyle="warning" style={goButtonCss} onClick={() => this.HideButtonClick()}>Hide</Button>
+            </Col>
+            <Col xs={2} style={{ height: "100%" }}>
+              <Button bsStyle="success" style={goButtonCss} onClick={() => this.GoButtonClick()}>Next</Button>
             </Col>
           </Row>
         </Grid>

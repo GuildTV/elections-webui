@@ -2,55 +2,62 @@ const net = require('net');
 const uuidv4 = require('uuid/v4');
 import equal from 'deep-equal';
 
-const cvizSlot = "default";
-
-let lastState = {};
-
-let pingInterval = null;
-
-let adjustmentList = [];
-let templateName = null;
-
-function isRunningTemplate(name){
-  if (!lastState || !lastState.timelineFile)
-    return false;
-
-  return lastState.timelineFile == name;
-}
-function isRunningAnything(){
-  if (!lastState || !lastState.state)
-    return false;
-
-  return lastState.state.toLowerCase() != "clear";
-}
-
-function buildClientState(){
-  if (!lastState || !lastState.state)
-    return lastState;
-
-  if (lastState.timelineFile != templateName && lastState.state.toLowerCase() != "clear"){
-    adjustmentList = [];
-    templateName = lastState.timelineFile;
-  }
-
-  if (lastState.state.toLowerCase() == "cueorchild"){
-    if (adjustmentList.length > 0)
-      return Object.assign({}, lastState, {
-        state: "cue",
-        stateMessage: "Load adjustment: " + adjustmentList[0].key,
-      });
-    else
-      return Object.assign({}, lastState, {
-        state: "cue",
-      });
-  }
-
-  return lastState;
-}
-
+import { generateRon } from './ron';
 import { cvizHost, cvizPort } from '../config';
 
-import { generateRon } from './ron';
+class CvizSlot {
+  constructor(slot){
+    this.slot = slot;
+    this.lastState = {};
+    this.templateName = null;
+    this.adjustmentList = [];
+  }
+
+  isRunningTemplate(name){
+    if (!this.lastState || !this.lastState.timelineFile)
+      return false;
+
+    return this.lastState.timelineFile == name;
+  }
+
+  isRunningAnything(){
+    if (!this.lastState || !this.lastState.state)
+      return false;
+
+    return this.lastState.state.toLowerCase() != "clear";
+  }
+
+  buildClientState(){
+    if (!this.lastState || !this.lastState.state)
+      return this.lastState;
+
+    if (this.lastState.timelineFile != this.templateName && this.lastState.state.toLowerCase() != "clear"){
+      this.adjustmentList = [];
+      this.templateName = this.lastState.timelineFile;
+    }
+
+    if (this.lastState.state.toLowerCase() == "cueorchild"){
+      if (this.adjustmentList.length > 0)
+        return Object.assign({}, this.lastState, {
+          state: "cue",
+          stateMessage: "Load adjustment: " + this.adjustmentList[0].key,
+        });
+      else
+        return Object.assign({}, this.lastState, {
+          state: "cue",
+        });
+    }
+
+    return this.lastState;
+  }
+}
+
+const slots = {
+  default: new CvizSlot("default"),
+  lowerthird: new CvizSlot("lowerthird"),
+};
+
+let pingInterval = null;
 
 const websocketHandlers = [];
 
@@ -82,20 +89,30 @@ client.on('data', (data) => {
       return;
 
     const blob = JSON.parse(data);
-    if (blob.timelineSlot != cvizSlot)
+    const state = slots[blob.timelineSlot];
+    if (!state)
       return; // Not a slot we care about
 
-    // console.log("New state", lastState);
-    
-    // TODO - handle multiple slots
-    if (equal(blob, lastState))
+    if (equal(blob, state.lastState))
       return;
 
-    lastState = blob;
+    state.lastState = blob;
 
     // emit to all handlers
     for (let h of websocketHandlers)
       h(blob.timelineSlot);
+
+    // if lt and nothing loaded, then load next
+    if (blob.timelineSlot == "lowerthird" && !state.isRunningAnything() && state.adjustmentList.length > 0){
+      const first = state.adjustmentList.shift();
+      client.write(JSON.stringify({
+        timelineSlot: "lowerthird",
+        type: "LOAD",
+        timelineFile: "lowerthird",
+        parameters: first.parameters,
+        instanceName: first.key,
+      })+"\n");
+    }
 
   } catch (e){
     // console.log("Error", e);
@@ -139,11 +156,15 @@ function getWinnersOfType(Models, type){
 export function bind(Models, socket, io){
 
   function emitStatus(slot){
+    const state = slots[slot];
+    if (!state)
+      return;
+
     socket.emit('cviz.status', {
       slot: slot,
-      data: { // TODO
-        adjustments: adjustmentList,
-        state: buildClientState(),
+      data: {
+        state: state.buildClientState(),
+        adjustments: state.adjustmentList,
       }
     });
   }
@@ -155,65 +176,60 @@ export function bind(Models, socket, io){
       websocketHandlers.splice(index, 1);
   });
 
-  socket.on('cviz.status', () => emitStatus("default"));
-
+  socket.on('cviz.status', r => emitStatus(r.slot));
 }
 
 export function setup(Models, app){
   const { Person, Position } = Models;
 
   app.delete('/api/cviz/:slot/adjustment/:id', (req, res) => {
-    if (req.params.slot != "default")
+    const state = slots[req.params.slot];
+    if (!state)
       return res.status(500).send("");
 
-    adjustmentList = adjustmentList.filter(a => a.id != req.params.id);
+    state.adjustmentList = state.adjustmentList.filter(a => a.id != req.params.id);
 
-    res.send({
-      adjustments: adjustmentList,
-      state: buildClientState(),
-    });
+    res.send("OK");
   });
 
   app.post('/api/cviz/:slot/adjustment/clear', (req, res) => {
-    if (req.params.slot != "default")
+    const state = slots[req.params.slot];
+    if (!state)
       return res.status(500).send("");
 
-    adjustmentList = [];
+    state.adjustmentList = [];
 
-    res.send({
-      adjustments: adjustmentList,
-      state: buildClientState(),
-    });
+    res.send("OK");
   });
 
   app.post('/api/cviz/:slot/adjustment/next/:id', (req, res) => {
-    if (req.params.slot != "default")
+    const state = slots[req.params.slot];
+    if (!state)
       return res.status(500).send("");
 
-    const entry = adjustmentList.find(a => a.id == req.params.id);
+    const entry = state.adjustmentList.find(a => a.id == req.params.id);
     if (!entry){
       res.status(500).send("Failed to find");
       return;
     }
 
-    adjustmentList = adjustmentList.filter(a => a.id != req.params.id);
-    adjustmentList.unshift(entry);
+    state.adjustmentList = state.adjustmentList.filter(a => a.id != req.params.id);
+    state.adjustmentList.unshift(entry);
 
-    res.send({
-      adjustments: adjustmentList,
-      state: buildClientState(),
-    });
+    res.send("OK");
   });
 
   app.post('/api/cviz/:slot/cue', (req, res) => {
-    if (req.params.slot != "default")
+    const state = slots[req.params.slot];
+    if (!state)
       return res.status(500).send("");
 
     console.log("templateGo");
 
-    if ((lastState.state || "").toLowerCase() == "cueorchild" && adjustmentList.length > 0){
-      const adjust = adjustmentList.shift();
+    if ((state.lastState.state || "").toLowerCase() == "cueorchild" && state.adjustmentList.length > 0){
+      const adjust = state.adjustmentList.shift();
       client.write(JSON.stringify({
+        timelineSlot: req.params.slot,
         type: "RUNCHILD",
         parameters: adjust.parameters,
         instanceName: adjust.key,
@@ -224,27 +240,98 @@ export function setup(Models, app){
     }
 
     client.write(JSON.stringify({
+      timelineSlot: req.params.slot,
+      type: "CUE"
+    })+"\n");
+    res.send("OK");
+  });
+
+  app.post('/api/cviz/:slot/cue/direct', (req, res) => {
+    const state = slots[req.params.slot];
+    if (!state)
+      return res.status(500).send("");
+
+    console.log("templateGo-direct");
+
+    client.write(JSON.stringify({
+      timelineSlot: req.params.slot,
       type: "CUE"
     })+"\n");
     res.send("OK");
   });
 
   app.post('/api/cviz/:slot/kill', (req, res) => {
-    if (req.params.slot != "default")
+    const state = slots[req.params.slot];
+    if (!state)
       return res.status(500).send("");
 
     console.log("templateKill");
 
-    templateName = null;
+    state.templateName = null;
+    state.adjustmentList = [];
 
     client.write(JSON.stringify({
+      timelineSlot: req.params.slot,
       type: "KILL"
     })+"\n");
     res.send("OK");
   });
 
+  app.post('/api/run/lowerthird/:id', (req, res) => {
+    console.log("Run template for person", req.params);
+
+    const state = slots["lowerthird"];
+    if (!state)
+      return res.status(500).send("");
+
+    return Person.findById(req.params.id, {
+      include: [ Position ]
+    }).then(data => {
+      if (!state.isRunningTemplate("lowerthird") && state.isRunningAnything())
+        return res.send("RUNNING_OTHER");
+      if (!state.isRunningTemplate("lowerthird"))
+        state.adjustmentList = [];
+
+      const suffix = data.Position.type.indexOf("candidate") == 0 ? (data.elected ? " Elect" : " Candidate") : "";
+
+      const v = { 
+        f0: (data.firstName + " " + data.lastName).trim(),
+        f1: data.Position.fullName + suffix,
+      };
+
+      state.templateName = "lowerthird";
+      state.adjustmentList.push({
+        id: uuidv4(),
+        key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
+        parameters: { 
+          data: JSON.stringify(v),
+          type: "GE2018/LT-ANI-GREY"
+        },
+      });
+
+      if (!state.isRunningAnything()){
+        const first = state.adjustmentList.shift();
+        client.write(JSON.stringify({
+          timelineSlot: "lowerthird",
+          type: "LOAD",
+          timelineFile: "lowerthird",
+          parameters: first.parameters,
+          instanceName: first.key,
+        })+"\n");
+      }
+
+      res.send("OK");
+    }).error(error => {
+      res.status(500).send("Failed to load person: " + error);
+    });
+  });
+
   app.post('/api/run/person/:id/:template', (req, res) => {
     console.log("Run template for person", req.params);
+
+    const state = slots["default"];
+    if (!state)
+      return res.status(500).send("");
 
     return Person.findById(req.params.id, {
       include: [ Position ]
@@ -253,18 +340,18 @@ export function setup(Models, app){
       if (type.toLowerCase() == "sidebarphoto" || type.toLowerCase() == "sidebartext")
         type = "sidebar";
 
-      if (!isRunningTemplate(type) && isRunningAnything())
+      if (!state.isRunningTemplate(type) && state.isRunningAnything())
         return res.send("RUNNING_OTHER");
-      if (!isRunningTemplate(type))
-        adjustmentList = [];
+      if (!state.isRunningTemplate(type))
+        state.adjustmentList = [];
 
       if (req.params.template.toLowerCase() == "sidebartext")
         data.photo = null;
 
       const v = { sidebar_data: JSON.stringify(data) };
 
-      templateName = type;
-      adjustmentList.push({
+      state.templateName = type;
+      state.adjustmentList.push({
         id: uuidv4(),
         key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
         parameters: { 
@@ -272,9 +359,10 @@ export function setup(Models, app){
         },
       });
 
-      if (!isRunningAnything()){
-        const first = adjustmentList.shift();
+      if (!state.isRunningAnything()){
+        const first = state.adjustmentList.shift();
         client.write(JSON.stringify({
+          timelineSlot: "default",
           type: "LOAD",
           timelineFile: type,
           parameters: first.parameters,
@@ -291,15 +379,19 @@ export function setup(Models, app){
   app.post('/api/run/board/:template/:key', (req, res) => {
     console.log("Run board template", req.params);
 
-    function queueBoard(type, data) {
-      if (!isRunningTemplate(type) && isRunningAnything())
-        return "RUNNING_OTHER";
-      if (!isRunningTemplate(type))
-        adjustmentList = [];
+    const state = slots["default"];
+    if (!state)
+      return res.status(500).send("");
 
-      templateName = type;
+    function queueBoard(type, data) {
+      if (!state.isRunningTemplate(type) && state.isRunningAnything())
+        return "RUNNING_OTHER";
+      if (!state.isRunningTemplate(type))
+        state.adjustmentList = [];
+
+      state.templateName = type;
       for(let k of data){
-        adjustmentList.push({
+        state.adjustmentList.push({
           id: uuidv4(),
           key: k[0],
           parameters: { 
@@ -309,9 +401,10 @@ export function setup(Models, app){
         });
       }
 
-      if (!isRunningAnything()){
-        const first = adjustmentList.shift();
+      if (!state.isRunningAnything()){
+        const first = state.adjustmentList.shift();
         client.write(JSON.stringify({
+          timelineSlot: "default",
           type: "LOAD",
           timelineFile: type,
           parameters: first.parameters,

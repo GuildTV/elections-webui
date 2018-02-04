@@ -29,7 +29,8 @@ export default class Sidebar extends React.Component {
   }
 
   render() {
-    const entries = this.props.data.adjustments.map((a, i) => <SidebarEntry key={i} data={a} />);
+    const { slot } = this.props;
+    const entries = this.props.data.adjustments.map((a, i) => <SidebarEntry key={i} data={a} slot={slot} />);
 
     return (
       <div id="dashSidebar" style={sidebarCss}>

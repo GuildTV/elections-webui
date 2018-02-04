@@ -37,6 +37,7 @@ export default class Dashboard extends React.Component {
     this.socket = socket();
 
     this.socket.on('cviz.status', d => {
+      console.log(d)
       if (d.slot != "lowerthird")
         return;
 
