@@ -3,7 +3,6 @@ export function generateRon(position){
     id: "ron-"+position.id,
     firstName: "RON",
     lastName: "",
-    uid: "ron",
     positionId: position.id,
     Position: position,
     elected: false,

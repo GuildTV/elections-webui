@@ -5,7 +5,7 @@ export function setup(Models, app){
     Person.findAll({
       include: [ Position ],
       attributes: {
-        // exclude: [ "photo" ]
+        exclude: [ "createdAt", "updatedAt" ]
       }
     }).then(data => {
       for (let i in data) {
@@ -68,7 +68,7 @@ export function setup(Models, app){
     return clearWinner(req.params.id).then(person => {
       person.elected = true;
       person.save().then(() => {
-        console.log("Set winner:", person.uid);
+        console.log("Set winner:", (person.firstName + " " + person.lastName).trim());
         
         res.send("OK");
       });
@@ -79,7 +79,7 @@ export function setup(Models, app){
 
   app.post('/api/person/:id/lose', (req, res) => {
     return clearWinner(req.params.id).then(person => {
-      console.log("Cleared winner:", person.uid);
+      console.log("Cleared winner:", (person.firstName + " " + person.lastName).trim());
 
       res.send("OK");
     }).error(error => {

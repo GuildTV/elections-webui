@@ -41,8 +41,7 @@ export class ViewPosition extends React.Component {
   render() {
     let rows = (this.state.data.People || []).map((person) => {
       return (
-        <tr key={ person.uid }>
-          <td>{ person.uid }</td>
+        <tr key={ person.id }>
           <td>{ person.firstName }</td>
           <td>{ person.lastName }</td>
           <td>{ person.elected?"Y":"" }</td>
@@ -78,7 +77,6 @@ export class ViewPosition extends React.Component {
                     <Table bordered>
                       <thead>
                         <tr>
-                          <th>UID</th>
                           <th>First Name</th>
                           <th>Last Name</th>
                           <th>Elected</th>

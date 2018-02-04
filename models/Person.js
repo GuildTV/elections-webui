@@ -5,10 +5,6 @@ export default function(sequelize, DataTypes) {
       autoIncrement: true,
       primaryKey: true
     },
-    uid: {
-      type: DataTypes.STRING,
-      unique: true
-    },
     positionId: {
       type: DataTypes.INTEGER,
       allowNull: false,

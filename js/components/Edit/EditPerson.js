@@ -20,7 +20,6 @@ class EditPersonInner extends React.Component {
       id: undefined,
       firstName: '',
       lastName: '',
-      uid: '',
       positionId: '',
       photo: '',
       manifestoOne: "",
@@ -76,7 +75,6 @@ class EditPersonInner extends React.Component {
         id: undefined,
         firstName: '',
         lastName: '',
-        uid: '',
         positionId: '',
         photo: '',
         manifestoOne: "",
@@ -96,10 +94,6 @@ class EditPersonInner extends React.Component {
   }
   handleLastNameChange(e) {
     this.setState({lastName: e.target.value});
-  }
-
-  handleUidChange(e) {
-    this.setState({uid: e.target.value});
   }
 
   handlePositionChange(e) {
@@ -134,9 +128,9 @@ class EditPersonInner extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    let {firstName, lastName, uid, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order, elected} = this.state;
+    let {firstName, lastName, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order, elected} = this.state;
 
-    if (!uid || !firstName || !lastName || !positionId) {
+    if (!firstName || !lastName || !positionId) {
       //todo error handling
       alert("Missing input data");
       return;
@@ -146,7 +140,6 @@ class EditPersonInner extends React.Component {
       id,
       firstName,
       lastName,
-      uid,
       positionId,
       manifestoOne,
       manifestoTwo,
@@ -302,14 +295,6 @@ class EditPersonInner extends React.Component {
                       </Col>
                       <Col xs={10}>
                         <FormControl type="text" onChange={e => this.handleLastNameChange(e)} value={this.state.lastName} />
-                      </Col>
-                    </FormGroup>
-                    <FormGroup>
-                      <Col componentClass={ControlLabel} xs={2}>
-                        UID
-                      </Col>
-                      <Col xs={10}>
-                        <FormControl type="text" onChange={e => this.handleUidChange(e)} placeholder="Enter a unique identifer - e.g. ado-ben" value={this.state.uid} />
                       </Col>
                     </FormGroup>
 

@@ -38,6 +38,7 @@ export default class PersonEntry extends React.Component {
     axios.post('/api/person/'+this.props.data.id+'/win')
     .then(() => {
       console.log("Set winner");
+       // TODO - update list
     })
     .catch(err => {
       alert("Set winner error:", err);
@@ -50,6 +51,7 @@ export default class PersonEntry extends React.Component {
     axios.post('/api/person/'+this.props.data.id+'/lose')
     .then(() => {
       console.log("Set loser");
+       // TODO - update list
     })
     .catch(err => {
       alert("Set loser error:", err);
@@ -57,7 +59,8 @@ export default class PersonEntry extends React.Component {
   }
 
   render() {
-    if(!this.props.data.Position && this.props.data.Position.type)
+    const { Position, elected, firstName, lastName, hasPhoto } = this.props.data;
+    if(!Position && Position.type)
       return (<p></p>);
 
     const overCss = Object.assign({marginTop: this.state.top}, overlayCss);
@@ -65,7 +68,7 @@ export default class PersonEntry extends React.Component {
     const overlayContent = (
       <Popover id="" title="More Templates" style={overCss}>
         {
-          this.props.data.elected ?
+          elected ?
             <Button onClick={() => this.clearWinner()}>Clear Elect</Button> :
             <Button onClick={() => this.setWinner()}>Mark Elect</Button>
         }
@@ -74,10 +77,10 @@ export default class PersonEntry extends React.Component {
 
     return (
       <Col lg={3} md={4} sm={6} xs={12} style={{ textAlign: "center" }}>
-        <p>{ this.props.data.firstName } { this.props.data.lastName } - { this.props.data.Position.miniName } { this.props.data.elected ? " Elect" : "" }</p>
+        <p>{ firstName } { lastName } - { Position.miniName } { elected ? " Elect" : "" }</p>
         <p>
           {
-            this.props.data.hasPhoto ? 
+            hasPhoto ? 
               <Button data-id="SidebarPhoto" onClick={(e) => this.runTemplate(e)}>Sidebar - Photo</Button>: 
               ""
           } &nbsp;
