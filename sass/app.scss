@@ -12,6 +12,11 @@ body {
   overflow-y: hidden;
 }
 
+.scroller {
+  overflow-y: scroll;
+  height: calc(100vh - 65px);
+}
+
 .tab-pane {
   margin-top: 1em;
 }

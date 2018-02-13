@@ -155,7 +155,7 @@ class EditPositionInner extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="scroller">
         <Grid>
           <Row>
             <Col xs={12}>

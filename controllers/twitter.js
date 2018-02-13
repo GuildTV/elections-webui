@@ -35,8 +35,8 @@ const ccg = new CasparCG({
 });
 
 function sendTweetToCaspar(data){
-  ccg.createCommand("SWAP "+config.caspar.channel+"-"+config.caspar.layers[0]+" "+config.caspar.channel+"-"+config.caspar.layers[1]);
-  ccg.cgClear(config.caspar.channel, config.caspar.layers[0]);
+  ccg.swap(config.caspar.channel, config.caspar.channel+"-"+config.caspar.layers[1], config.caspar.layers[0]);
+  ccg.cgStop(config.caspar.channel, config.caspar.layers[0], 0);
 
   if(!data)
     return;

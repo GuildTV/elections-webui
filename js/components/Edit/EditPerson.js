@@ -258,7 +258,7 @@ class EditPersonInner extends React.Component {
     const positions = this.state._positions.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>);
 
     return (
-      <div>
+      <div className="scroller">
         <Grid>
           <Row>
             <Col xs={12}>

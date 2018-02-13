@@ -55,7 +55,7 @@ export class PositionList extends React.Component {
     });
 
     return (
-      <div>
+      <div className="scroller">
         <Grid>
           <Row>
             <Col xs={12}>
