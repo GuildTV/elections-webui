@@ -338,7 +338,7 @@ export function setup(Models, app){
       const suffix = data.Position.type.indexOf("candidate") == 0 ? (data.elected ? " Elect" : " Candidate") : "";
 
       const v = { 
-        f0: (data.firstName + " " + data.lastName).trim(),
+        f0: (data.firstName + " " + data.lastName + (data.firstName2 ? " & " + data.firstName2 + " " + data.lastName2 : "")).trim(),
         f1: data.Position.fullName + suffix,
       };
 
@@ -477,21 +477,21 @@ export function setup(Models, app){
 
         if (cands.length > 0){
           const c = cands[0];
-          page_data.win1_name = c.firstName + " " + c.lastName;
+          page_data.win1_name = c.firstName2 ? c.firstName + " " + c.lastName + " & " + c.firstName2 + " " + c.lastName2 : c.firstName + " " + c.lastName;
           page_data.win1_position = c.Position.fullName;
           if (c.photo)
             page_data.win1_photo = trimPhoto(c.photo);
         }
         if (cands.length > 1){
           const c = cands[1];
-          page_data.win2_name = c.firstName + " " + c.lastName;
+          page_data.win2_name = c.firstName2 ? c.firstName + " " + c.lastName + " & " + c.firstName2 + " " + c.lastName2 : c.firstName + " " + c.lastName;
           page_data.win2_position = c.Position.fullName;
           if (c.photo)
             page_data.win2_photo = trimPhoto(c.photo);
         }
         if (cands.length > 2){
           const c = cands[2];
-          page_data.win3_name = c.firstName + " " + c.lastName;
+          page_data.win3_name = c.firstName2 ? c.firstName + " " + c.lastName + " & " + c.firstName2 + " " + c.lastName2 : c.firstName + " " + c.lastName;
           page_data.win3_position = c.Position.fullName;
           if (c.photo)
             page_data.win3_photo = trimPhoto(c.photo);
@@ -499,7 +499,7 @@ export function setup(Models, app){
         if (cands.length > 3){
           const c = cands[3];
           page_data.win4_show = true;
-          page_data.win4_name = c.firstName + " " + c.lastName;
+          page_data.win4_name = c.firstName2 ? c.firstName + " " + c.lastName + " & " + c.firstName2 + " " + c.lastName2 : c.firstName + " " + c.lastName;
           page_data.win4_position = c.Position.fullName;
           if (c.photo)
             page_data.win4_photo = trimPhoto(c.photo);
@@ -563,9 +563,15 @@ export function setup(Models, app){
           }]
         }).then(function(position){
 
-          const data = [
-            [ position.fullName, buildCandidateForPosition(position) ],
-          ];
+          const data = [];
+
+          if (position.People.length > 8) {
+            const split = Math.floor(position.People.length/2);
+            data.push([ position.fullName, buildCandidateForPosition(position, position.People.slice(0, split)) ]);
+            data.push([ position.fullName, buildCandidateForPosition(position, position.People.slice(split)) ]);
+          } else {
+            data.push([ position.fullName, buildCandidateForPosition(position, position.People) ]);
+          }
 
           res.send(queueBoard("candidates", data));
         }).error(error => {
@@ -615,13 +621,25 @@ function candidatesForType(Models, type){
       order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
     }]
   }).then(positions => {
-    return positions.map(pos => [ pos.fullName, buildCandidateForPosition(pos) ]);
+    const data = [];
+
+    positions.forEach(p => {
+     if (p.People.length > 8) {
+        const split = Math.floor(p.People.length/2);
+        data.push([ p.fullName, buildCandidateForPosition(p, p.People.slice(0, split)) ]);
+        data.push([ p.fullName, buildCandidateForPosition(p, p.People.slice(split)) ]);
+      } else {
+        data.push([ p.fullName, buildCandidateForPosition(p, p.People) ]);
+      }
+    })
+
+    return data;
   });
 }
 
-function buildCandidateForPosition(pos){
+function buildCandidateForPosition(pos, ppl){
   const compiledData = {
-    candidates: pos.People,
+    candidates: ppl,
     position: pos.toJSON()
   };
   compiledData.position.People = undefined;

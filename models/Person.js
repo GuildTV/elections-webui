@@ -18,6 +18,15 @@ export default function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    firstName2: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    lastName2: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
 
     photo: {
       type: DataTypes.TEXT('long'),
