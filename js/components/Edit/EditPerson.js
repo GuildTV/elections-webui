@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { withRouter } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
-import { 
-  Grid, Row, Col, 
-  Form, FormGroup, FormControl, ControlLabel, 
+import {
+  Grid, Row, Col,
+  Form, FormGroup, FormControl, ControlLabel,
   Button,
 } from 'react-bootstrap';
 
@@ -20,6 +20,8 @@ class EditPersonInner extends React.Component {
       id: undefined,
       firstName: '',
       lastName: '',
+      firstName2: '',
+      lastName2: '',
       positionId: '',
       photo: '',
       manifestoOne: "",
@@ -75,6 +77,8 @@ class EditPersonInner extends React.Component {
         id: undefined,
         firstName: '',
         lastName: '',
+        firstName2: '',
+        lastName2: '',
         positionId: '',
         photo: '',
         manifestoOne: "",
@@ -94,6 +98,12 @@ class EditPersonInner extends React.Component {
   }
   handleLastNameChange(e) {
     this.setState({lastName: e.target.value});
+  }
+  handleFirstName2Change(e) {
+    this.setState({firstName2: e.target.value});
+  }
+  handleLastName2Change(e) {
+    this.setState({lastName2: e.target.value});
   }
 
   handlePositionChange(e) {
@@ -128,7 +138,7 @@ class EditPersonInner extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    let {firstName, lastName, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order, elected} = this.state;
+    let {firstName, lastName, firstName2, lastName2, id, positionId, manifestoOne, manifestoTwo, manifestoThree, photo, order, elected} = this.state;
 
     if (!firstName || !lastName || !positionId) {
       //todo error handling
@@ -140,6 +150,8 @@ class EditPersonInner extends React.Component {
       id,
       firstName,
       lastName,
+      firstName2,
+      lastName2,
       positionId,
       manifestoOne,
       manifestoTwo,
@@ -182,7 +194,7 @@ class EditPersonInner extends React.Component {
     })
     .catch(err => {
       alert("Delete person error:", err);
-    });    
+    });
   }
 
   isCandidate(){
@@ -205,7 +217,7 @@ class EditPersonInner extends React.Component {
               First Manifesto Point
             </Col>
             <Col xs={10}>
-              <FormControl type="text" onChange={e => this.handleFirstManifestoPointChange(e)} 
+              <FormControl type="text" onChange={e => this.handleFirstManifestoPointChange(e)}
                 placeholder="First manifesto point" value={this.state.manifestoOne} />
             </Col>
           </FormGroup>
@@ -214,7 +226,7 @@ class EditPersonInner extends React.Component {
               Second Manifesto Point
             </Col>
             <Col xs={10}>
-              <FormControl type="text" onChange={e => this.handleSecondManifestoPointChange(e)} 
+              <FormControl type="text" onChange={e => this.handleSecondManifestoPointChange(e)}
                 placeholder="Second manifesto point" value={this.state.manifestoTwo} />
             </Col>
           </FormGroup>
@@ -223,7 +235,7 @@ class EditPersonInner extends React.Component {
               Third Manifesto Point
             </Col>
             <Col xs={10}>
-              <FormControl type="text" onChange={e => this.handleThirdManifestoPointChange(e)} 
+              <FormControl type="text" onChange={e => this.handleThirdManifestoPointChange(e)}
                 placeholder="Third manifesto point" value={this.state.manifestoThree} />
             </Col>
           </FormGroup>
@@ -300,6 +312,23 @@ class EditPersonInner extends React.Component {
 
                     <FormGroup>
                       <Col componentClass={ControlLabel} xs={2}>
+                        First Name (second)
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl type="text" onChange={e => this.handleFirstName2Change(e)} value={this.state.firstName2} />
+                      </Col>
+                    </FormGroup>
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
+                        Last Name (second)
+                      </Col>
+                      <Col xs={10}>
+                        <FormControl type="text" onChange={e => this.handleLastName2Change(e)} value={this.state.lastName2} />
+                      </Col>
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Col componentClass={ControlLabel} xs={2}>
                         Position
                       </Col>
                       <Col xs={10}>
@@ -324,7 +353,7 @@ class EditPersonInner extends React.Component {
                       <Col componentClass={ControlLabel} xs={2}></Col>
                       <Col xs={10}>
                         <Button type="submit" bsStyle="primary">Save</Button>&nbsp;
-                        { this.state.id 
+                        { this.state.id
                           ? <Button bsStyle="danger" onClick={() => this.deletePerson()}>Delete</Button>
                           : ""
                         }
