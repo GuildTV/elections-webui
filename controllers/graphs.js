@@ -113,9 +113,9 @@ function generateResponseXML(Models, pid, maxRound){
       return "BAD POSITION";
 
     const rootElm = builder.create('root');
-    rootElm.ele('eventName', "Guild Officer Elections 2018");
+    rootElm.ele('eventName', "Guild Officer Elections 2019");
     rootElm.ele('subtitle', "");
-    rootElm.ele('extra', "Guild Officer Elections 2018");
+    rootElm.ele('extra', "Guild Officer Elections 2019");
     rootElm.ele('title', election.positionName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');

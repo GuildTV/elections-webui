@@ -41,6 +41,7 @@ export class GraphScraper {
   }
 
   _convertToJson(xml){
+try {
     const sabbGraphId = xml.root.title;
 
     const rawCandidates = xml.root.candidates[0].candidate;
@@ -70,6 +71,14 @@ export class GraphScraper {
       candidates,
       results
     };
+   } catch (e) {
+     return {
+       sabbGraphId: '',
+       candidates: [],
+       results: []
+     }
+   }
+
   }
 
   _findAndSaveElection(data){

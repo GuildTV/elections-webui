@@ -303,7 +303,7 @@ export function setup(Models, app){
     const type = req.body.headline ? "GE2018/LT-ANI-HEADLINE" : "GE2018/LT-ANI-GREY";
 
     const v = { 
-      f0: req.body.f0 || "GUILD ELECTIONS 2018",
+      f0: req.body.f0 || "GUILD ELECTIONS 2019",
       f1: req.body.f1 || "",
     };
 
