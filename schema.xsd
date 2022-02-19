@@ -1,61 +1,56 @@
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:simpleType name="textType">
-    <xs:restriction base="xs:string">
-      <xs:pattern value=".+"/>
-    </xs:restriction>
-  </xs:simpleType>
+  <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/SABBGraphProgram.REST" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="ts:textType">
+      <xs:restriction base="xs:string">
+        <xs:pattern value=".+"/>
+      </xs:restriction>
+    </xs:simpleType>
 
-  <xs:element name="root">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="position">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="textType">
-                <xs:attribute type="textType" name="id" use="required"/>
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="candidates">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="candidate" maxOccurs="unbounded" minOccurs="1">
-                <xs:complexType>
-                  <xs:simpleContent>
-                    <xs:extension base="textType">
-                      <xs:attribute type="textType" name="id" use="required"/>
-                    </xs:extension>
-                  </xs:simpleContent>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="rounds">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="round" maxOccurs="unbounded" minOccurs="0">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="result" maxOccurs="unbounded" minOccurs="0">
-                      <xs:complexType>
-                        <xs:simpleContent>
-                          <xs:extension base="xs:string">
-                            <xs:attribute type="textType" name="candidate" use="required"/>
-                            <xs:attribute type="xs:string" name="eliminated" use="optional"/>
-                          </xs:extension>
-                        </xs:simpleContent>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                  <xs:attribute type="xs:byte" name="number" use="required"/>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-</xs:schema>
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element type="xs:string" name="eventName"/>
+          <xs:element type="xs:string" name="subtitle"/>
+          <xs:element type="xs:string" name="extra"/>
+          <xs:element type="xs:string" name="title"/>
+          <xs:element name="candidates">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="candidate" maxOccurs="unbounded" minOccurs="1">
+                  <xs:complexType>
+                    <xs:simpleContent>
+                      <xs:extension base="ts:textType">
+                        <xs:attribute type="textType" name="id" use="required"/>
+                      </xs:extension>
+                    </xs:simpleContent>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="rounds">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="round" maxOccurs="unbounded" minOccurs="0">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="result" maxOccurs="unbounded" minOccurs="0">
+                        <xs:complexType>
+                          <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                              <xs:attribute type="ts:textType" name="candidate" use="required"/>
+                              <xs:attribute type="xs:string" name="eliminated" use="optional"/>
+                            </xs:extension>
+                          </xs:simpleContent>
+                        </xs:complexType>
+                      </xs:element>
+                    </xs:sequence>
+                    <xs:attribute type="xs:byte" name="number" use="required"/>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>

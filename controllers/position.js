@@ -3,6 +3,13 @@ export function setup(Models, app){
 
   app.get('/api/positions', (req, res) => {
     Position.findAll({
+      include: [{
+        model: Person,
+        order: [[ "order", "ASC" ], [ "lastName", "ASC" ]],
+        attributes: {
+          exclude: [ "photo" ]
+        }
+      }],
       order: [
         [ "type", "ASC" ],
         [ "order", "ASC" ],
@@ -20,10 +27,7 @@ export function setup(Models, app){
       include: [{
         model: Person,
         include: [ Position ],
-        order: [[ "order", "ASC" ], [ "lastName", "ASC" ]],
-        attributes: {
-          exclude: [ "photo" ]
-        }
+        order: [[ "order", "ASC" ], [ "lastName", "ASC" ]]
       }]
     }).then(data => {
       res.send(data);

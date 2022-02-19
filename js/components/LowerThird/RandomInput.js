@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Modal,
-  Col, 
+  Col,
   Form, FormGroup, FormControl, ControlLabel,
   Button,
 } from 'react-bootstrap';
@@ -22,7 +22,7 @@ export default class RandomInput extends React.Component {
   close(commit) {
     const { f0, f1, headline } = this.state;
 
-    this.setState({ 
+    this.setState({
       showModal: false,
       headline: false,
       f0: "",
@@ -94,11 +94,11 @@ export default class RandomInput extends React.Component {
                 Line 1:
               </Col>
               <Col sm={10}>
-                <FormControl type="text" value={f0} onChange={changeF0} autoFocus={true} placeholder="GUILD ELECTIONS 2018" />
+                <FormControl type="text" value={f0} onChange={changeF0} autoFocus={true} placeholder="GUILD ELECTIONS 2020" />
               </Col>
             </FormGroup>
             { headline ?
-              "" : 
+              "" :
               <FormGroup controlId="formF1">
                 <Col componentClass={ControlLabel} sm={2}>
                   Line 2:

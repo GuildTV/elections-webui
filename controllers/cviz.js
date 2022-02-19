@@ -96,6 +96,7 @@ client.on('data', (data) => {
     if (equal(blob, state.lastState))
       return;
 
+    console.log('new cviz state', blob);
     state.lastState = blob;
 
     // emit to all handlers
@@ -302,8 +303,8 @@ export function setup(Models, app){
 
     const type = req.body.headline ? "GE2018/LT-ANI-HEADLINE" : "GE2018/LT-ANI-GREY";
 
-    const v = { 
-      f0: req.body.f0 || "GUILD ELECTIONS 2019",
+    const v = {
+      f0: req.body.f0 || "GUILD ELECTIONS 2020",
       f1: req.body.f1 || "",
     };
 
@@ -311,7 +312,7 @@ export function setup(Models, app){
     state.adjustmentList.push({
       id: uuidv4(),
       key: (v.f0 + " " + v.f1).trim().toUpperCase(),
-      parameters: { 
+      parameters: {
         data: JSON.stringify(v),
         type: type
       },
@@ -348,7 +349,7 @@ export function setup(Models, app){
 
       const suffix = data.Position.type.indexOf("candidate") == 0 ? (data.elected ? " Elect" : " Candidate") : "";
 
-      const v = { 
+      const v = {
         f0: compileName(data),
         f1: data.Position.fullName + suffix,
       };
@@ -357,7 +358,7 @@ export function setup(Models, app){
       state.adjustmentList.push({
         id: uuidv4(),
         key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
-        parameters: { 
+        parameters: {
           data: JSON.stringify(v),
           type: "GE2018/LT-ANI-GREY"
         },
@@ -408,7 +409,7 @@ export function setup(Models, app){
       state.adjustmentList.push({
         id: uuidv4(),
         key: (data.firstName + " " + data.lastName).trim().toUpperCase(),
-        parameters: { 
+        parameters: {
           data: JSON.stringify(v)
         },
       });
@@ -448,7 +449,7 @@ export function setup(Models, app){
         state.adjustmentList.push({
           id: uuidv4(),
           key: k[0],
-          parameters: { 
+          parameters: {
             data: JSON.stringify(k[1]),
             name: JSON.stringify({ f1: k[0] }),
           },
@@ -475,7 +476,7 @@ export function setup(Models, app){
       const res_data = [];
       let offset = 0;
 
-      for (let i=1; i<=page_count; i++){        
+      for (let i=1; i<=page_count; i++){
         const count = num_4_pages >= i ? 4 : 3;
         const cands = data.slice(offset, offset+count);
         offset += count;

@@ -68,7 +68,7 @@ export function setup(Models, app){
           res.send(body);
         }
       });
-      
+
       // TODO - add a scrape now feature, in case graph dies, we can still manually trigger a scrape
     }
   });
@@ -113,9 +113,9 @@ function generateResponseXML(Models, pid, maxRound){
       return "BAD POSITION";
 
     const rootElm = builder.create('root');
-    rootElm.ele('eventName', "Guild Officer Elections 2019");
+    rootElm.ele('eventName', "Guild Officer Elections 2020");
     rootElm.ele('subtitle', "");
-    rootElm.ele('extra', "Guild Officer Elections 2019");
+    rootElm.ele('extra', "Guild Officer Elections 2020");
     rootElm.ele('title', election.positionName);
     const candidates = rootElm.ele('candidates');
     const rounds = rootElm.ele('rounds');

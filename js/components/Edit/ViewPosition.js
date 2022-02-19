@@ -7,7 +7,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 export class ViewPosition extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       data: {}
     };
@@ -45,6 +45,8 @@ export class ViewPosition extends React.Component {
           <td>{ person.firstName + " " + person.lastName }{ person.firstName2 ? " & " + person.firstName2 + " " + person.lastName2 : "" }</td>
           <td>{ person.elected?"Y":"" }</td>
           <td>{ person.order }</td>
+          <td>{ person.manifestoOne ? 'Y' : 'N' }</td>
+          <td>{ person.photo ? 'Y' : 'N' }</td>
           <td>
             <Link to={`/edit/person/${person.id}`}>Edit</Link>
           </td>
@@ -79,6 +81,8 @@ export class ViewPosition extends React.Component {
                           <th>Name</th>
                           <th>Elected</th>
                           <th>Order</th>
+                          <th>Has Manifesto</th>
+                          <th>Has Photo</th>
                           <th></th>
                         </tr>
                       </thead>

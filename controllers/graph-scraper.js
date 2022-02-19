@@ -52,10 +52,10 @@ try {
 
     const rawRounds = xml.root.rounds[0].round;
     const results = [];
-    for (let round of rawRounds){
+    for (let round of rawRounds || []){
       const res = {};
 
-      for (let result of round.results[0].result) {
+      for (let result of round.results[0].result || []) {
         const id = result.$.candidate;
         if (result.$.eliminated)
           res[id] = "elim";
@@ -76,7 +76,7 @@ try {
        sabbGraphId: '',
        candidates: [],
        results: []
-     }
+     };
    }
 
   }
@@ -87,7 +87,7 @@ try {
     return Election.findOrInitialize({
       where: {
         positionName: data.sabbGraphId[0]
-      }, 
+      },
       defaults: {
         positionName: data.sabbGraphId[0],
         candidates: "{}"
@@ -108,7 +108,7 @@ try {
     return mapSeries(data.results, (result, num) => {
       return ElectionRound.upsert({
           electionId: election.id,
-          round: num, 
+          round: num,
           results: JSON.stringify(result)
         }).then(() => {
           console.log("Saved round #"+num+" for election #" + election.id);

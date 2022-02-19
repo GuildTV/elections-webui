@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router';
 import axios from 'axios';
 
-import { 
-  Grid, Row, Col, 
+import {
+  Grid, Row, Col,
   Table, Button, Form,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -47,6 +47,7 @@ export class PositionList extends React.Component {
           <td>{ pos.miniName }</td>
           <td>{ pos.type.indexOf("candidate") != 0 ? "" : pos.order }</td>
           <td>{ pos.type.indexOf("candidate") != 0 ? "" : pos.winnerOrder }</td>
+          <td>{ pos.People.length }</td>
           <td>
             <Link to={`/edit/position/${pos.id}`}>View</Link>
           </td>
@@ -81,6 +82,7 @@ export class PositionList extends React.Component {
                           <th>Mini</th>
                           <th>Board Order</th>
                           <th>Win Order</th>
+                          <th>Candidates</th>
                           <th></th>
                         </tr>
                       </thead>
