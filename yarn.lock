@@ -526,7 +526,7 @@ __metadata:
     underscore: "npm:^1.13.6"
     uuid: "npm:^9.0.1"
     xml2js: "npm:^0.6.2"
-    xmlbuilder: "npm:^8.2.2"
+    xmlbuilder: "npm:^15.1.1"
   languageName: unknown
   linkType: soft
 
@@ -6283,10 +6283,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xmlbuilder@npm:^8.2.2":
-  version: 8.2.2
-  resolution: "xmlbuilder@npm:8.2.2"
-  checksum: 10c0/5806a607e8c02fe6055a6b0c013e99489d74945019a8d4fdadcb9e92ffb0342987ed9f04fa46579762ad825044417e5ff019081c9d7ec058384e65b502aa7fb2
+"xmlbuilder@npm:^15.1.1":
+  version: 15.1.1
+  resolution: "xmlbuilder@npm:15.1.1"
+  checksum: 10c0/665266a8916498ff8d82b3d46d3993913477a254b98149ff7cff060d9b7cc0db7cf5a3dae99aed92355254a808c0e2e3ec74ad1b04aa1061bdb8dfbea26c18b8
   languageName: node
   linkType: hard
 
