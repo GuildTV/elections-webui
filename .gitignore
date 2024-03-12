@@ -3,6 +3,7 @@ node_modules*
 rethink*
 public
 dumps
+.yarn
 
 sequelize.json
 config.js

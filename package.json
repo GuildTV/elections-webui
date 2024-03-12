@@ -1,39 +1,25 @@
 {
-  "name": "elections-webui",
+  "name": "@guildtv/elections-workspace",
   "private": true,
   "version": "2.0.0",
+  "workspaces": [
+    "backend",
+    "webui"
+  ],
   "description": "A Web user interface for Guild elections Graphics",
   "author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
   "type": "module",
   "scripts": {
-    "start": "NODE_ENV=production node ./server.js",
-    "dev": "NODE_ENV=development nodemon --ignore dumps/ ./server.js",
-    "lint": "NODE_ENV=test ./node_modules/.bin/eslint --ext .js .",
-    "migrate": "NODE_ENV=development sequelize --config=sequelize.json db:migrate",
-    "webpack": "webpack-dev-server --progress --colors --public --disable-host-check --host 0.0.0.0",
-    "dist": "NODE_ENV=production webpack -p --progress --colors"
+    "start": "yarn workspace @guildtv/elections-backend start",
+    "dev": "yarn workspace @guildtv/elections-backend dev",
+    "_lint": "NODE_ENV=test ./node_modules/.bin/eslint --ext .js .",
+    "migrate": "yarn workspace @guildtv/elections-backend migrate",
+    "dev:webui": "yarn workspace @guildtv/elections-webui dev",
+    "dist": "yarn workspaces foreach --all run dist"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/GuildTV/elections-webui.git"
   },
-  "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "deep-equal": "^1.0.1",
-    "express": "^4.18.3",
-    "mysql": "^2.15.0",
-    "mysql2": "^1.1.1",
-    "promise-map-series": "^0.2.3",
-    "sequelize": "^3.24.8",
-    "sequelize-cli": "^2.4.0",
-    "socket.io": "^4.7.4",
-    "underscore": "^1.13.6",
-    "uuid": "^9.0.1",
-    "xml2js": "^0.4.17",
-    "xmlbuilder": "^8.2.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.0"
-  }
+  "packageManager": "yarn@4.1.1"
 }
