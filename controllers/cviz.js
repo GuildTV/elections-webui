@@ -1,10 +1,10 @@
-const net = require("net");
-const uuidv4 = require("uuid/v4");
+import net from "net";
+import { v4 as uuidv4 } from "uuid";
 import equal from "deep-equal";
 import _ from "underscore";
 
-import { generateRon } from "./ron";
-import { cvizHost, cvizPort } from "../config";
+import { generateRon } from "./ron.js";
+import { cvizHost, cvizPort } from "../config.js";
 
 class CvizSlot {
   constructor(slot) {

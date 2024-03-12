@@ -1,31 +1,45 @@
-import fs from 'fs';
-import path from 'path';
-import Sequelize from 'sequelize';
+import Sequelize from "sequelize";
+import Module from "node:module";
 
-const basename  = path.basename(module.filename);
-const env       = process.env.NODE_ENV || 'development';
-const config    = require('../sequelize.json')[env];
+import ElectionModel from "./Election.js";
+import ElectionRoundModel from "./ElectionRound.js";
+import PersonModel from "./Person.js";
+import PositionModel from "./Position.js";
+import TickerEntryModel from "./TickerEntry.js";
 
-if(env != 'development' && env != 'test'){
+const require = Module.createRequire(import.meta.url);
+
+const env = process.env.NODE_ENV || "development";
+const config = require("../sequelize.json")[env];
+
+if (env != "development" && env != "test") {
   console.log("Disabling sequelize logger");
   config.logging = false;
 }
 
-const sequelize = new Sequelize(config.database, config.username, config.password, config);
-const db        = {};
+const sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  config
+);
+const db = {};
 
-fs
-  .readdirSync(__dirname)
-  .filter(function(file) {
-    return (file.indexOf('.') !== 0) && (file !== basename);
-  })
-  .forEach(function(file) {
-    const model = sequelize['import'](path.join(__dirname, file));
-    db[model.name] = model;
-  });
+const models = [
+  ElectionModel,
+  ElectionRoundModel,
+  PersonModel,
+  PositionModel,
+  TickerEntryModel,
+];
 
-Object.keys(db).forEach(function(modelName) {
-  if ('associate' in db[modelName]) {
+for (const model of models) {
+  const modelInstance = model(sequelize, Sequelize);
+  db[modelInstance.name] = modelInstance;
+}
+
+Object.keys(db).forEach(function (modelName) {
+  if ("associate" in db[modelName]) {
     db[modelName].associate(db);
   }
 });

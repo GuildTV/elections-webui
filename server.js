@@ -1,16 +1,17 @@
 "use strict";
-const express = require("express");
-const bodyParser = require("body-parser");
+import express from "express";
+import bodyParser from "body-parser";
+import socketIo from "socket.io";
 
-import { webui_port } from "./config";
+import { webui_port } from "./config.js";
 
-import { setup as positionSetup } from "./controllers/position";
-import { setup as peopleSetup } from "./controllers/person";
-import { bind as cvizBind, setup as cvizSetup } from "./controllers/cviz";
-import { setup as graphSetup } from "./controllers/graphs";
-import { setup as tickerSetup } from "./controllers/ticker";
+import { setup as positionSetup } from "./controllers/position.js";
+import { setup as peopleSetup } from "./controllers/person.js";
+import { bind as cvizBind, setup as cvizSetup } from "./controllers/cviz.js";
+import { setup as graphSetup } from "./controllers/graphs.js";
+import { setup as tickerSetup } from "./controllers/ticker.js";
 
-import Models from "./models";
+import Models from "./models/index.js";
 
 const app = express();
 
@@ -23,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(express.static("public"));
 
-const io = require("socket.io")(server);
+const io = socketIo(server);
 
 graphSetup(Models, app);
 positionSetup(Models, app);

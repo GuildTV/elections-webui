@@ -1,11 +1,11 @@
-const cors = require("cors");
-const md5 = require("md5");
-const request = require("request");
-const builder = require("xmlbuilder");
+import cors from "cors";
+// const md5 = require("md5");
+// const request = require("request");
+import builder from "xmlbuilder";
 
-import { GraphScraper } from "./graph-scraper";
+// import { GraphScraper } from "./graph-scraper";
 
-import { sabbGraphAddress } from "../config";
+// import { sabbGraphAddress } from "../config";
 
 let GRAPHROLE = {
   // When in manual mode

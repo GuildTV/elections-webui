@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^0.17.1",
     "bootstrap": "^3.3.7",
     "bootstrap-sass": "^3.3.7",
     "bootswatch": "^3.3.7",
