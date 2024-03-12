@@ -22,7 +22,7 @@ const server = app.listen(webui_port, "0.0.0.0", () => {
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "10mb" }));
-app.use(express.static("public"));
+app.use(express.static("webui/dist"));
 
 const io = socketIo(server);
 

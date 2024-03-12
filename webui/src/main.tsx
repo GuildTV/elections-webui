@@ -1,4 +1,5 @@
 import ReactDOM from "react-dom";
+// @ts-expect-error no types
 import { Router, hashHistory } from "react-router";
 
 import "./sass/app.scss";
