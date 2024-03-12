@@ -1,6 +1,6 @@
 import cors from 'cors'
 
-import { TickerEntry } from '../models/Ticker.js'
+import { TickerEntry, TickerEntryAttributes, TickerEntryCreationAttributes } from '../models/Ticker.js'
 import { CreationAttributes } from 'sequelize'
 
 let purge_now = false
@@ -30,17 +30,9 @@ export function setup(app: import('express').Express) {
 		return res.send('OK')
 	})
 
-	// interface TickerEntryValue {
-	// 	id: number
-	// 	text: string
-	// 	order: number
-	// 	enabled: boolean
-	// }
-	type TickerEntryValue = CreationAttributes<TickerEntry>
-
 	app.post('/api/ticker/save', (req, res) => {
-		const newItems: TickerEntryValue[] = []
-		const updated: TickerEntryValue[] = []
+		const newItems: TickerEntryCreationAttributes[] = []
+		const updated: TickerEntryAttributes[] = []
 
 		let order = 0
 

@@ -1,16 +1,25 @@
 import { Table, Column, Model, AllowNull, DataType } from 'sequelize-typescript'
 
+export interface TickerEntryAttributes {
+	id: number
+	enabled: boolean
+	text: string
+	order: number
+}
+
+export type TickerEntryCreationAttributes = Omit<TickerEntryAttributes, 'id'>
+
 @Table
-export class TickerEntry extends Model<TickerEntry> {
+export class TickerEntry extends Model<TickerEntryAttributes, TickerEntryCreationAttributes> {
 	@AllowNull(false)
 	@Column
-	enabled!: boolean
+	declare enabled: boolean
 
 	@AllowNull(false)
 	@Column
-	text!: string
+	declare text: string
 
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-	order!: number
+	declare order: number
 }
