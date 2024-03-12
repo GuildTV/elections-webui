@@ -1,37 +1,50 @@
 import { Table, Column, Model, HasMany, AllowNull, Unique, ForeignKey, DataType, BelongsTo } from 'sequelize-typescript'
 
+export interface ElectionAttributes {
+	id: number
+	positionName: string
+	candidates: string
+}
+
+export type ElectionCreationAttributes = Omit<ElectionAttributes, 'id'>
+
 @Table
-export class Election extends Model<Election> {
+export class Election extends Model<ElectionAttributes, ElectionCreationAttributes> {
 	@AllowNull(false)
 	@Unique
 	@Column
-	positionName!: string
+	declare positionName: string
 
 	@AllowNull(false)
 	@Column
-	candidates!: string
+	declare candidates: string
 
 	@HasMany(() => ElectionRound)
 	ElectionRounds!: ElectionRound[]
 }
 
+export interface ElectionRoundAttributes {
+	id: number
+	electionId: number
+	round: number
+	results: string
+}
+
+export type ElectionRoundCreationAttributes = Omit<ElectionRoundAttributes, 'id'>
+
 @Table
-export class ElectionRound extends Model<ElectionRound> {
+export class ElectionRound extends Model<ElectionRoundAttributes, ElectionRoundCreationAttributes> {
 	@ForeignKey(() => Election)
 	@Column
-	electionId!: number
+	declare electionId: number
 
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-	round!: number
+	declare round: number
 
 	@AllowNull(false)
 	@Column
-	candidates!: string
-
-	@AllowNull(false)
-	@Column
-	results!: string
+	declare results: string
 
 	@BelongsTo(() => Election)
 	Election!: Election

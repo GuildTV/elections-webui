@@ -501,8 +501,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@guildtv/elections-backend@workspace:backend"
   dependencies:
+    "@types/deep-equal": "npm:^1.0.4"
     "@types/express": "npm:^4.17.21"
     "@types/node": "npm:^20.11.26"
+    "@types/underscore": "npm:^1.11.15"
+    "@types/uuid": "npm:^9.0.8"
     "@types/validator": "npm:^13.11.9"
     "@types/xml2js": "npm:^0.4.14"
     body-parser: "npm:^1.20.2"
@@ -947,6 +950,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/deep-equal@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "@types/deep-equal@npm:1.0.4"
+  checksum: 10c0/583d41df5d7655b0bd5fdd4b173b045396108fad2191e1bd3b1bfc188f98d24fafff34a8a09c04f9c650c87d82e9f25a8119d269044522da0770a05075fbf74d
+  languageName: node
+  linkType: hard
+
 "@types/estree@npm:1.0.5":
   version: 1.0.5
   resolution: "@types/estree@npm:1.0.5"
@@ -1077,6 +1087,20 @@ __metadata:
     "@types/mime": "npm:*"
     "@types/node": "npm:*"
   checksum: 10c0/811d1a2f7e74a872195e7a013bcd87a2fb1edf07eaedcb9dcfd20c1eb4bc56ad4ea0d52141c13192c91ccda7c8aeb8a530d8a7e60b9c27f5990d7e62e0fecb03
+  languageName: node
+  linkType: hard
+
+"@types/underscore@npm:^1.11.15":
+  version: 1.11.15
+  resolution: "@types/underscore@npm:1.11.15"
+  checksum: 10c0/f1bbe78337a8b800b6cb96435c54c9428d00c64eabcb8ba690302cb76c4c068d69e663a048c6b05bc9154ba723b1bcb6bcf39f753f6a0eb8c477accde7bd6056
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^9.0.8":
+  version: 9.0.8
+  resolution: "@types/uuid@npm:9.0.8"
+  checksum: 10c0/b411b93054cb1d4361919579ef3508a1f12bf15b5fdd97337d3d351bece6c921b52b6daeef89b62340fd73fd60da407878432a1af777f40648cbe53a01723489
   languageName: node
   linkType: hard
 

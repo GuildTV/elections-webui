@@ -6,86 +6,116 @@ export enum PositionType {
 	Other = 'other',
 }
 
+export interface PositionAttributes {
+	id: number
+	type: PositionType
+	fullName: string
+	compactName: string
+	miniName: string
+	order: number
+	winnerOrder: number
+	sidebarUseOfficer: boolean
+}
+
+export type PositionCreationAttributes = Omit<PositionAttributes, 'id'>
+
 @Table
-export class Position extends Model<Position> {
+export class Position extends Model<PositionAttributes, PositionCreationAttributes> {
 	@AllowNull(false)
 	@Column(DataType.ENUM(PositionType.CandidateNonSabb, PositionType.CandidateSabb, PositionType.Other))
-	type!: PositionType
+	declare type: PositionType
 
 	@AllowNull(false)
 	@Column
-	fullName!: string
+	declare fullName: string
 
 	@AllowNull(false)
 	@Column
-	compactName!: string
+	declare compactName: string
 
 	@AllowNull(false)
 	@Column
-	miniName!: string
+	declare miniName: string
 
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-	order!: number
+	declare order: number
 
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-	winnerOrder!: number
+	declare winnerOrder: number
 
 	@AllowNull(false)
 	@Column
-	sidebarUseOfficer!: boolean
+	declare sidebarUseOfficer: boolean
 
 	@HasMany(() => Person)
 	People!: Person[]
 }
 
+export interface PersonAttributes {
+	id: number
+	positionId: number
+	firstName: string
+	lastName: string
+	firstName2: string | null
+	lastName2: string | null
+	photo: string
+	manifestoOne: string
+	manifestoTwo: string
+	manifestoThree: string
+	order: number
+	elected: boolean
+}
+
+export type PersonCreationAttributes = Omit<PersonAttributes, 'id'>
+
 @Table
-export class Person extends Model<Person> {
+export class Person extends Model<PersonAttributes, PersonCreationAttributes> {
 	@ForeignKey(() => Position)
 	@Column
-	positionId!: number
+	declare positionId: number
 
 	@AllowNull(false)
 	@Column
-	firstName!: string
+	declare firstName: string
 
 	@AllowNull(false)
 	@Column
-	lastName!: string
+	declare lastName: string
 
 	@AllowNull(true)
-	@Column
-	firstName2!: string
+	@Column(DataType.STRING)
+	declare firstName2: string | null
 
 	@AllowNull(true)
-	@Column
-	lastName2!: string
+	@Column(DataType.STRING)
+	declare lastName2: string | null
 
 	@AllowNull(false)
 	@Column(DataType.TEXT('long'))
-	photo!: string
+	declare photo: string
 
 	@AllowNull(false)
 	@Column
-	manifestoOne!: string
+	declare manifestoOne: string
 
 	@AllowNull(false)
 	@Column
-	manifestoTwo!: string
+	declare manifestoTwo: string
 
 	@AllowNull(false)
 	@Column
-	manifestoThree!: string
+	declare manifestoThree: string
 
 	@AllowNull(false)
 	@Column(DataType.INTEGER)
-	order!: number
+	declare order: number
 
 	@AllowNull(false)
 	@Column
-	elected!: boolean
+	declare elected: boolean
 
 	@BelongsTo(() => Position)
-	Position!: Position
+	declare Position: Position
 }

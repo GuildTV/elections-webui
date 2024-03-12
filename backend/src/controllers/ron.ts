@@ -1,10 +1,16 @@
-import type { Position } from '../models/People.js'
+import type { PersonAttributes, Position } from '../models/People.js'
 
-export function generateRon(position: Position) {
+export interface PersonAttributesWithPosition extends PersonAttributes {
+	Position: Position
+}
+
+export function generateRon(position: Position): PersonAttributesWithPosition {
 	return {
-		id: 'ron-' + position.id,
+		id: ('ron-' + position.id) as unknown as number,
 		firstName: 'RON',
 		lastName: '',
+		firstName2: null,
+		lastName2: null,
 		positionId: position.id,
 		Position: position,
 		elected: false,

@@ -3,18 +3,34 @@ import { v4 as uuidv4 } from 'uuid'
 import equal from 'deep-equal'
 import _ from 'underscore'
 
-import { generateRon } from './ron.js'
+import { PersonAttributesWithPosition, generateRon } from './ron.js'
 import { cvizHost, cvizPort } from '../config.js'
+import { Person, PersonAttributes, Position, PositionAttributes, PositionType } from '../models/People.js'
+
+interface CvizState {
+	timelineSlot: string
+	state: string
+	stateMessage: string
+	timelineFile: string
+}
+
+interface CvizAdjustment {
+	id: string
+	key: string
+	parameters: Record<string, any>
+}
 
 class CvizSlot {
-	constructor(slot) {
+	readonly slot: string
+	lastState: CvizState | null = null
+	templateName: string | null = null
+	adjustmentList: CvizAdjustment[] = []
+
+	constructor(slot: string) {
 		this.slot = slot
-		this.lastState = {}
-		this.templateName = null
-		this.adjustmentList = []
 	}
 
-	isRunningTemplate(name) {
+	isRunningTemplate(name: string) {
 		if (!this.lastState || !this.lastState.timelineFile) return false
 
 		return this.lastState.timelineFile == name
@@ -50,14 +66,14 @@ class CvizSlot {
 	}
 }
 
-const slots = {
+const slots: Record<string, CvizSlot | undefined> = {
 	default: new CvizSlot('default'),
 	lowerthird: new CvizSlot('lowerthird'),
 }
 
-let pingInterval = null
+let pingInterval: NodeJS.Timeout | null = null
 
-const websocketHandlers = []
+const websocketHandlers: Array<(slot: string) => void> = []
 
 const client = new net.Socket()
 client.setNoDelay(true)
@@ -83,9 +99,10 @@ client.connect(cvizPort, cvizHost, function () {
 
 client.on('data', (data) => {
 	try {
-		if (data == '{}') return
+		const dataStr = data.toString('utf8')
+		if (dataStr == '{}') return
 
-		const blob = JSON.parse(data)
+		const blob = JSON.parse(dataStr)
 		const state = slots[blob.timelineSlot]
 		if (!state) return // Not a slot we care about
 
@@ -95,20 +112,22 @@ client.on('data', (data) => {
 		state.lastState = blob
 
 		// emit to all handlers
-		for (let h of websocketHandlers) h(blob.timelineSlot)
+		for (let handler of websocketHandlers) handler(blob.timelineSlot)
 
 		// if lt and nothing loaded, then load next
 		if (blob.timelineSlot == 'lowerthird' && !state.isRunningAnything() && state.adjustmentList.length > 0) {
 			const first = state.adjustmentList.shift()
-			client.write(
-				JSON.stringify({
-					timelineSlot: 'lowerthird',
-					type: 'LOAD',
-					timelineFile: 'lowerthird',
-					parameters: first.parameters,
-					instanceName: first.key,
-				}) + '\n',
-			)
+			if (first) {
+				client.write(
+					JSON.stringify({
+						timelineSlot: 'lowerthird',
+						type: 'LOAD',
+						timelineFile: 'lowerthird',
+						parameters: first.parameters,
+						instanceName: first.key,
+					}) + '\n',
+				)
+			}
 		}
 	} catch (e) {
 		// console.log("Error", e);
@@ -123,10 +142,8 @@ client.on('close', () => {
 	}
 })
 
-function getWinnersOfType(Models, type) {
-	let { Person, Position } = Models
-
-	return Position.findAll({
+async function getWinnersOfType(type: PositionType): Promise<PersonAttributesWithPosition[]> {
+	const positions = await Position.findAll({
 		where: {
 			type: type,
 		},
@@ -141,16 +158,20 @@ function getWinnersOfType(Models, type) {
 				required: false,
 			},
 		],
-	}).then((positions) => {
-		return positions.map((v) => {
-			if (v.People && v.People[0]) return v.People[0]
+	})
 
-			return generateRon(v)
-		})
+	return positions.map((v) => {
+		if (v.People && v.People[0])
+			return {
+				...v.People[0].toJSON(),
+				Position: v,
+			}
+
+		return generateRon(v)
 	})
 }
 
-function compileName(data) {
+function compileName(data: PersonAttributes | Person) {
 	let f0 = data.firstName
 	if (data.lastName) f0 += ' ' + data.lastName
 	if (data.firstName2) {
@@ -161,8 +182,8 @@ function compileName(data) {
 	return f0
 }
 
-export function bind(Models, socket, io) {
-	function emitStatus(slot) {
+export function bind(socket: import('socket.io').Socket, io: import('socket.io').Server) {
+	function emitStatus(slot: string) {
 		const state = slots[slot]
 		if (!state) return
 
@@ -184,9 +205,7 @@ export function bind(Models, socket, io) {
 	socket.on('cviz.status', (r) => emitStatus(r.slot))
 }
 
-export function setup(Models, app) {
-	const { Person, Position } = Models
-
+export function setup(app: import('express').Express) {
 	app.delete('/api/cviz/:slot/adjustment/:id', (req, res) => {
 		const state = slots[req.params.slot]
 		if (!state) return res.status(500).send('')
@@ -227,16 +246,18 @@ export function setup(Models, app) {
 
 		console.log('templateGo')
 
-		if ((state.lastState.state || '').toLowerCase() == 'cueorchild' && state.adjustmentList.length > 0) {
+		if (state.lastState && state.lastState.state.toLowerCase() == 'cueorchild' && state.adjustmentList.length > 0) {
 			const adjust = state.adjustmentList.shift()
-			client.write(
-				JSON.stringify({
-					timelineSlot: req.params.slot,
-					type: 'RUNCHILD',
-					parameters: adjust.parameters,
-					instanceName: adjust.key,
-				}) + '\n',
-			)
+			if (adjust) {
+				client.write(
+					JSON.stringify({
+						timelineSlot: req.params.slot,
+						type: 'RUNCHILD',
+						parameters: adjust.parameters,
+						instanceName: adjust.key,
+					}) + '\n',
+				)
+			}
 			res.send('OK')
 
 			return
@@ -312,15 +333,17 @@ export function setup(Models, app) {
 
 		if (!state.isRunningAnything()) {
 			const first = state.adjustmentList.shift()
-			client.write(
-				JSON.stringify({
-					timelineSlot: 'lowerthird',
-					type: 'LOAD',
-					timelineFile: 'lowerthird',
-					parameters: first.parameters,
-					instanceName: first.key,
-				}) + '\n',
-			)
+			if (first) {
+				client.write(
+					JSON.stringify({
+						timelineSlot: 'lowerthird',
+						type: 'LOAD',
+						timelineFile: 'lowerthird',
+						parameters: first.parameters,
+						instanceName: first.key,
+					}) + '\n',
+				)
+			}
 		}
 
 		res.send('OK')
@@ -336,6 +359,8 @@ export function setup(Models, app) {
 			include: [Position],
 		})
 			.then((data) => {
+				if (!data) throw new Error('Person not found')
+
 				if (!state.isRunningTemplate('lowerthird') && state.isRunningAnything()) return res.send('RUNNING_OTHER')
 				if (!state.isRunningTemplate('lowerthird')) state.adjustmentList = []
 
@@ -358,15 +383,17 @@ export function setup(Models, app) {
 
 				if (!state.isRunningAnything()) {
 					const first = state.adjustmentList.shift()
-					client.write(
-						JSON.stringify({
-							timelineSlot: 'lowerthird',
-							type: 'LOAD',
-							timelineFile: 'lowerthird',
-							parameters: first.parameters,
-							instanceName: first.key,
-						}) + '\n',
-					)
+					if (first) {
+						client.write(
+							JSON.stringify({
+								timelineSlot: 'lowerthird',
+								type: 'LOAD',
+								timelineFile: 'lowerthird',
+								parameters: first.parameters,
+								instanceName: first.key,
+							}) + '\n',
+						)
+					}
 				}
 
 				res.send('OK')
@@ -386,13 +413,15 @@ export function setup(Models, app) {
 			include: [Position],
 		})
 			.then((data) => {
+				if (!data) throw new Error('Person not found')
+
 				let type = req.params.template
 				if (type.toLowerCase() == 'sidebarphoto' || type.toLowerCase() == 'sidebartext') type = 'sidebar'
 
 				if (!state.isRunningTemplate(type) && state.isRunningAnything()) return res.send('RUNNING_OTHER')
 				if (!state.isRunningTemplate(type)) state.adjustmentList = []
 
-				if (req.params.template.toLowerCase() == 'sidebartext') data.photo = null
+				if (req.params.template.toLowerCase() == 'sidebartext') data.photo = ''
 
 				const v = { sidebar_data: JSON.stringify(data) }
 
@@ -407,15 +436,17 @@ export function setup(Models, app) {
 
 				if (!state.isRunningAnything()) {
 					const first = state.adjustmentList.shift()
-					client.write(
-						JSON.stringify({
-							timelineSlot: 'default',
-							type: 'LOAD',
-							timelineFile: type,
-							parameters: first.parameters,
-							instanceName: first.key,
-						}) + '\n',
-					)
+					if (first) {
+						client.write(
+							JSON.stringify({
+								timelineSlot: 'default',
+								type: 'LOAD',
+								timelineFile: type,
+								parameters: first.parameters,
+								instanceName: first.key,
+							}) + '\n',
+						)
+					}
 				}
 
 				res.send('OK')
@@ -428,10 +459,11 @@ export function setup(Models, app) {
 	app.post('/api/run/board/:template/:key', (req, res) => {
 		console.log('Run board template', req.params)
 
-		const state = slots['default']
-		if (!state) return res.status(500).send('')
+		const state0 = slots['default']
+		if (!state0) return res.status(500).send('')
+		const state = state0
 
-		function queueBoard(type, data) {
+		function queueBoard(type: 'winners' | 'candidates', data: Array<[string, WinnersPageData | PositionCandidates]>) {
 			if (!state.isRunningTemplate(type) && state.isRunningAnything()) return 'RUNNING_OTHER'
 			if (!state.isRunningTemplate(type)) state.adjustmentList = []
 
@@ -449,24 +481,26 @@ export function setup(Models, app) {
 
 			if (!state.isRunningAnything()) {
 				const first = state.adjustmentList.shift()
-				client.write(
-					JSON.stringify({
-						timelineSlot: 'default',
-						type: 'LOAD',
-						timelineFile: type,
-						parameters: first.parameters,
-						instanceName: first.key,
-					}) + '\n',
-				)
+				if (first) {
+					client.write(
+						JSON.stringify({
+							timelineSlot: 'default',
+							type: 'LOAD',
+							timelineFile: type,
+							parameters: first.parameters,
+							instanceName: first.key,
+						}) + '\n',
+					)
+				}
 			}
 			return 'OK'
 		}
 
-		function splitWinnersIntoPages(prefix, data) {
+		function splitWinnersIntoPages(prefix: string, data: PersonAttributesWithPosition[]) {
 			const page_count = Math.ceil(data.length / 4)
 			const num_4_pages = data.length - page_count * 3
 
-			const res_data = []
+			const res_data: Array<[string, WinnersPageData]> = []
 			let offset = 0
 
 			for (let i = 1; i <= page_count; i++) {
@@ -476,7 +510,7 @@ export function setup(Models, app) {
 
 				console.log(data.length, cands.length, offset)
 
-				const page_data = {
+				const page_data: WinnersPageData = {
 					position: prefix,
 				}
 
@@ -514,16 +548,16 @@ export function setup(Models, app) {
 			return res_data
 		}
 
-		function trimPhoto(photo) {
+		function trimPhoto(photo: string) {
 			if (photo.indexOf('data:image/png;base64,') == 0) return photo.substring('data:image/png;base64,'.length)
 			return photo
 		}
 
 		switch (req.params.template.toLowerCase()) {
 			case 'winnersall':
-				return getWinnersOfType(Models, 'candidateSabb')
+				return getWinnersOfType(PositionType.CandidateSabb)
 					.then(function (sabbs) {
-						return getWinnersOfType(Models, 'candidateNonSabb').then(function (nonsabbs) {
+						return getWinnersOfType(PositionType.CandidateNonSabb).then(function (nonsabbs) {
 							const data = splitWinnersIntoPages('Part-time Officer Elects', nonsabbs)
 							const data2 = splitWinnersIntoPages('Full-time Officer Elects', sabbs)
 							const comb = data.concat(data2)
@@ -536,7 +570,7 @@ export function setup(Models, app) {
 					})
 
 			case 'winnersnonsabbs':
-				return getWinnersOfType(Models, 'candidateNonSabb')
+				return getWinnersOfType(PositionType.CandidateNonSabb)
 					.then(function (nonsabbs) {
 						const data = splitWinnersIntoPages('Part-time Officer Elects', nonsabbs)
 
@@ -547,7 +581,7 @@ export function setup(Models, app) {
 					})
 
 			case 'winnerssabbs':
-				return getWinnersOfType(Models, 'candidateSabb')
+				return getWinnersOfType(PositionType.CandidateSabb)
 					.then(function (people) {
 						const data = splitWinnersIntoPages('Full-time Officer Elects', people)
 
@@ -570,7 +604,9 @@ export function setup(Models, app) {
 					],
 				})
 					.then(function (position) {
-						const data = []
+						if (!position) throw new Error('Position not found')
+
+						const data: Array<[string, PositionCandidates]> = []
 
 						const people = _.sortBy([...position.People], (a) => a.order)
 						if (people.length > 8) {
@@ -591,21 +627,21 @@ export function setup(Models, app) {
 					})
 
 			case 'candidateall':
-				return candidatesForType(Models, null)
+				return candidatesForType(null)
 					.then((data) => res.send(queueBoard('candidates', data)))
 					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidatesabbs':
-				return candidatesForType(Models, 'candidateSabb')
+				return candidatesForType(PositionType.CandidateSabb)
 					.then((data) => res.send(queueBoard('candidates', data)))
 					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidatenonsabbs':
-				return candidatesForType(Models, 'candidateNonSabb')
+				return candidatesForType(PositionType.CandidateNonSabb)
 					.then((data) => res.send(queueBoard('candidates', data)))
 					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
@@ -616,11 +652,9 @@ export function setup(Models, app) {
 	})
 }
 
-function candidatesForType(Models, type) {
-	const { Person, Position } = Models
-
+async function candidatesForType(type: PositionType | null) {
 	const candType = type ? [type] : ['candidateSabb', 'candidateNonSabb']
-	return Position.findAll({
+	const positions = await Position.findAll({
 		order: [
 			['type', 'DESC'],
 			['order', 'ASC'],
@@ -640,39 +674,61 @@ function candidatesForType(Models, type) {
 				],
 			},
 		],
-	}).then((positions) => {
-		const data = []
-
-		positions.forEach((p) => {
-			const people = _.sortBy([...p.People], (a) => a.order)
-			if (people.length > 8) {
-				while (people.length > 0) {
-					const boardsLeft = Math.ceil(people.length / 8)
-					const thisCount = Math.ceil(people.length / boardsLeft)
-					const removed = people.splice(0, thisCount)
-					data.push([p.fullName, buildCandidateForPosition(p, removed)])
-				}
-			} else {
-				data.push([p.fullName, buildCandidateForPosition(p, people)])
-			}
-		})
-
-		console.log(JSON.stringify(data[0], undefined, 4))
-
-		return data
 	})
+
+	const data: Array<[string, PositionCandidates]> = []
+
+	positions.forEach((p) => {
+		const people = _.sortBy([...p.People], (a) => a.order)
+		if (people.length > 8) {
+			while (people.length > 0) {
+				const boardsLeft = Math.ceil(people.length / 8)
+				const thisCount = Math.ceil(people.length / boardsLeft)
+				const removed = people.splice(0, thisCount)
+				data.push([p.fullName, buildCandidateForPosition(p, removed)])
+			}
+		} else {
+			data.push([p.fullName, buildCandidateForPosition(p, people)])
+		}
+	})
+
+	// console.log(JSON.stringify(data[0], undefined, 4))
+
+	return data
 }
 
-function buildCandidateForPosition(pos, ppl) {
+function buildCandidateForPosition(pos: Position, ppl: Person[]): PositionCandidates {
 	const compiledData = {
-		candidates: ppl,
+		candidates: ppl.map((c) => c.toJSON()),
 		position: pos.toJSON(),
 	}
-	compiledData.position.People = undefined
+	// compiledData.position.People = []
 
 	if (compiledData.candidates.length == 0) {
 		compiledData.candidates = [generateRon(pos)]
 	}
 
 	return compiledData
+}
+
+interface PositionCandidates {
+	candidates: PersonAttributes[]
+	position: PositionAttributes
+}
+
+interface WinnersPageData {
+	position: string
+	win1_name?: string
+	win1_position?: string
+	win1_photo?: string
+	win2_name?: string
+	win2_position?: string
+	win2_photo?: string
+	win3_name?: string
+	win3_position?: string
+	win3_photo?: string
+	win4_show?: boolean
+	win4_name?: string
+	win4_position?: string
+	win4_photo?: string
 }

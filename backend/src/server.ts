@@ -5,7 +5,7 @@ import { Server as SocketIoServer } from 'socket.io'
 
 import { webui_port } from './config.js'
 
-import * as Models from './models/sequelize.js'
+import './models/sequelize.js'
 
 import { setup as positionSetup } from './controllers/position.js'
 import { setup as peopleSetup } from './controllers/person.js'
@@ -29,13 +29,13 @@ const io = new SocketIoServer(server)
 graphSetup(app)
 positionSetup(app)
 peopleSetup(app, io)
-cvizSetup(Models, app)
+cvizSetup(app)
 tickerSetup(app)
 
 io.on('connection', function (client) {
-	console.log('New connection from ' + client.handshake.address + ':' + client.handshake.port)
+	console.log('New connection from ' + client.handshake.address)
 
-	cvizBind(Models, client, io)
+	cvizBind(client, io)
 
 	client.on('disconnect', function () {
 		console.log('Lost client')
