@@ -1,7 +1,7 @@
 "use strict";
 import express from "express";
 import bodyParser from "body-parser";
-import socketIo from "socket.io";
+import { Server as SocketIoServer } from "socket.io";
 
 import { webui_port } from "./config.js";
 
@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(express.static("webui/dist"));
 
-const io = socketIo(server);
+const io = new SocketIoServer(server);
 
 graphSetup(Models, app);
 positionSetup(Models, app);
