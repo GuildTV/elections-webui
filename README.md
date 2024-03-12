@@ -6,25 +6,22 @@ This is the controller for the Guild Elections graphics package https://github.c
 
 ### Configuration
 
-You can change various elements of the website from the config.js file.
-
-```javascript
-export const webui_port = 8080;
-```
+You can configure the application by copying `.env.example` to `.env` and modifying the contents
 
 ### Setup
 
-#### Webui
-
--   `cd webui`
 -   `yarn install`
--   `yarn dist` or `yarn dev` to run in dev mode
-
-#### Server
 
 -   run mysql server
 -   copy `sequelize.json.example` to `sequelize.json` and setup details for mysql access
+-   `yarn migrate` to run migrations to setup the database
 
--   `yarn install`
--   if using a fresh db, setup the database tables (TODO: how?)
--   `yarn start` or `yarn dev` to run in dev mode
+To build for production:
+
+-   `yarn dist`
+-   `yarn start` to launch it
+
+To run in dev mode
+
+-   `yarn dev` for backend
+-   `yarn dev:webui` for webui

@@ -7,4 +7,4 @@ dumps
 dist/
 
 sequelize.json
-config.js
+.env
