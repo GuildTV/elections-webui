@@ -51,7 +51,7 @@ export default class VotesTable extends React.Component {
   showRound(roundNum){
     if (!this.props.position || this.props.position == "")
       return;
-    
+
     const data = {
       id: this.props.position,
       round: roundNum
@@ -92,14 +92,16 @@ export default class VotesTable extends React.Component {
 
     $.each(xml.find("rounds round"), (i, v) => {
       const number = parseInt(v.getAttribute('number'));
-      $.each($(v).find("result"), (o, r) => {
-        const cid = r.getAttribute('candidate');
-        const elim = !!r.getAttribute('eliminated');
-        const val = r.getAttribute('votes');
+      if (!isNaN(number)) {
+        $.each($(v).find("result"), (o, r) => {
+          const cid = Number(r.getAttribute('candidate'));
+          const elim = !!r.getAttribute('eliminated');
+          const val = r.getAttribute('votes');
 
-        if (!elim)
-          rows[cid].results[number] = val;
-      });
+          if (!elim && !isNaN(cid))
+            rows[cid].results[number] = val;
+        });
+      }
     });
 
     this.setState({

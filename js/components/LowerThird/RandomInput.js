@@ -1,14 +1,17 @@
-import React from 'react';
+import React from "react";
 import {
   Modal,
   Col,
-  Form, FormGroup, FormControl, ControlLabel,
+  Form,
+  FormGroup,
+  FormControl,
+  ControlLabel,
   Button,
-} from 'react-bootstrap';
-import Switch from 'react-bootstrap-switch';
+} from "react-bootstrap";
+import Switch from "react-bootstrap-switch";
 
 export default class RandomInput extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -29,10 +32,8 @@ export default class RandomInput extends React.Component {
       f1: "",
     });
 
-    if (commit === true)
-      this.PromiseResolve({ f0, f1, headline });
-    else
-      this.PromiseReject();
+    if (commit === true) this.PromiseResolve({ f0, f1, headline });
+    else this.PromiseReject();
   }
 
   open() {
@@ -58,19 +59,19 @@ export default class RandomInput extends React.Component {
   render() {
     const { headline, f0, f1, showModal } = this.state;
 
-    const changeF0 = e => {
+    const changeF0 = (e) => {
       this.setState({
-        f0: e.target.value
+        f0: e.target.value,
       });
     };
-    const changeF1 = e => {
+    const changeF1 = (e) => {
       this.setState({
-        f1: e.target.value
+        f1: e.target.value,
       });
     };
-    const changeHeadline = e => {
+    const changeHeadline = (e) => {
       this.setState({
-        headline: e.value()
+        headline: e.value(),
       });
     };
 
@@ -80,7 +81,7 @@ export default class RandomInput extends React.Component {
           <Modal.Title>Custom Lower Third</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form horizontal onSubmit={e => this.submit(e)}>
+          <Form horizontal onSubmit={(e) => this.submit(e)}>
             <FormGroup>
               <Col componentClass={ControlLabel} xs={2}>
                 Headline
@@ -94,11 +95,18 @@ export default class RandomInput extends React.Component {
                 Line 1:
               </Col>
               <Col sm={10}>
-                <FormControl type="text" value={f0} onChange={changeF0} autoFocus={true} placeholder="GUILD ELECTIONS 2020" />
+                <FormControl
+                  type="text"
+                  value={f0}
+                  onChange={changeF0}
+                  autoFocus={true}
+                  placeholder="GUILD ELECTIONS 2023"
+                />
               </Col>
             </FormGroup>
-            { headline ?
-              "" :
+            {headline ? (
+              ""
+            ) : (
               <FormGroup controlId="formF1">
                 <Col componentClass={ControlLabel} sm={2}>
                   Line 2:
@@ -107,11 +115,13 @@ export default class RandomInput extends React.Component {
                   <FormControl type="text" value={f1} onChange={changeF1} />
                 </Col>
               </FormGroup>
-            }
+            )}
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle="primary" onClick={() => this.close(true)}>OK</Button>
+          <Button bsStyle="primary" onClick={() => this.close(true)}>
+            OK
+          </Button>
           <Button onClick={() => this.close()}>Cancel</Button>
         </Modal.Footer>
       </Modal>
