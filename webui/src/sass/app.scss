@@ -5,7 +5,6 @@
 @import "node_modules/bootswatch/darkly/bootswatch";
 
 @import "./switch";
-@import "./twitter";
 @import "./ticker";
 
 body {
@@ -43,7 +42,8 @@ td.currentRound {
 
   margin-top: -5px;
 
-  h3, h4 {
+  h3,
+  h4 {
     margin-top: 0;
   }
 
@@ -51,14 +51,13 @@ td.currentRound {
     height: 100%;
     padding-bottom: calc(60px + 40px);
 
-    &> div {
+    & > div {
       overflow-y: scroll;
       height: 100%;
     }
   }
 
   .sidebarEntry {
-
     hr {
       border-color: #666;
       margin-top: 5px;

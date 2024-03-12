@@ -1,14 +1,15 @@
-import React from 'react';
-import { Route } from 'react-router';
+import React from "react";
+import { Route } from "react-router";
 
-import { 
-  PositionList, EditPosition, ViewPosition, 
-  EditPerson, 
-} from './components/Edit';
-import Dashboard from './components/Dashboard';
-import LowerThirdDash from './components/LowerThird';
-import TweetList from './components/Twitter';
-import TickerPage from './components/Ticker';
+import {
+  PositionList,
+  EditPosition,
+  ViewPosition,
+  EditPerson,
+} from "./components/Edit";
+import Dashboard from "./components/Dashboard";
+import LowerThirdDash from "./components/LowerThird";
+import TickerPage from "./components/Ticker";
 
 export default (
   <Route>
@@ -18,7 +19,6 @@ export default (
     <Route path="/edit/position/:id/edit" component={EditPosition} />
     <Route path="/edit/position/:id" component={ViewPosition} />
     <Route path="/edit" component={PositionList} />
-    <Route path="/twitter" component={TweetList} />
     <Route path="/ticker" component={TickerPage} />
     <Route path="/lowerthird" component={LowerThirdDash} />
     <Route path="/" component={Dashboard} />
