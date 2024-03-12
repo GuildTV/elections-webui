@@ -5,13 +5,13 @@ import { Server as SocketIoServer } from 'socket.io'
 
 import { webui_port } from './config.js'
 
+import * as Models from './models/sequelize.js'
+
 import { setup as positionSetup } from './controllers/position.js'
 import { setup as peopleSetup } from './controllers/person.js'
 import { bind as cvizBind, setup as cvizSetup } from './controllers/cviz.js'
 import { setup as graphSetup } from './controllers/graphs.js'
 import { setup as tickerSetup } from './controllers/ticker.js'
-
-import Models from './models/index.js'
 
 const app = express()
 
@@ -26,11 +26,11 @@ app.use(express.static('webui/dist'))
 
 const io = new SocketIoServer(server)
 
-graphSetup(Models, app)
-positionSetup(Models, app)
-peopleSetup(Models, app, io)
+graphSetup(app)
+positionSetup(app)
+peopleSetup(app, io)
 cvizSetup(Models, app)
-tickerSetup(Models, app)
+tickerSetup(app)
 
 io.on('connection', function (client) {
 	console.log('New connection from ' + client.handshake.address + ':' + client.handshake.port)

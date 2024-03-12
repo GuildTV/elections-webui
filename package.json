@@ -24,10 +24,9 @@
 	},
 	"packageManager": "yarn@4.1.1",
 	"devDependencies": {
-		"@sofie-automation/code-standard-preset": "^2.5.2",
 		"@tsconfig/node20": "^20.1.2",
 		"husky": "^9.0.11",
-		"lint-staged": "^15.2.2"
-	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
+		"lint-staged": "^15.2.2",
+		"prettier": "^3.2.5"
+	}
 }

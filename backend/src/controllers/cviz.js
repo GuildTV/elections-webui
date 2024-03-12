@@ -107,7 +107,7 @@ client.on('data', (data) => {
 					timelineFile: 'lowerthird',
 					parameters: first.parameters,
 					instanceName: first.key,
-				}) + '\n'
+				}) + '\n',
 			)
 		}
 	} catch (e) {
@@ -235,7 +235,7 @@ export function setup(Models, app) {
 					type: 'RUNCHILD',
 					parameters: adjust.parameters,
 					instanceName: adjust.key,
-				}) + '\n'
+				}) + '\n',
 			)
 			res.send('OK')
 
@@ -246,7 +246,7 @@ export function setup(Models, app) {
 			JSON.stringify({
 				timelineSlot: req.params.slot,
 				type: 'CUE',
-			}) + '\n'
+			}) + '\n',
 		)
 		res.send('OK')
 	})
@@ -261,7 +261,7 @@ export function setup(Models, app) {
 			JSON.stringify({
 				timelineSlot: req.params.slot,
 				type: 'CUE',
-			}) + '\n'
+			}) + '\n',
 		)
 		res.send('OK')
 	})
@@ -279,7 +279,7 @@ export function setup(Models, app) {
 			JSON.stringify({
 				timelineSlot: req.params.slot,
 				type: 'KILL',
-			}) + '\n'
+			}) + '\n',
 		)
 		res.send('OK')
 	})
@@ -319,7 +319,7 @@ export function setup(Models, app) {
 					timelineFile: 'lowerthird',
 					parameters: first.parameters,
 					instanceName: first.key,
-				}) + '\n'
+				}) + '\n',
 			)
 		}
 
@@ -332,7 +332,7 @@ export function setup(Models, app) {
 		const state = slots['lowerthird']
 		if (!state) return res.status(500).send('')
 
-		return Person.findById(req.params.id, {
+		return Person.findByPk(req.params.id, {
 			include: [Position],
 		})
 			.then((data) => {
@@ -365,13 +365,13 @@ export function setup(Models, app) {
 							timelineFile: 'lowerthird',
 							parameters: first.parameters,
 							instanceName: first.key,
-						}) + '\n'
+						}) + '\n',
 					)
 				}
 
 				res.send('OK')
 			})
-			.error((error) => {
+			.catch((error) => {
 				res.status(500).send('Failed to load person: ' + error)
 			})
 	})
@@ -382,7 +382,7 @@ export function setup(Models, app) {
 		const state = slots['default']
 		if (!state) return res.status(500).send('')
 
-		return Person.findById(req.params.id, {
+		return Person.findByPk(req.params.id, {
 			include: [Position],
 		})
 			.then((data) => {
@@ -414,13 +414,13 @@ export function setup(Models, app) {
 							timelineFile: type,
 							parameters: first.parameters,
 							instanceName: first.key,
-						}) + '\n'
+						}) + '\n',
 					)
 				}
 
 				res.send('OK')
 			})
-			.error((error) => {
+			.catch((error) => {
 				res.status(500).send('Failed to load person: ' + error)
 			})
 	})
@@ -456,7 +456,7 @@ export function setup(Models, app) {
 						timelineFile: type,
 						parameters: first.parameters,
 						instanceName: first.key,
-					}) + '\n'
+					}) + '\n',
 				)
 			}
 			return 'OK'
@@ -531,7 +531,7 @@ export function setup(Models, app) {
 							res.send(queueBoard('winners', comb))
 						})
 					})
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -542,7 +542,7 @@ export function setup(Models, app) {
 
 						res.send(queueBoard('winners', data))
 					})
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -553,12 +553,12 @@ export function setup(Models, app) {
 
 						res.send(queueBoard('winners', data))
 					})
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidateboard':
-				return Position.findById(req.params.key, {
+				return Position.findByPk(req.params.key, {
 					include: [
 						{
 							model: Person,
@@ -586,28 +586,28 @@ export function setup(Models, app) {
 
 						res.send(queueBoard('candidates', data))
 					})
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidateall':
 				return candidatesForType(Models, null)
 					.then((data) => res.send(queueBoard('candidates', data)))
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidatesabbs':
 				return candidatesForType(Models, 'candidateSabb')
 					.then((data) => res.send(queueBoard('candidates', data)))
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidatenonsabbs':
 				return candidatesForType(Models, 'candidateNonSabb')
 					.then((data) => res.send(queueBoard('candidates', data)))
-					.error((error) => {
+					.catch((error) => {
 						res.status(500).send('Failed to run: ' + error)
 					})
 		}

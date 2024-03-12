@@ -4,5 +4,9 @@
     "compilerOptions": {
         "allowJs": true,
         "outDir": "dist",
+
+        // For sequelize-typescript
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     }
 }
