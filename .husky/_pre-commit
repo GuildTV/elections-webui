@@ -1,0 +1,2 @@
+
+yarn run -B -T lint-staged

@@ -1,25 +1,33 @@
 {
-  "name": "@guildtv/elections-workspace",
-  "private": true,
-  "version": "2.0.0",
-  "workspaces": [
-    "backend",
-    "webui"
-  ],
-  "description": "A Web user interface for Guild elections Graphics",
-  "author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
-  "type": "module",
-  "scripts": {
-    "start": "yarn workspace @guildtv/elections-backend start",
-    "dev": "yarn workspace @guildtv/elections-backend dev",
-    "_lint": "NODE_ENV=test ./node_modules/.bin/eslint --ext .js .",
-    "migrate": "yarn workspace @guildtv/elections-backend migrate",
-    "dev:webui": "yarn workspace @guildtv/elections-webui dev",
-    "dist": "yarn workspaces foreach --all run dist"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/GuildTV/elections-webui.git"
-  },
-  "packageManager": "yarn@4.1.1"
+	"name": "@guildtv/elections-workspace",
+	"private": true,
+	"version": "2.0.0",
+	"workspaces": [
+		"backend",
+		"webui"
+	],
+	"description": "A Web user interface for Guild elections Graphics",
+	"author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
+	"type": "module",
+	"scripts": {
+		"postinstall": "run -B -T husky",
+		"start": "yarn workspace @guildtv/elections-backend start",
+		"dev": "yarn workspace @guildtv/elections-backend dev",
+		"_lint": "NODE_ENV=test ./node_modules/.bin/eslint --ext .js .",
+		"migrate": "yarn workspace @guildtv/elections-backend migrate",
+		"dev:webui": "yarn workspace @guildtv/elections-webui dev",
+		"dist": "yarn workspaces foreach --all run dist"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/GuildTV/elections-webui.git"
+	},
+	"packageManager": "yarn@4.1.1",
+	"devDependencies": {
+		"@sofie-automation/code-standard-preset": "^2.5.2",
+		"@tsconfig/node20": "^20.1.2",
+		"husky": "^9.0.11",
+		"lint-staged": "^15.2.2"
+	},
+	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
 }

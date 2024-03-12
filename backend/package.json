@@ -1,38 +1,51 @@
 {
-  "name": "@guildtv/elections-backend",
-  "private": true,
-  "version": "2.0.0",
-  "description": "A Web user interface for Guild elections Graphics",
-  "author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
-  "type": "module",
-  "scripts": {
-    "start": "NODE_ENV=production node ./server.js",
-    "dev": "NODE_ENV=development nodemon --ignore dumps/ ./server.js",
-    "lint": "NODE_ENV=test ./node_modules/.bin/eslint --ext .js .",
-    "migrate": "NODE_ENV=development sequelize --config=sequelize.json db:migrate",
-    "_dist": ""
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/GuildTV/elections-webui.git"
-  },
-  "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "deep-equal": "^2.2.3",
-    "express": "^4.18.3",
-    "mysql": "^2.18.1",
-    "mysql2": "^3.9.2",
-    "promise-map-series": "^0.2.3",
-    "sequelize": "^3.35.1",
-    "sequelize-cli": "^2.8.0",
-    "socket.io": "^4.7.4",
-    "underscore": "^1.13.6",
-    "uuid": "^9.0.1",
-    "xml2js": "^0.4.23",
-    "xmlbuilder": "^8.2.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.0"
-  }
+	"name": "@guildtv/elections-backend",
+	"private": true,
+	"version": "2.0.0",
+	"description": "A Web user interface for Guild elections Graphics",
+	"author": "Rob Sumner <robfsumner@gmail.com> (http://robertsumner.co.uk)",
+	"type": "module",
+	"scripts": {
+		"start": "NODE_ENV=production node ./server.js",
+		"dev": "NODE_ENV=development nodemon --ignore dumps/ ./server.js",
+		"lint:raw": "eslint --ext .ts --ext .js --ext .tsx --ext .jsx --ignore-pattern dist",
+		"lint": "yarn lint:raw .",
+		"lint-fix": "yarn lint --fix",
+		"migrate": "NODE_ENV=development sequelize --config=sequelize.json db:migrate",
+		"dist": "rimraf dist && tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/GuildTV/elections-webui.git"
+	},
+	"dependencies": {
+		"body-parser": "^1.20.2",
+		"cors": "^2.8.5",
+		"deep-equal": "^2.2.3",
+		"express": "^4.18.3",
+		"mysql": "^2.18.1",
+		"mysql2": "^3.9.2",
+		"promise-map-series": "^0.2.3",
+		"sequelize": "^3.35.1",
+		"sequelize-cli": "^2.8.0",
+		"socket.io": "^4.7.4",
+		"underscore": "^1.13.6",
+		"uuid": "^9.0.1",
+		"xml2js": "^0.4.23",
+		"xmlbuilder": "^8.2.2"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.0",
+		"rimraf": "^5.0.5",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.4.2"
+	},
+	"lint-staged": {
+		"*.{css,json,md,scss}": [
+			"prettier --write"
+		],
+		"*.{ts,tsx,js,jsx}": [
+			"yarn lint:raw --fix"
+		]
+	}
 }

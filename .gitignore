@@ -4,6 +4,7 @@ rethink*
 public
 dumps
 .yarn
+dist/
 
 sequelize.json
 config.js
