@@ -1,6 +1,6 @@
 import React from 'react';
 import update from 'immutability-helper';
-import { DragDropContext } from 'react-dnd';
+import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import axios from 'axios';
 
@@ -12,7 +12,6 @@ import {
 import { TickerItem } from './item';
 import { TickerEdit } from './edit';
 
-@DragDropContext(HTML5Backend)
 export default class TickerPage extends React.Component {
   constructor(props) {
     super(props);
@@ -144,6 +143,7 @@ export default class TickerPage extends React.Component {
     });
 
     return (
+      <DragDropContextProvider backend={HTML5Backend} >
       <div className="ticker-page">
         <TickerEdit ref={e => this.Editor = e} />
 
@@ -169,6 +169,7 @@ export default class TickerPage extends React.Component {
           </Row>
         </Grid>
       </div>
+      </DragDropContextProvider>
     );
   }
 }

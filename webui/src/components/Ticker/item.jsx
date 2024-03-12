@@ -59,13 +59,14 @@ const cardTarget = {
   },
 };
 
-@DropTarget("TickerItem", cardTarget, connect => ({
-  connectDropTarget: connect.dropTarget(),
-}))
-@DragSource("TickerItem", cardSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  isDragging: monitor.isDragging(),
-}))
+// HACK: Fix this:
+// @DropTarget("TickerItem", cardTarget, connect => ({
+//   connectDropTarget: connect.dropTarget(),
+// }))
+// @DragSource("TickerItem", cardSource, (connect, monitor) => ({
+//   connectDragSource: connect.dragSource(),
+//   isDragging: monitor.isDragging(),
+// }))
 export class TickerItem extends React.Component {
   static propTypes = {
     connectDragSource: PropTypes.func.isRequired,

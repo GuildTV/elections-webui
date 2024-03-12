@@ -4,10 +4,10 @@ import { Router, hashHistory } from "react-router";
 import "./sass/app.scss";
 
 // @ts-expect-error no types
-import TopBar from "./components/TopBar.js";
+import TopBar from "./components/TopBar";
 
 // @ts-expect-error no types
-import routes from "./routes.js";
+import routes from "./routes";
 
 ReactDOM.render(
   <div>
