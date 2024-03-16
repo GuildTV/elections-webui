@@ -148,27 +148,26 @@ async function getWinnersOfType(type: PositionType): Promise<PersonAttributesWit
 			type: type,
 		},
 		order: [['winnerOrder', 'ASC']],
-		include: [
-			{
-				model: Person,
-				include: [Position],
-				where: {
-					elected: true,
-				},
-				required: false,
+	})
+
+	const res: PersonAttributesWithPosition[] = []
+	for (const p of positions) {
+		const people = await Person.findAll({
+			where: {
+				positionId: p.id,
+				elected: true,
 			},
-		],
-	})
+			include: [Position],
+		})
+		if (people && people[0]) {
+			res.push(people[0].toJSON())
+		} else {
+			res.push(generateRon(p))
+		}
+		
+	}
 
-	return positions.map((v) => {
-		if (v.People && v.People[0])
-			return {
-				...v.People[0].toJSON(),
-				Position: v,
-			}
-
-		return generateRon(v)
-	})
+	return res
 }
 
 function compileName(data: PersonAttributes | Person) {
@@ -452,6 +451,7 @@ export function setup(app: import('express').Express) {
 				res.send('OK')
 			})
 			.catch((error) => {
+				console.log(error)
 				res.status(500).send('Failed to load person: ' + error)
 			})
 	})
@@ -566,6 +566,7 @@ export function setup(app: import('express').Express) {
 						})
 					})
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -577,6 +578,7 @@ export function setup(app: import('express').Express) {
 						res.send(queueBoard('winners', data))
 					})
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -588,27 +590,28 @@ export function setup(app: import('express').Express) {
 						res.send(queueBoard('winners', data))
 					})
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 
 			case 'candidateboard':
-				return Position.findByPk(req.params.key, {
-					include: [
-						{
-							model: Person,
+				return Position.findByPk(req.params.key)
+					.then(async function (position) {
+						if (!position) throw new Error('Position not found')
+
+						const rawPeople = await Person.findAll({
+							where: {
+								positionId: position.id,
+							},
 							order: [
 								['order', 'ASC'],
 								['lastName', 'ASC'],
 							],
-						},
-					],
-				})
-					.then(function (position) {
-						if (!position) throw new Error('Position not found')
+						})
 
 						const data: Array<[string, PositionCandidates]> = []
 
-						const people = _.sortBy([...position.People], (a) => a.order)
+						const people = _.sortBy([...rawPeople], (a) => a.order)
 						if (people.length > 8) {
 							while (people.length > 0) {
 								const boardsLeft = Math.ceil(people.length / 8)
@@ -623,6 +626,7 @@ export function setup(app: import('express').Express) {
 						res.send(queueBoard('candidates', data))
 					})
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -630,6 +634,7 @@ export function setup(app: import('express').Express) {
 				return candidatesForType(null)
 					.then((data) => res.send(queueBoard('candidates', data)))
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -637,6 +642,7 @@ export function setup(app: import('express').Express) {
 				return candidatesForType(PositionType.CandidateSabb)
 					.then((data) => res.send(queueBoard('candidates', data)))
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 
@@ -644,6 +650,7 @@ export function setup(app: import('express').Express) {
 				return candidatesForType(PositionType.CandidateNonSabb)
 					.then((data) => res.send(queueBoard('candidates', data)))
 					.catch((error) => {
+						console.log(error)
 						res.status(500).send('Failed to run: ' + error)
 					})
 		}
@@ -660,26 +667,25 @@ async function candidatesForType(type: PositionType | null) {
 			['order', 'ASC'],
 		],
 		where: {
-			type: {
-				$in: candType,
-			},
+			type: candType,
 		},
-		include: [
-			{
-				model: Person,
-				include: [Position],
-				order: [
-					['order', 'ASC'],
-					['lastName', 'ASC'],
-				],
-			},
-		],
 	})
 
 	const data: Array<[string, PositionCandidates]> = []
 
-	positions.forEach((p) => {
-		const people = _.sortBy([...p.People], (a) => a.order)
+	for (const p of positions) {
+		const rawPeople = await Person.findAll({
+			where: {
+				positionId: p.id,
+			},
+			include: [Position],
+			order: [
+				['order', 'ASC'],
+				['lastName', 'ASC'],
+			],
+		})
+
+		const people = _.sortBy([...rawPeople], (a) => a.order)
 		if (people.length > 8) {
 			while (people.length > 0) {
 				const boardsLeft = Math.ceil(people.length / 8)
@@ -690,7 +696,7 @@ async function candidatesForType(type: PositionType | null) {
 		} else {
 			data.push([p.fullName, buildCandidateForPosition(p, people)])
 		}
-	})
+	}
 
 	// console.log(JSON.stringify(data[0], undefined, 4))
 
