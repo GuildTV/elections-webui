@@ -12,11 +12,11 @@ export type ElectionCreationAttributes = Omit<ElectionAttributes, 'id'>
 export class Election extends Model<ElectionAttributes, ElectionCreationAttributes> {
 	@AllowNull(false)
 	@Unique
-	@Column
+	@Column(DataType.STRING)
 	declare positionName: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.TEXT)
 	declare candidates: string
 
 	@HasMany(() => ElectionRound)
@@ -35,7 +35,7 @@ export type ElectionRoundCreationAttributes = Omit<ElectionRoundAttributes, 'id'
 @Table
 export class ElectionRound extends Model<ElectionRoundAttributes, ElectionRoundCreationAttributes> {
 	@ForeignKey(() => Election)
-	@Column
+	@Column(DataType.INTEGER)
 	declare electionId: number
 
 	@AllowNull(false)
@@ -43,7 +43,7 @@ export class ElectionRound extends Model<ElectionRoundAttributes, ElectionRoundC
 	declare round: number
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.TEXT)
 	declare results: string
 
 	@BelongsTo(() => Election)

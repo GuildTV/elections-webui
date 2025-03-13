@@ -12,11 +12,11 @@ export type TickerEntryCreationAttributes = Omit<TickerEntryAttributes, 'id'>
 @Table
 export class TickerEntry extends Model<TickerEntryAttributes, TickerEntryCreationAttributes> {
 	@AllowNull(false)
-	@Column
+	@Column(DataType.BOOLEAN)
 	declare enabled: boolean
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare text: string
 
 	@AllowNull(false)

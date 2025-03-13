@@ -26,15 +26,15 @@ export class Position extends Model<PositionAttributes, PositionCreationAttribut
 	declare type: PositionType
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare fullName: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare compactName: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare miniName: string
 
 	@AllowNull(false)
@@ -46,7 +46,7 @@ export class Position extends Model<PositionAttributes, PositionCreationAttribut
 	declare winnerOrder: number
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.BOOLEAN)
 	declare sidebarUseOfficer: boolean
 
 	@HasMany(() => Person)
@@ -73,15 +73,15 @@ export type PersonCreationAttributes = Omit<PersonAttributes, 'id'>
 @Table
 export class Person extends Model<PersonAttributes, PersonCreationAttributes> {
 	@ForeignKey(() => Position)
-	@Column
+	@Column(DataType.INTEGER)
 	declare positionId: number
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare firstName: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare lastName: string
 
 	@AllowNull(true)
@@ -97,15 +97,15 @@ export class Person extends Model<PersonAttributes, PersonCreationAttributes> {
 	declare photo: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare manifestoOne: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare manifestoTwo: string
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.STRING)
 	declare manifestoThree: string
 
 	@AllowNull(false)
@@ -113,7 +113,7 @@ export class Person extends Model<PersonAttributes, PersonCreationAttributes> {
 	declare order: number
 
 	@AllowNull(false)
-	@Column
+	@Column(DataType.BOOLEAN)
 	declare elected: boolean
 
 	@BelongsTo(() => Position)
