@@ -100,7 +100,7 @@ export default class RandomInput extends React.Component {
                   value={f0}
                   onChange={changeF0}
                   autoFocus={true}
-                  placeholder="GUILD ELECTIONS 2023"
+                  placeholder="GUILD ELECTIONS 2025"
                 />
               </Col>
             </FormGroup>

@@ -164,7 +164,6 @@ async function getWinnersOfType(type: PositionType): Promise<PersonAttributesWit
 		} else {
 			res.push(generateRon(p))
 		}
-		
 	}
 
 	return res
@@ -316,7 +315,7 @@ export function setup(app: import('express').Express) {
 		const type = req.body.headline ? 'GE2018/LT-ANI-HEADLINE' : 'GE2018/LT-ANI-GREY'
 
 		const v = {
-			f0: req.body.f0 || 'GUILD ELECTIONS 2023',
+			f0: req.body.f0 || 'GUILD ELECTIONS 2025',
 			f1: req.body.f1 || '',
 		}
 

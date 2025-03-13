@@ -114,9 +114,9 @@ async function generateResponseXML(pid: number, maxRound: number | null) {
 		if (!election) return 'BAD POSITION'
 
 		const rootElm = builder.create('root')
-		rootElm.ele('eventName', 'Guild Officer Elections 2023')
+		rootElm.ele('eventName', 'Guild Officer Elections 2025')
 		rootElm.ele('subtitle', '')
-		rootElm.ele('extra', 'Guild Officer Elections 2023')
+		rootElm.ele('extra', 'Guild Officer Elections 2025')
 		rootElm.ele('title', election.positionName)
 		const candidates = rootElm.ele('candidates')
 		const rounds = rootElm.ele('rounds')
